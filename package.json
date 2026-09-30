@@ -1,0 +1,9 @@
+{
+  "name": "home-sim",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/unit/*.test.js\"",
+    "check": "bash tools/check.sh"
+  }
+}

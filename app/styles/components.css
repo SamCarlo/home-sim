@@ -1,0 +1,71 @@
+/* Shared shells: app header with phase stepper, toasts, modal, drawer, error boundary.
+   Phase-specific styles go in their own file with an area prefix (plan-, pw-, life-…). */
+
+/* Header + stepper */
+.app-header {
+  display: flex; align-items: center; gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.app-title { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; margin: 0; color: var(--ink); }
+.app-title .dot { color: var(--sunset); }
+.stepper { display: flex; gap: var(--sp-1); list-style: none; margin: 0 auto; padding: 0; }
+.stepper li {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: .3rem .8rem; border-radius: var(--r-pill);
+  color: var(--muted); font-size: .9rem; font-weight: 500;
+}
+.stepper .step-num {
+  display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem;
+  border-radius: 50%; border: 1px solid var(--line-2); font-size: .8rem;
+}
+.stepper li.is-current { background: var(--accent-wash); color: var(--accent-ink); font-weight: 600; }
+.stepper li.is-current .step-num { background: var(--accent); border-color: var(--accent); color: var(--accent-on); }
+.stepper li.is-done .step-num { background: var(--accent-wash); border-color: var(--accent-line); color: var(--accent-ink); }
+.save-indicator { font-size: .85rem; color: var(--muted); }
+
+.app-main { padding: var(--sp-5); }
+
+/* Toasts */
+#toasts {
+  position: fixed; right: var(--sp-5); bottom: var(--sp-5); z-index: 50;
+  display: flex; flex-direction: column; gap: var(--sp-2); pointer-events: none;
+}
+.toast {
+  pointer-events: auto; min-width: 220px; max-width: 360px;
+  padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md);
+  background: var(--lava); color: #f6f3ec; box-shadow: var(--shadow-lg);
+  border-left: 4px solid var(--sunset); font-size: .92rem;
+}
+.toast-good { border-left-color: var(--st-green); }
+.toast-bad { border-left-color: var(--st-red); }
+
+/* Modal */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 40; background: var(--overlay);
+  display: grid; place-items: center; padding: var(--sp-5);
+}
+.modal {
+  width: min(560px, 100%); max-height: calc(100vh - 2 * var(--sp-5)); overflow: auto;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg); padding: var(--sp-5);
+}
+.modal-actions { display: flex; justify-content: flex-end; gap: var(--sp-2); margin-top: var(--sp-5); }
+
+/* Drawer (portfolio etc.) */
+.drawer-backdrop { position: fixed; inset: 0; z-index: 30; background: var(--overlay); }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 31;
+  width: min(480px, 92vw); overflow: auto;
+  background: var(--surface); border-left: 1px solid var(--line); box-shadow: var(--shadow-lg);
+  padding: var(--sp-5);
+  transform: translateX(0); transition: transform var(--dur) var(--ease);
+}
+.drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
+
+/* Error boundary */
+.error-boundary { max-width: 520px; margin: var(--sp-7) auto; text-align: center; }
+.error-boundary pre {
+  text-align: left; white-space: pre-wrap; font-family: var(--font-mono); font-size: .8rem;
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-3);
+}

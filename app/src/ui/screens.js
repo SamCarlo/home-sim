@@ -1,0 +1,42 @@
+// Phase → screen registry (01 §6). Screens load lazily and export mount(container, ctx) → unmount.
+import { clear } from './dom.js';
+
+const loaders = new Map();
+let current = null; // { phase, unmount }
+let renderToken = 0;
+
+/** Register a lazy loader for a phase: registerScreen('plan', () => import('../phases/plan/planScreen.js')). */
+export function registerScreen(phase, loader) {
+  loaders.set(phase, loader);
+}
+
+/** Unmount the current screen (if any) and clear readiness. */
+export function unmountCurrent(container) {
+  if (current?.unmount) {
+    try { current.unmount(); } catch (err) { console.warn('unmount failed', err); }
+  }
+  current = null;
+  delete document.body.dataset.ready;
+  if (container) clear(container);
+}
+
+/**
+ * Mount the screen for ctx.store.getState().phase (or ctx.phase when given, e.g. 'login').
+ * Screens set document.body.dataset.ready = "1" when rendered; this resets it on every switch.
+ */
+export async function renderPhase(container, ctx) {
+  const phase = ctx.phase ?? ctx.store.getState().phase;
+  const token = ++renderToken;
+  const loader = loaders.get(phase);
+  if (!loader) throw new Error(`No screen registered for phase "${phase}"`);
+  const mod = await loader();
+  if (token !== renderToken) return; // a newer render won
+  unmountCurrent(container);
+  const unmount = await mod.mount(container, ctx);
+  current = { phase, unmount: typeof unmount === 'function' ? unmount : null };
+}
+
+/** The phase currently on screen, or null. */
+export function currentPhase() {
+  return current?.phase ?? null;
+}

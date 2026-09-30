@@ -1,0 +1,135 @@
+/* ---------------------------------------------------------------------------
+   Design tokens (docs/spec/12-ux-content.md §2–§3).
+   Neutrals and the Life Skills green come from the Class Bank
+   (interfaces/bank/index.html) so the game reads as part of the same room.
+   Every token is declared in bare :root first; the dark blocks below only
+   redefine them. Dark is declared twice on purpose: once for the OS setting
+   (guarded so an explicit light choice still wins) and once for data-theme.
+   Status and wellbeing hues are meaningful, never decoration.
+   --------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  /* Class Bank neutrals */
+  --bg: #f4f5f3;
+  --surface: #fcfcfb;
+  --surface-2: #f0f1ee;
+  --field: #ffffff;
+  --field-line: #cfd6d0;
+  --ink: #16202a;
+  --ink-2: #3d4753;
+  --muted: #6b7581;
+  --line: #dee2e0;
+  --line-2: #c3cac5;
+
+  /* Life Skills green */
+  --accent: #2f7048;
+  --accent-ink: #245a39;
+  --accent-wash: #e8efe9;
+  --accent-line: #b9d0bf;
+  --accent-on: #ffffff;
+
+  --danger: #b3341f;
+  --danger-ink: #922a19;
+  --danger-wash: #f8eae6;
+  --danger-on: #ffffff;
+
+  /* Game layer: sky, sunset, lava rock, plumeria */
+  --sky: #3f8fc6;
+  --sky-wash: #e4f0f8;
+  --sky-deep: #1f5f8b;
+  --sunset: #e0772f;
+  --sunset-ink: #a4501a;
+  --sunset-wash: #fcebdd;
+  --lava: #2e2b2a;
+  --lava-2: #4a4543;
+  --plumeria: #fbf5e6;
+  --plumeria-line: #eadcb8;
+
+  /* Status (affordability). Each: base, -bg tint, -line border, -ink text */
+  --st-red: #c0392b;       --st-red-bg: #fbe9e6;    --st-red-line: #e6a79e;    --st-red-ink: #8e2418;
+  --st-yellow: #c99a06;    --st-yellow-bg: #fdf4d6; --st-yellow-line: #e8cf7a; --st-yellow-ink: #6e5200;
+  --st-cyan: #1592a6;      --st-cyan-bg: #e1f4f7;   --st-cyan-line: #8fcfda;   --st-cyan-ink: #0b5b68;
+  --st-green: #2f8a4f;     --st-green-bg: #e5f3e9;  --st-green-line: #9fd0ae;  --st-green-ink: #1d5c33;
+  --st-na: #8a9199;        --st-na-bg: #eef0f1;     --st-na-line: #cdd2d6;     --st-na-ink: #4d555d;
+
+  /* Wellbeing domains: same hues in both themes (12 §3) */
+  --wb-physical: #e0603a;
+  --wb-purpose: #8a5cc9;
+  --wb-financial: #2f8a4f;
+  --wb-social: #d9a21b;
+  --wb-mental: #2f86c9;
+
+  /* Radii */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  /* Spacing scale */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+
+  --tint: rgba(20, 28, 36, .035);
+  --shadow: 0 1px 2px rgba(20, 28, 36, .06), 0 6px 18px rgba(20, 28, 36, .05);
+  --shadow-lg: 0 2px 4px rgba(20, 28, 36, .08), 0 16px 40px rgba(20, 28, 36, .12);
+  --overlay: rgba(16, 21, 26, .45);
+
+  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --dur: 200ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #10151a; --surface: #182028; --surface-2: #1e2831;
+    --field: #121a21; --field-line: #33414d;
+    --ink: #eef2f5; --ink-2: #c2ccd6; --muted: #8b98a5; --line: #2a3641; --line-2: #3a4855;
+    --accent: #57c07f; --accent-ink: #8fd8a9; --accent-wash: #16281d; --accent-line: #2f5a3e; --accent-on: #0e1a12;
+    --danger: #ff7a5e; --danger-ink: #ff9c86; --danger-wash: #2c1a17; --danger-on: #1b0f0c;
+    --sky: #6db3e3; --sky-wash: #14263a; --sky-deep: #9fd0f2;
+    --sunset: #f29a5a; --sunset-ink: #f7b98a; --sunset-wash: #2e1f14;
+    --lava: #0c0f12; --lava-2: #252a2f;
+    --plumeria: #1f2327; --plumeria-line: #3b3a33;
+    --st-red: #ff7a66;    --st-red-bg: #33191a;    --st-red-line: #7a3530;    --st-red-ink: #ffb3a8;
+    --st-yellow: #f2c94c; --st-yellow-bg: #2f2812; --st-yellow-line: #6f5b1c; --st-yellow-ink: #f7dd8e;
+    --st-cyan: #4fd1e3;   --st-cyan-bg: #0f2a30;   --st-cyan-line: #1f6671;   --st-cyan-ink: #9ae6f0;
+    --st-green: #5fcf86;  --st-green-bg: #12291b;  --st-green-line: #2c6440;  --st-green-ink: #a3e7b8;
+    --st-na: #8b98a5;     --st-na-bg: #1c232a;     --st-na-line: #36414b;     --st-na-ink: #b7c1cb;
+    --tint: rgba(255, 255, 255, .05);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    --shadow-lg: 0 2px 6px rgba(0, 0, 0, .5), 0 18px 44px rgba(0, 0, 0, .45);
+    --overlay: rgba(0, 0, 0, .6);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #10151a; --surface: #182028; --surface-2: #1e2831;
+  --field: #121a21; --field-line: #33414d;
+  --ink: #eef2f5; --ink-2: #c2ccd6; --muted: #8b98a5; --line: #2a3641; --line-2: #3a4855;
+  --accent: #57c07f; --accent-ink: #8fd8a9; --accent-wash: #16281d; --accent-line: #2f5a3e; --accent-on: #0e1a12;
+  --danger: #ff7a5e; --danger-ink: #ff9c86; --danger-wash: #2c1a17; --danger-on: #1b0f0c;
+  --sky: #6db3e3; --sky-wash: #14263a; --sky-deep: #9fd0f2;
+  --sunset: #f29a5a; --sunset-ink: #f7b98a; --sunset-wash: #2e1f14;
+  --lava: #0c0f12; --lava-2: #252a2f;
+  --plumeria: #1f2327; --plumeria-line: #3b3a33;
+  --st-red: #ff7a66;    --st-red-bg: #33191a;    --st-red-line: #7a3530;    --st-red-ink: #ffb3a8;
+  --st-yellow: #f2c94c; --st-yellow-bg: #2f2812; --st-yellow-line: #6f5b1c; --st-yellow-ink: #f7dd8e;
+  --st-cyan: #4fd1e3;   --st-cyan-bg: #0f2a30;   --st-cyan-line: #1f6671;   --st-cyan-ink: #9ae6f0;
+  --st-green: #5fcf86;  --st-green-bg: #12291b;  --st-green-line: #2c6440;  --st-green-ink: #a3e7b8;
+  --st-na: #8b98a5;     --st-na-bg: #1c232a;     --st-na-line: #36414b;     --st-na-ink: #b7c1cb;
+  --tint: rgba(255, 255, 255, .05);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, .5), 0 18px 44px rgba(0, 0, 0, .45);
+  --overlay: rgba(0, 0, 0, .6);
+}
