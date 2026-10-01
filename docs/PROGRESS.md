@@ -34,3 +34,43 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     Gym and social-hour costs are per-location data (03), not config.
   - No `tools/check.sh` yet (task 02). It must use the test glob above.
   - The header stepper has no current step during intake (intake comes before Phase 1).
+
+## Task 02 — Headless verification harness
+- attempt started 2026-09-30T14:07:50-10:00
+- done 2026-09-30T14:11:34-10:00
+- Added: `tools/shoot.mjs` (CLI, steps, smoke, report), `tools/lib/cdp.mjs` (static server, Chromium launch with
+  sandbox retry, CDP client with flattened sessions, page collector), `tools/check.sh`, `tools/smoke.txt`
+  (boot, admin), `tests/e2e/example.json`, `app/favicon.svg`. Changed: `app/index.html` and `app/admin.html` (icon link),
+  `CLAUDE.md` (Verification section, folder map, gotcha).
+- Verified:
+  - `node tools/shoot.mjs --path /index.html --out tools/shots/boot.png --wait-ready` → exit 0, about 2 s.
+    `boot.png`: dark slate page, header with the Fraunces "Home & Life Sim" title and the 1–4 stepper (Plan · Paperwork ·
+    Design · Live), centered card with the INTAKE pill, "About you", "Coming in task 11." Nothing clipped or overlapping.
+  - `smoke-admin.png`: the same dark background, no header, a card with the ADMIN pill and "Admin console — coming in task 52".
+  - `e2e-example.png` (from `tests/e2e/example.json`): the intake card with an injected probe input that reads "Pāhoa"
+    and has a focus ring; click, type, Enter, change and the theme `goto` asserts all passed.
+  - Broken page (temporary `app/dev-broken.html`, deleted afterwards):
+    ```
+    shoot /dev-broken.html @ 1366x768
+      ✗ [exception] Error: deliberately broken page
+        at http://127.0.0.1:34001/dev-broken.html:2:21 (/dev-broken.html:2)
+      · [shot] tools/shots/broken.png
+    ✗ FAIL: 1 error        (exit 1)
+    ```
+  - WebGL probe `{"eval":"!!document.createElement('canvas').getContext('webgl2')"}` → `true` with the spec flags as they
+    are. The renderer is "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)…), SwiftShader driver)".
+  - Failure paths: a failed assert exits 1 (and 0 with `--allow-errors`); `waitFor` a missing element times out and
+    exits 1; a smoke file with a 404 line and a malformed line reports both, still runs the remaining lines, and prints
+    "smoke: 2/4 passed … failed: missing, bad". No `/tmp/homesim-shoot-*` profiles or Chromium processes are left over.
+  - `bash tools/check.sh` → "check: OK (syntax 18 files · tests · data skipped · smoke) in 4s".
+- Deviations: none. (The favicon is an addition, not a departure: without it every page logged a same-origin 404 for
+  `/favicon.ico`, which correctly fails the run.)
+- Notes for later tasks:
+  - `Log.entryAdded` lines with source `network` are dropped on purpose. Network failures come from the Network domain
+    and count only on the same origin, so offline Google Fonts or gstatic never fail a run.
+  - `--timeout` applies to each wait (load, readiness, waitFor) and to the Chromium launch, not to the whole run.
+  - `goto` waits for readiness only when `--wait-ready` is set. Add `{"waitReady":true}` after it otherwise.
+  - Smoke runs lines one after another (about 1 s each). If it gets slow with dozens of screens, run contexts in parallel
+    inside `runSmoke`.
+  - `click` falls back to `el.click()` when the center point hits another element (overlays, modals) and says so in
+    the report. Treat that note as a hint that something may be covering the target.

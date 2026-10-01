@@ -1,0 +1,17 @@
+[
+  { "waitReady": true },
+  { "waitFor": "#screen h1" },
+  { "assert": "document.querySelector('#screen h1').textContent === 'About you'" },
+  { "eval": "(() => { const i = document.createElement('input'); i.id = 'e2e-probe'; i.value = 'old'; window.__e2e = { changes: 0, enter: 0 }; i.addEventListener('change', () => window.__e2e.changes++); i.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.__e2e.enter++; }); document.querySelector('#screen .card').append(i); return 'probe input added'; })()" },
+  { "click": "#e2e-probe" },
+  { "assert": "document.activeElement.id === 'e2e-probe'" },
+  { "type": ["#e2e-probe", "Pāhoa"] },
+  { "press": "Enter" },
+  { "assert": "document.querySelector('#e2e-probe').value === 'Pāhoa' && window.__e2e.changes >= 1 && window.__e2e.enter === 1" },
+  { "wait": 100 },
+  { "shot": "tools/shots/e2e-example.png" },
+  { "goto": "/index.html?theme=light" },
+  { "waitReady": true },
+  { "assert": "document.documentElement.dataset.theme === 'light'" },
+  { "eval": "!!document.createElement('canvas').getContext('webgl2')" }
+]

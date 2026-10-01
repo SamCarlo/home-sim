@@ -9,9 +9,8 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 ## Commands
 - Serve: `python3 tools/serve.py` → http://127.0.0.1:1270 (`python3 tools/serve.py 8080` for another port)
 - Test: `npm test` (= `node --test "tests/unit/*.test.js"`; Node 25 rejects a bare directory, see DEVIATIONS)
-- Check: `npm run check` (= `bash tools/check.sh`, arrives in task 02)
-- Shoot: `node tools/shoot.mjs …` (arrives in task 02). Until then:
-  `chromium --headless=new --hide-scrollbars --window-size=1366,768 --screenshot=tools/shots/x.png "http://127.0.0.1:1270/?theme=light"`
+- Check: `npm run check` (= `bash tools/check.sh`): syntax → unit tests → data imports → smoke. Run it before every commit.
+- Shoot: `node tools/shoot.mjs --path /index.html --out tools/shots/x.png --wait-ready` (see Verification below)
 - Stop the server with `pkill -f 'python3 tools/serve.py'` from a *separate* command (a pkill pattern that matches your
   own shell line kills the shell too).
 
@@ -32,6 +31,26 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 - Every new screen gets a seed in `app/src/dev/seeds.js` and a line in `tools/smoke.txt` (from task 02/04 on).
 - Hawaiian words use the ʻokina and kahakō. All businesses and people are fictional.
 
+## Verification (01 §8)
+- **`tools/shoot.mjs`** drives headless Chromium over CDP with zero npm deps (plumbing in `tools/lib/cdp.mjs`). It starts
+  its own static server on a free port, so you don't need `serve.py` running. Exit 1 on any console error, uncaught
+  exception, `Log` error, same-origin 4xx/5xx or failed request, failed assert, or timeout.
+  - Flags: `--path <url path>`, `--out <png>`, `--size WxH` (1366x768), `--wait-ready`, `--timeout <ms>` (20000, per wait),
+    `--steps <json>`, `--allow-errors`, `--base <url>` (use a running server), `--keep-open` (leave the browser up; Ctrl+C),
+    `--smoke <file>`.
+  - Steps (JSON array): `{"click":css}` (real mouse at the center; `el.click()` when covered/zero-size), `{"type":[css,text]}`,
+    `{"press":"Enter"}`, `{"wait":ms}`, `{"waitFor":css}`, `{"waitReady":true}`, `{"eval":js}` (prints JSON),
+    `{"assert":js}`, `{"shot":png}`, `{"goto":path}`. `tests/e2e/example.json` uses every one.
+  - Relative `--out`/`shot` paths resolve against the cwd; smoke shots always go to `HS/tools/shots/smoke-<name>.png`.
+- **Readiness**: shoot waits for `body[data-ready="1"]` with `--wait-ready`, `waitReady` and in every smoke line. A screen
+  that never sets it times out.
+- **Smoke**: `node tools/shoot.mjs --smoke tools/smoke.txt` runs one browser, fresh tab + fresh browser context (empty
+  storage) per `<name> <path>` line, and reports every failing line. Add a line for every new screen/seed.
+- **Look at screenshots**: open the PNG with the Read tool and describe what you saw in PROGRESS.
+- **WebGL**: the spec flags (`--use-angle=swiftshader --enable-unsafe-swiftshader`) give WebGL2 on SwiftShader
+  (renderer "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)))"). No extra flags are needed.
+- External requests (Google Fonts, gstatic) never fail a run; only same-origin failures count.
+
 ## Folder map
 ```
 app/index.html admin.html      entry pages (import map: three → vendor/, firebase/* → gstatic 12.19.0)
@@ -44,7 +63,10 @@ app/src/phases/<phase>/        one screen per phase (placeholders until their ta
 app/src/accounts/ui/login.js   placeholder (task 05)
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
+app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
+tests/e2e/                     shoot.mjs step scripts (example.json)
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
+tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 ```
 
@@ -52,6 +74,7 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
 - `main.js` still uses an in-memory placeholder store with the `getState/update/subscribe` shape; task 04 swaps in
   `state/store.js`, task 05 the account provider and login.
+- `shoot.mjs` uses a top-level `await`: module-level `const`s it needs must be declared *above* that block (TDZ).
 - The OS on this machine prefers dark, so plain headless shots come out dark; pass `?theme=light` for light.
 
 ## Current status

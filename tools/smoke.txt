@@ -1,0 +1,4 @@
+# <name> <path>: one fresh tab + fresh storage per line; waits for body[data-ready="1"], saves tools/shots/smoke-<name>.png.
+# Every new screen adds a line (01 §7). Run: node tools/shoot.mjs --smoke tools/smoke.txt
+boot /index.html
+admin /admin.html
