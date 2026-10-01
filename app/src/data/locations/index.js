@@ -15,3 +15,6 @@ export const REGION_LABELS = Object.freeze({
   cities: 'Cities & suburbs',
   towns: 'Small towns & rural',
 });
+
+/** Bump whenever any location figure changes, so memoized grids (finance/grid.js) recompute. */
+export const DATA_VERSION = 1;

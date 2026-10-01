@@ -58,7 +58,7 @@ app/styles/                    tokens.css base.css components.css (+ one file pe
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
-app/src/finance/               money.js loans.js (pure; see Finance helpers below)
+app/src/finance/               money.js loans.js costs.js affordability.js grid.js (pure; see Finance helpers, Plan numbers)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js
@@ -68,7 +68,8 @@ app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ �
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
                                ui/login.js (welcome screen: Log in / Create account tabs)
-app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js · locations/{hawaii,cities,towns,index}.js (pure)
+app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js ·
+                               locations/{hawaii,cities,towns,index}.js (pure)
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
@@ -115,6 +116,19 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
   `COVERAGE_TYPES`, water/sewer/transport kinds, `HOME_TYPES`.
 - `validate.js`: `validateLocation(loc)` / `validateLocations(list)` → `{errors, warnings}`; sanity-band misses
   (`sanity.js` `SANITY[id]`) are warnings. Every figure's source and verified/unverified status: `docs/DATA_SOURCES.md`.
+
+## Plan numbers (04 §3–§6, pure)
+- `data/homeTypes.js`: `HOME_TYPE_LIST` (column order: id, label, title, header, explainer, buying, utilityFactor, metrics
+  adjustments, designMode), `HOME_TYPES_BY_ID`, `homeType(id)` (throws on unknown).
+- `finance/costs.js`: `cellCost(location, typeId, config = FINANCE)` → `{available, naReason?, upfrontCents, monthlyCents,
+  upfront: Line[], monthly: Line[], assumptions, project?}`; `Line = {key, label, cents, note}`; totals are the line sums.
+  Pass `{...FINANCE, downPaymentPct: 0.2}` for other down payments. Also `buildProjectCost`, `requiredHazards`,
+  `tableAssumptions()`, `pctText`. Required (`requiredForMortgage`) hazard premiums are a separate `hazard` line.
+- `finance/affordability.js`: `classify(cost, {cashCents, incomeCents})` → `{status, icon, label, reasons}`; `STATUSES` = legend.
+- `data/metrics.js`: `cellMetrics(location, typeId)` → 10 metrics `{key, label, icon, kind, value, max?, display, meaning}`.
+- `finance/grid.js`: `buildGrid(state)` → `{incomeCents, cashCents, assumptions, groups[{region, label, rows[{location,
+  cells[{locationId, homeTypeId, cost, status, metrics}]}]}]}`, memoized (same object) on income, cash, `DATA_VERSION`;
+  `gridCells(grid)` flattens; `cashOf(state)` = checking + savings. Bump `DATA_VERSION` (locations/index.js) on data edits.
 
 ## State and seeds (02)
 - New save: `createInitialState({uid, username, classCode, now})`; check with `validateState(s) → string[]`.

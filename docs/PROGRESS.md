@@ -303,3 +303,36 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     because the validator requires them for every type.
   - `condoInsuranceAnnualCents` is filled even where condos are n/a (validator requires it); ignore it there.
   - Montpelier and Elkins flood add-ons are zone-required but `requiredForMortgage: false` for the typical home, like Brooklyn.
+
+## Task 10 — Cost engine, affordability colors, lifestyle metrics
+- attempt started 2026-10-01T06:07:50-10:00
+- done 2026-10-01T06:11:32-10:00
+- Added: `app/src/data/homeTypes.js`, `app/src/data/metrics.js`, `app/src/finance/costs.js`, `app/src/finance/affordability.js`,
+  `app/src/finance/grid.js`, `tests/unit/costs.test.js` (14 tests). Changed: `app/src/data/locations/index.js`
+  (`DATA_VERSION = 1`), `CLAUDE.md` (Plan numbers section, folder map).
+- Verified:
+  - `node --test tests/unit/costs.test.js`: 14/14. Hand-calculated lines for Hilo apartment/shared/condo, Pāhoa house
+    (HPIA lava line) and Pāhoa build (project $502,500, upfront $140,630); P&I cross-checked with the closed-form formula in
+    Python. PMI on at 10%, off at exactly 20%. classify boundaries (⅓ → green, ⅕ → cyan, upfront = cash not red,
+    monthly = income → yellow). N/A cells; 100 cells; every cell's lines sum to its totals.
+  - `bash tools/check.sh` → "check: OK (syntax 48 files · tests · data 9 files · smoke) in 8s" (smoke 5/5). No new screens.
+  - `plan-comfortable` ($4,200/mo, $20,000 cash) status counts: **red 52, green 16, yellow 15, cyan 9, na 8**. Samples
+    (upfront / monthly): Hilo apartment $3,150 / $1,755 yellow; Hilo shared $1,625 / $910 green; Brooklyn apartment
+    $7,550 / $3,920 yellow; Clarksdale house $12,150 / $1,101 green; Elkins shared $875 / $528 cyan; Kailua-Kona house
+    $137,600 / $7,406 red; Honolulu build $398,555 / $8,010 red.
+  - Plausibility: every Hawaiʻi purchase and build is red (a $20K savings can't cover 10% down anywhere there); every
+    Hawaiʻi apartment is yellow and every shared room green. Clarksdale is green/cyan for rent and its house; Brooklyn is
+    the only place where even a shared room is a stretch. All purchases except Clarksdale's house are red only because
+    of upfront cash, which is the lesson. No data looked wrong, so DATA_SOURCES.md is unchanged.
+- Deviations: none. Judgment calls: the required-hazard premium is its own monthly line (`hazard`), not folded into
+  insurance; build insurance scales against the house median (or the project cost if houses are n/a); temporary housing
+  uses the room rent, else apartment rent, else $0; garden values round to the nearest half star; the apartment/condo
+  garden note says "lānai" in Hawaiʻi and "balcony" elsewhere.
+- Notes for later tasks:
+  - Table (task 12): `buildGrid(state)` returns the same object while income, cash and DATA_VERSION are unchanged, so
+    recolor only when it changes. `STATUSES` (affordability.js) is the legend in order; `tableAssumptions()` is the note.
+    Column headers and tooltips are `HOME_TYPE_LIST[i].header` / `.explainer`.
+  - Detail panel (task 15): `cell.cost.upfront/monthly` lines carry `note`; build cells also have `cost.project`
+    (lot, construction, site work, project, loan). `cell.metrics` has `kind` (stars/bar/number) and `max`.
+  - `cellCost(loc, type, {...FINANCE, downPaymentPct})` already handles other down payments (paperwork/underwriting).
+  - Bump `DATA_VERSION` in `data/locations/index.js` whenever any location figure changes.
