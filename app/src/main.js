@@ -5,6 +5,8 @@ import { FIREBASE_ENABLED } from './firebase-config.js';
 import { h, clear } from './ui/dom.js';
 import { registerScreen, renderPhase } from './ui/screens.js';
 import { renderHeader } from './ui/header.js';
+import { devAllowed as isDevAllowed } from './dev/flags.js';
+import { mountGallery } from './dev/galleries.js';
 
 registerScreen('login', () => import('./accounts/ui/login.js'));
 registerScreen('intake', () => import('./phases/intake/intakeScreen.js'));
@@ -14,7 +16,7 @@ registerScreen('design', () => import('./phases/design/designScreen.js'));
 registerScreen('life', () => import('./phases/life/lifeScreen.js'));
 
 const params = new URLSearchParams(location.search);
-const devAllowed = !FIREBASE_ENABLED || config.DEV_HOSTS.includes(location.hostname);
+const devAllowed = isDevAllowed();
 const firebaseMode = FIREBASE_ENABLED && !params.has('adapter') && !params.has('seed');
 
 applyTheme(devAllowed ? params.get('theme') : null);
@@ -23,6 +25,13 @@ boot().catch(showError);
 
 async function boot() {
   const root = document.getElementById('app');
+  // ?dev=<gallery> renders a dev gallery instead of the game (01 §7). ?dev=1 is the dev panel (later task).
+  const gallery = devAllowed ? params.get('dev') : null;
+  if (gallery && gallery !== '1') {
+    const main = h('main', { class: 'app-main', id: 'screen' });
+    clear(root).append(main);
+    if (await mountGallery(gallery, main)) return;
+  }
   // Placeholder store until task 04: same getState/update/subscribe shape as state/store.js.
   let state = { phase: 'intake' };
   const listeners = new Set();

@@ -69,3 +69,13 @@
   text-align: left; white-space: pre-wrap; font-family: var(--font-mono); font-size: .8rem;
   background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-3);
 }
+
+/* Dev galleries (?dev=<name>) */
+.dev-vendor { max-width: 980px; margin: 0 auto; }
+.dev-vendor-grid { display: grid; grid-template-columns: auto 1fr; gap: var(--sp-5); align-items: start; }
+.dev-vendor-canvas canvas { display: block; border-radius: var(--r-md); }
+.dev-vendor-results h3 { margin: var(--sp-4) 0 var(--sp-2); font-size: 1rem; }
+.dev-vendor-results ul { margin: 0; padding-left: 1.2rem; }
+.dev-vendor-results li { margin-bottom: var(--sp-2); }
+.dev-vendor-results .is-bad { color: var(--st-red); }
+.dev-vendor-results .is-ok { color: var(--st-green); }

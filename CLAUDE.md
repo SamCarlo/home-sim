@@ -59,6 +59,8 @@ app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js (pure)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js
+app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
+app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
 app/src/accounts/ui/login.js   placeholder (task 05)
 app/src/admin/adminMain.js     placeholder (task 52)
@@ -69,6 +71,22 @@ tools/serve.py                 static server, port 1270 · tools/shots/ (gitigno
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 ```
+
+## Vendor (`app/vendor/`, see `VERSIONS.md`)
+- Import `three` and `three/addons/…` by bare specifier (browser modules only). Pure modules import
+  `../../vendor/nspell/nspell.js` and `../../vendor/vader/vader.js` by relative path; both also load in Node tests.
+- nspell: `nspell(affText, dicText)`; the browser fetches `vendor/dictionary-en/index.{aff,dic}` (~550 KB), Node reads them with `fs`.
+- VADER: `polarityScores(text) → {neg, neu, pos, compound}`.
+- **Upgrading**: in a temp dir, `npm i three nspell dictionary-en vader-sentiment`, then
+  - three: `npx -y esbuild node_modules/three/build/three.module.js --bundle --format=esm --minify --legal-comments=inline
+    --outfile=app/vendor/three/three.module.min.js` (r186 has no prebuilt `.min.js`), and copy the two addons + LICENSE;
+  - nspell / VADER: esbuild a one-line entry (`export { default } from 'nspell'`; VADER wraps
+    `SentimentIntensityAnalyzer.polarity_scores` from `vader-sentiment/src/vaderSentiment.js`) with
+    `--bundle --format=esm --platform=browser`; grep the output for `require(`/`node:` to be sure no Node built-ins remain;
+  - Firebase: bump `<ver>` in the import maps of **both** `index.html` and `admin.html`.
+  - Update `VERSIONS.md`, run `npm test` and the `?dev=vendor` shot.
+- Dev galleries: add `name: () => import('./x.js')` to `dev/galleries.js`; the module exports `mount(root)` (sets ready,
+  may return a cleanup) and gets a `tools/smoke.txt` line `<name> /index.html?dev=<name>`.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

@@ -2,3 +2,4 @@
 # Every new screen adds a line (01 §7). Run: node tools/shoot.mjs --smoke tools/smoke.txt
 boot /index.html
 admin /admin.html
+vendor /index.html?dev=vendor
