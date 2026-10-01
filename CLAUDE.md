@@ -68,6 +68,7 @@ app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ �
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
                                ui/login.js (welcome screen: Log in / Create account tabs)
+app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js · locations/{hawaii,cities,towns,index}.js (pure)
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
@@ -103,6 +104,14 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
   `fhaLoan({priceCents, downPct?, annualRate?, months?})` (`config.FINANCE.fha`) · `constructionInterestReserve({loanCents,
   rate?, months, avgDrawnPct?})` · `cardPayoff({balanceCents, apr, minRule?})` → `{months, interestCents}`
   (`DEFAULT_MIN_RULE` = max($25, 1% + interest); Infinity if the minimum never covers interest).
+
+## Location data (03, `app/src/data/`, pure)
+- `locations/index.js`: `LOCATIONS` (03 §1 order), `byId`, `REGION_LABELS`. Records follow 03 §2 exactly; money is cents
+  (`usd(d)` helper inside each data file). Tasks 08/09 fill `CITIES`/`TOWNS` in `cities.js`/`towns.js`.
+- `enums.js`: regions, settlements, biomes, `STYLE_FAMILIES` (16), `STYLE_VARIANTS`, `LANDMARKS` (20), `HAZARDS`,
+  `COVERAGE_TYPES`, water/sewer/transport kinds, `HOME_TYPES`.
+- `validate.js`: `validateLocation(loc)` / `validateLocations(list)` → `{errors, warnings}`; sanity-band misses
+  (`sanity.js` `SANITY[id]`) are warnings. Every figure's source and verified/unverified status: `docs/DATA_SOURCES.md`.
 
 ## State and seeds (02)
 - New save: `createInitialState({uid, username, classCode, now})`; check with `validateState(s) → string[]`.

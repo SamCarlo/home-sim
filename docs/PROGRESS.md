@@ -189,3 +189,36 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - `cardPayoff` with `minRule: {floorCents: 2500, pct: 0}` gives a pure "$25 minimum" example if task 30 wants 05 §6's wording;
     the default rule is max($25, 1% + interest) (09 §6).
   - `pctOf` returns a decimal ratio (for DTI/utilization), not cents; use `mulRate` for "x% of y cents".
+
+## Task 07 — Location schema, validator, and the five Hawaiʻi places
+- attempt started 2026-10-01T00:08:02-10:00
+- done 2026-10-01T00:14:32-10:00
+- Added: `app/src/data/{enums,sanity,validate}.js`, `app/src/data/locations/{hawaii,cities,towns,index}.js`
+  (cities/towns are empty arrays), `tests/unit/locations.test.js`, `docs/DATA_SOURCES.md`. Changed: `CLAUDE.md`
+  (folder map + Location data section).
+- Verified:
+  - `node --test tests/unit/locations.test.js`: 7/7 (zero errors, **zero warnings**, unique ids, 03 §1 order, enum
+    counts, Pāhoa condo n/a + HPIA lava required, validator catches 8 kinds of breakage, sanity miss = warning only).
+  - `bash tools/check.sh` → "check: OK (syntax 43 files · tests · data 7 files · smoke) in 8s" (smoke 5/5). No new screens.
+  - Web research (WebSearch) checked house/condo medians, HUD FY2026 FMRs, Hawaiʻi County and Honolulu FY26 tax rates,
+    HO-3 and HPIA ranges, HECO/HELCO 2025 rates, USGS lava zones; status per figure is in DATA_SOURCES.md.
+  - Sanity table (reads plausibly: Puna cheapest, Honolulu condo affordable but house dear, Kona/Waimea priciest):
+
+    | id | 1BR rent | house | condo | property tax | HO-3 / yr | required hazard / yr |
+    |---|---|---|---|---|---|---|
+    | pahoa | $1,400 | $400,000 | n/a | 0.54% | $1,100 | lava $4,000 (HPIA) |
+    | hilo | $1,550 | $565,000 | $350,000 | 0.55% | $1,500 | none |
+    | kailua-kona | $2,100 | $1,050,000 | $600,000 | 0.57% | $1,800 | none |
+    | waimea | $1,950 | $1,195,000 | $650,000 | 0.58% | $1,700 | none |
+    | honolulu | $2,100 | $1,160,000 | $535,000 | 0.31% | $1,400 | none |
+- Deviations: none. Judgment calls (in DATA_SOURCES.md): Waimea uses a town estimate ($1.195M) because the Kamuela ZIP
+  median (~$1.6M) includes the Mauna Lani/Mauna Kea resorts; Kona uses a town figure under the North Kona district median.
+  Pāhoa sewer = `cesspool` (typical existing home); its build site work includes a septic system.
+- Notes for later tasks:
+  - `validateLocation(loc)` / `validateLocations(list)` → `{errors, warnings}`; messages start with the id. It also errors
+    on unaccented "Hawaii/Oahu/Pahoa/Kilauea/lanai" in name/fullName/hook/blurb, so keep diacritics in tasks 08–09 text.
+  - `SANITY` already has bands for all 20 ids (Brooklyn build = null, Yellow Pine rent = null); `GENERAL` holds
+    utilities/groceries/monthsToBuild guards. Condo bands exist only for Honolulu, Brooklyn and Miami (per 03 §5).
+  - The Pāhoa HO-3 base ($1,100) is the non-fire policy; fire + lava come from the required HPIA add-on. Task 10/24 cost
+    math should add required hazardCoverage on top of HO-3 as 04 §3 says.
+  - Hurricane coverage is optional everywhere in Hawaiʻi; task 24 may want to pre-check it as "recommended".
