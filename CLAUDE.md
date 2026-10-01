@@ -57,16 +57,19 @@ app/index.html admin.html      entry pages (import map: three → vendor/, fireb
 app/styles/                    tokens.css base.css components.css (+ one file per area)
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
-app/src/util/                  escape.js format.js (pure)
-app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js
+app/src/util/                  escape.js format.js rng.js dates.js (pure)
+app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
+app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
+app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
+                               seeds.js (fixtures) · devPanel.js (?dev=1)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
 app/src/accounts/ui/login.js   placeholder (task 05)
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
-tests/e2e/                     shoot.mjs step scripts (example.json)
+tests/e2e/                     shoot.mjs step scripts (example.json, persist.json)
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
@@ -88,10 +91,22 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 - Dev galleries: add `name: () => import('./x.js')` to `dev/galleries.js`; the module exports `mount(root)` (sets ready,
   may return a cleanup) and gets a `tools/smoke.txt` line `<name> /index.html?dev=<name>`.
 
+## State and seeds (02)
+- New save: `createInitialState({uid, username, classCode, now})`; check with `validateState(s) → string[]`.
+  A shape change bumps `STATE_VERSION` and adds `STEPS[oldVersion]` in `state/migrate.js` plus a test.
+- Seeds: `dev/seeds.js` `seeds[name] = { phase, description, build(now) → state }` (or `addSeed`). Start from
+  `baseState(now)`; `afterIntake(s, {netMonthlyIncomeCents, startingSavingsCents})` gives a plan-phase player.
+  `tests/unit/state.test.js` validates every registered seed automatically. Current: `fresh`, `plan-comfortable`.
+- Calendar: `util/dates.js` `monthLabel/monthName/daysInMonth/weekday (0 = Sunday)/dayLabel`. Jan 1, 2033 is a Saturday.
+- Save indicator: `renderSaveStatus(persistence.status)` from `ui/saveStatus.js` (task 11 puts it in the header).
+
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
-- `main.js` still uses an in-memory placeholder store with the `getState/update/subscribe` shape; task 04 swaps in
-  `state/store.js`, task 05 the account provider and login.
+- `main.js`: `?seed=` → `local-dev` user + fixture (saved at once); otherwise the temporary `local-anon` save (task 05
+  replaces it with login). `ctx` also carries `user`. `window.__homesim` = `{store, getState, update, seeds, version, persistence}`.
+- Checkpoints within 5 s of the last one are *queued*, not dropped; a reload in that window still saves through the
+  `pagehide` flush. In unit tests pass `attach(store, adapter, {clock, events})` (see `tests/unit/persistence.test.js`'s fake clock).
+- `store.replace(state)` swaps the whole state (seed load, reset) as a checkpoint. Listeners get `(state, {checkpoint, prev})`.
 - `shoot.mjs` uses a top-level `await`: module-level `const`s it needs must be declared *above* that block (TDZ).
 - The OS on this machine prefers dark, so plain headless shots come out dark; pass `?theme=light` for light.
 

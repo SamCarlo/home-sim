@@ -5,8 +5,9 @@
  * @typedef {Object} State
  * @property {number} version
  * @property {'intake'|'plan'|'paperwork'|'design'|'life'} phase
- * @property {Object} meta      uid, username, classCode, seed, createdAt, updatedAt
- * @property {Object} [player]  characterName, jobTitle, netMonthlyCents, weeklyJobHours, startingSavingsCents
+ * @property {Object} meta      createdAt, updatedAt, saveCount, seed (= hashString(uid))
+ * @property {Object} account   username, classCode (display copy)
+ * @property {Object} [player]  characterName, jobTitle, netMonthlyIncomeCents, weeklyJobHours, startingSavingsCents
  * @property {Object} [finances]
  * @property {Object} [plan]
  * @property {Object} [home]

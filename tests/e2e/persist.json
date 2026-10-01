@@ -1,0 +1,11 @@
+[
+  { "waitReady": true },
+  { "assert": "window.__homesim && window.__homesim.getState().phase === 'intake'" },
+  { "eval": "window.__homesim.update((s) => { s.player.jobTitle = 'Lifeguard'; s.player.weeklyJobHours = 32; }, { checkpoint: 'e2e' }); window.__homesim.getState().player" },
+  { "goto": "/index.html" },
+  { "waitReady": true },
+  { "assert": "window.__homesim.getState().player.jobTitle === 'Lifeguard' && window.__homesim.getState().player.weeklyJobHours === 32" },
+  { "assert": "JSON.parse(localStorage.getItem('homesim:v1:save:local-anon')).player.jobTitle === 'Lifeguard'" },
+  { "eval": "window.__homesim.getState().meta.saveCount" },
+  { "shot": "tools/shots/e2e-persist.png" }
+]
