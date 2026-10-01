@@ -107,7 +107,9 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 
 ## Location data (03, `app/src/data/`, pure)
 - `locations/index.js`: `LOCATIONS` (03 §1 order), `byId`, `REGION_LABELS`. Records follow 03 §2 exactly; money is cents
-  (`usd(d)` helper inside each data file). Tasks 08/09 fill `CITIES`/`TOWNS` in `cities.js`/`towns.js`.
+  (`usd(d)` helper inside each data file). `CITIES` (task 08) is filled; task 09 fills `TOWNS` in `towns.js`.
+  Halifax money is stored in USD (CAD × `CAD_USD` 0.71, exported from `cities.js`); its `currency` is for display only.
+  Don't write "U.S." in a blurb: the validator's sentence counter splits on ". ".
 - `enums.js`: regions, settlements, biomes, `STYLE_FAMILIES` (16), `STYLE_VARIANTS`, `LANDMARKS` (20), `HAZARDS`,
   `COVERAGE_TYPES`, water/sewer/transport kinds, `HOME_TYPES`.
 - `validate.js`: `validateLocation(loc)` / `validateLocations(list)` → `{errors, warnings}`; sanity-band misses

@@ -222,3 +222,36 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - The Pāhoa HO-3 base ($1,100) is the non-fire policy; fire + lava come from the required HPIA add-on. Task 10/24 cost
     math should add required hazardCoverage on top of HO-3 as 04 §3 says.
   - Hurricane coverage is optional everywhere in Hawaiʻi; task 24 may want to pre-check it as "recommended".
+
+## Task 08 — City and suburb locations
+- attempt started 2026-10-01T02:07:50-10:00
+- done 2026-10-01T02:12:17-10:00
+- Added: `app/src/data/locations/cities.js` (7 records + exported `CAD_USD = 0.71`). Changed: `tests/unit/locations.test.js`
+  (2 new tests), `docs/DATA_SOURCES.md` (city global notes, CAD rate, 7 sections, sources), `CLAUDE.md` (Location data note).
+- Verified:
+  - `node --test tests/unit/locations.test.js`: 9/9 (12 records in 03 §1 order, zero errors, **zero warnings**; Brooklyn
+    build n/a; Halifax CAD with asOf 2026-09 and the Canadian-dollar blurb line; Katy MUD + flood; Vegas Ninth Island + 4
+    cooling months; Chattanooga fiber; Miami special assessments; cross-place checks below).
+  - `bash tools/check.sh` → "check: OK (syntax 43 files · tests · data 7 files · smoke) in 8s" (smoke 5/5). No new screens.
+  - WebSearch checked: 1BR rents and house medians for all seven, Miami-Dade condo median and HO-3 average, Katy component
+    tax rates and MUD range, Halifax benchmark price, rents and 2025–26 rate, Bank of Canada CAD/USD (Sept 2026).
+  - Summary table (sanity-read against Hawaiʻi: Brooklyn rent ,750 > Honolulu ,100; Katy tax 2.45% > Las Vegas 0.60%;
+    Miami HO-3 ,000 is the highest of all 12; Katy/Chattanooga houses cheapest; Seattle and Brooklyn tie Hawaiʻi's top tier):
+
+    | id | 1BR rent | house | condo | property tax | HO-3 / yr | hazard add-on / yr |
+    |---|---|---|---|---|---|---|
+    | seattle | $1,975 | $950,000 | $550,000 | 0.88% | $1,300 | earthquake $1,000 (optional) |
+    | brooklyn | $3,750 | $1,450,000 | $925,000 | 0.85% | $2,000 | flood $1,200 (optional) |
+    | miami | $2,450 | $680,000 | $400,000 | 1.75% | $5,000 | flood $900 (optional, zone-required) |
+    | katy | $1,400 | $375,000 | $250,000 | 2.45% | $3,200 | flood $750 (advised) |
+    | las-vegas | $1,350 | $475,000 | $265,000 | 0.60% | $1,300 | earthquake $500 (optional) |
+    | chattanooga | $1,250 | $340,000 | $275,000 | 0.95% | $1,900 | flood $600 (optional) |
+    | halifax | $1,325 | $400,000 | $320,000 | 1.05% | $1,280 | flood $285 (optional) |
+- Deviations: none. Judgment calls (in DATA_SOURCES.md): Katy tax uses the new-buyer full rate (~2.45% incl. MUD), not
+  Ownwell's capped-homestead median (~1.6%); Halifax rent uses asking rent (new lease), not CMHC's sitting-tenant average.
+- Notes for later tasks:
+  - Halifax figures are stored in USD already (CAD × 0.71); `currency` is for display ("converted from CAD at …").
+    `CAD_USD` is exported from `cities.js` if a UI wants to show the rate.
+  - Miami HO-3 includes windstorm (Florida practice), so there is no separate hurricane add-on there; Katy likewise.
+  - Avoid "U.S." inside blurbs: the validator's sentence counter splits on ". " and would count an extra sentence.
+  - Brooklyn `transport.mode` is 'transit' ($135 MetroCard); task 10's cost engine should not add car costs there.

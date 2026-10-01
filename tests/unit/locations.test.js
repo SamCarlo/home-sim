@@ -70,3 +70,32 @@ test('validator warns (not errors) outside a sanity band', () => {
   assert.deepEqual(errors, []);
   assert.ok(warnings.some((w) => w.includes('1BR rent')));
 });
+
+test('cities & suburbs: 12 records present in 03 §1 order, zero errors', () => {
+  assert.ok(LOCATIONS.length >= 12);
+  assert.deepEqual(LOCATIONS.slice(0, 12).map((l) => l.id), ORDER.slice(0, 12));
+  const cities = LOCATIONS.filter((l) => l.region === 'cities');
+  assert.deepEqual(cities.map((l) => l.id), ORDER.slice(5, 12));
+  assert.deepEqual(validateLocations(LOCATIONS.slice(0, 12)).errors, []);
+});
+
+test('city specifics: Brooklyn build n/a, Halifax CAD, Katy MUD + flood, Vegas Ninth Island, Chattanooga fiber', () => {
+  assert.equal(byId.brooklyn.housing.build.available, false);
+  assert.equal(byId.brooklyn.living.transport.mode, 'transit');
+  const h = byId.halifax;
+  assert.equal(h.country, 'CA');
+  assert.equal(h.currency.code, 'CAD');
+  assert.match(h.currency.asOf, /^\d{4}-\d{2}$/);
+  assert.ok(h.currency.usdPerUnit > 0.5 && h.currency.usdPerUnit < 1);
+  assert.match(h.blurb, /Canadian dollar/);
+  assert.match(byId.katy.housing.house.notes, /MUD/);
+  assert.ok(byId.katy.ownership.hazardCoverage.some((c) => c.type === 'flood'));
+  assert.match(byId['las-vegas'].hook, /Ninth Island/);
+  assert.ok(byId['las-vegas'].living.utilitiesSeasonal.coolMonths.length >= 3);
+  assert.match(byId.chattanooga.blurb, /fiber/);
+  assert.match(byId.miami.housing.condo.notes, /special assessment/);
+  // Cross-place sanity (task 08 Verify)
+  assert.ok(byId.brooklyn.housing.apartment.rentCents > byId.honolulu.housing.apartment.rentCents);
+  assert.ok(byId.katy.ownership.propertyTaxRate > byId['las-vegas'].ownership.propertyTaxRate);
+  assert.ok(byId.miami.ownership.homeInsuranceAnnualCents > byId.seattle.ownership.homeInsuranceAnnualCents);
+});
