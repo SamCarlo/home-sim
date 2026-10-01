@@ -2,6 +2,7 @@
 // Naming: <phase>-<situation>. Later tasks append with addSeed() below or by adding entries to `seeds`.
 // Every seed must pass validateState (tests/unit/seeds.test.js checks them all). Pure module.
 import { createInitialState } from '../state/schema.js';
+import { FINANCE } from '../config.js';
 
 /** The dev account every seed runs as (01 §7). */
 export const DEV_USER = { uid: 'local-dev', username: 'dev', classCode: 'DEMO' };
@@ -32,6 +33,41 @@ export const seeds = {
     build: (now) => afterIntake(baseState(now), {
       netMonthlyIncomeCents: 420000, startingSavingsCents: 2000000, jobTitle: 'Dental assistant',
     }),
+  },
+  'plan-tight': {
+    phase: 'plan',
+    description: 'Intake done: $2,400/mo net, $3,000 savings; mostly red and yellow (04 §8).',
+    build: (now) => afterIntake(baseState(now), {
+      netMonthlyIncomeCents: 240000, startingSavingsCents: 300000, jobTitle: 'Cashier',
+    }),
+  },
+  'plan-rich': {
+    phase: 'plan',
+    description: 'Intake done: $12,000/mo net, $250,000 savings; lots of cyan (04 §8).',
+    build: (now) => afterIntake(baseState(now), {
+      netMonthlyIncomeCents: 1200000, startingSavingsCents: 25000000, jobTitle: 'Surgeon',
+    }),
+  },
+  'plan-after-denial': {
+    phase: 'plan',
+    description: 'Back on the plan after a denied Hilo apartment application; the $50 fee is gone (04 §8).',
+    build: (now) => {
+      const s = afterIntake(baseState(now), {
+        netMonthlyIncomeCents: 360000, startingSavingsCents: 900000, jobTitle: 'Electrician apprentice',
+      });
+      const feeCents = FINANCE.applicationFeeCents.apartment;
+      const reasons = ["Your income is less than 2.5× the rent and you don't have a co-signer."];
+      s.plan.attempts.push({ locationId: 'hilo', homeTypeId: 'apartment', outcome: 'denied', reasons, at: now });
+      s.finances.applications.push({
+        id: 'app-1', kind: 'rental', target: 'hilo|apartment', status: 'denied', feeCents, at: now, reasons,
+      });
+      s.finances.transactions.push({
+        id: 't-1', month: 0, day: 1, label: 'Rental application fee (Hilo)', amountCents: -feeCents,
+        account: 'savings', category: 'fees',
+      });
+      s.finances.savingsCents -= feeCents;
+      return s;
+    },
   },
 };
 

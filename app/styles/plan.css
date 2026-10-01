@@ -1,0 +1,121 @@
+/* Phase 1 plan table (04 §5, 12 §3–§4). The screen fills the viewport under the header; only the table frame scrolls.
+   Status colors come from the --st-* tokens (tint + left border + ink), and every status also shows an icon and a label. */
+.app-main:has(> .plan-screen) { padding: var(--sp-3) var(--sp-5); }
+.plan-screen {
+  display: flex; flex-direction: column; gap: var(--sp-3);
+  height: calc(100dvh - 61px - 2 * var(--sp-3)); min-height: 420px; max-width: 1400px; margin: 0 auto;
+}
+
+/* "Your numbers" bar */
+.plan-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap;
+  padding: var(--sp-2) var(--sp-4); flex: none;
+}
+.plan-bar-nums { display: flex; align-items: center; gap: var(--sp-5); flex-wrap: wrap; }
+.plan-bar-title { margin: 0; font-size: 1.05rem; font-family: var(--font-display); }
+.plan-num { display: flex; flex-direction: column; line-height: 1.2; }
+.plan-num-label { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.plan-num-value { font-size: 1.1rem; font-variant-numeric: tabular-nums; color: var(--ink); }
+.plan-num-note { font-size: .72rem; color: var(--muted); }
+.plan-bar-side { display: flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap; }
+.plan-legend { display: flex; gap: var(--sp-1); flex-wrap: wrap; list-style: none; margin: 0; padding: 0; }
+.plan-legend-item {
+  display: flex; align-items: center; gap: .35em; padding: .2rem .55rem; border-radius: var(--r-pill);
+  font-size: .8rem; font-weight: 600; white-space: nowrap;
+  background: var(--st-bg); color: var(--st-ink); border: 1px solid var(--st-line);
+}
+.plan-legend-icon { color: var(--st-accent); font-weight: 700; }
+.plan-hide {
+  display: flex; align-items: center; gap: var(--sp-2); min-height: 44px; font-weight: 600; font-size: .9rem;
+  cursor: pointer; white-space: nowrap;
+}
+.plan-hide-input { width: 1.15rem; height: 1.15rem; accent-color: var(--accent); margin: 0; }
+
+/* Status palettes: each class sets the four variables the cell and legend read. */
+.st-red    { --st-accent: var(--st-red);    --st-bg: var(--st-red-bg);    --st-line: var(--st-red-line);    --st-ink: var(--st-red-ink); }
+.st-yellow { --st-accent: var(--st-yellow); --st-bg: var(--st-yellow-bg); --st-line: var(--st-yellow-line); --st-ink: var(--st-yellow-ink); }
+.st-cyan   { --st-accent: var(--st-cyan);   --st-bg: var(--st-cyan-bg);   --st-line: var(--st-cyan-line);   --st-ink: var(--st-cyan-ink); }
+.st-green  { --st-accent: var(--st-green);  --st-bg: var(--st-green-bg);  --st-line: var(--st-green-line);  --st-ink: var(--st-green-ink); }
+.st-na     { --st-accent: var(--st-na);     --st-bg: var(--st-na-bg);     --st-line: var(--st-na-line);     --st-ink: var(--st-na-ink); }
+
+/* The scrolling frame (horizontal scroll stays inside it, never the page) */
+.plan-table-wrap {
+  flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+}
+.plan-table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 960px; table-layout: fixed; }
+.plan-table th, .plan-table td { padding: 0; border-bottom: 1px solid var(--line); }
+.plan-table col, .plan-corner, .plan-loc { width: 150px; }
+
+/* Sticky header row */
+.plan-table thead th {
+  position: sticky; top: 0; z-index: 2; background: var(--surface-2);
+  padding: var(--sp-2) var(--sp-3); text-align: left; font-size: .85rem; font-weight: 700; color: var(--ink);
+  border-bottom: 2px solid var(--line-2); cursor: help;
+}
+.plan-table thead th.plan-corner { left: 0; z-index: 4; cursor: default; color: var(--muted); }
+.plan-col-title { display: block; }
+.plan-col-tip {
+  position: absolute; left: var(--sp-2); right: var(--sp-2); top: calc(100% + 4px); z-index: 5;
+  padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); background: var(--lava); color: #fff;
+  font-size: .8rem; font-weight: 400; line-height: 1.35; box-shadow: var(--shadow-lg);
+  opacity: 0; visibility: hidden; transition: opacity var(--dur) var(--ease); pointer-events: none;
+}
+.plan-table thead th:hover .plan-col-tip { opacity: 1; visibility: visible; }
+
+/* Region header rows */
+.plan-region th {
+  background: var(--plumeria); color: var(--ink-2); text-align: left;
+  font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+  border-bottom: 1px solid var(--plumeria-line);
+}
+.plan-region th > span { position: sticky; left: 0; display: inline-block; padding: .3rem var(--sp-3); }
+
+/* Sticky first column */
+.plan-loc {
+  position: sticky; left: 0; z-index: 1; background: var(--surface);
+  padding: var(--sp-2) var(--sp-3) !important; text-align: left; border-right: 1px solid var(--line);
+}
+.plan-loc-name { display: block; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.plan-loc-sub { display: block; font-size: .75rem; color: var(--muted); font-weight: 500; }
+
+/* Cells */
+.plan-table td { padding: 3px; vertical-align: stretch; }
+.plan-cell {
+  display: grid; grid-template-columns: 1fr auto; grid-template-areas: "status status" "up badge" "mo badge";
+  align-content: center; column-gap: var(--sp-1); width: 100%; height: 100%; min-height: 56px;
+  padding: .25rem .55rem .25rem .7rem; text-align: left; cursor: pointer;
+  font: inherit; font-size: .84rem; line-height: 1.25; color: var(--ink);
+  background: var(--st-bg); border: 1px solid var(--st-line); border-left: 5px solid var(--st-accent);
+  border-radius: var(--r-sm); transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.plan-cell:hover { box-shadow: var(--shadow); }
+.plan-cell:focus-visible { outline: 3px solid var(--sky); outline-offset: 1px; }
+.plan-cell.is-open { box-shadow: 0 0 0 2px var(--st-accent); }
+.plan-cell-status { grid-area: status; display: flex; align-items: center; gap: .35em; font-weight: 700; color: var(--st-ink); }
+.plan-cell-icon { color: var(--st-accent); font-size: 1rem; line-height: 1; width: 1.1em; text-align: center; }
+.plan-cell-up { grid-area: up; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.plan-cell-mo { grid-area: mo; font-variant-numeric: tabular-nums; font-weight: 600; }
+.plan-badge {
+  grid-area: badge; align-self: end; justify-self: end; padding: .05rem .4rem; border-radius: var(--r-pill);
+  background: var(--danger); color: var(--danger-on); font-size: .68rem; font-weight: 700; white-space: nowrap;
+}
+.plan-badge[hidden] { display: none; }
+.plan-cell.st-na { color: var(--st-ink); }
+.plan-cell.st-na .plan-cell-status { font-weight: 600; }
+.plan-table td.is-hidden { background: repeating-linear-gradient(135deg, transparent 0 6px, var(--tint) 6px 12px); }
+.plan-cell[hidden] { display: none; }
+
+/* Expanded placeholder row (the real detail panel is task 15) */
+.plan-detail-row td { padding: var(--sp-2) var(--sp-3); background: var(--surface-2); }
+.plan-detail { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); position: sticky; left: var(--sp-3); max-width: calc(1366px - 120px); }
+.plan-detail p { margin: 0; }
+
+/* Notes under the table */
+.plan-notes { flex: none; font-size: .78rem; color: var(--muted); line-height: 1.4; }
+.plan-notes p { margin: 0; }
+
+@media (max-width: 1180px) {
+  .plan-bar-nums { gap: var(--sp-4); }
+  .plan-legend-item { font-size: .75rem; }
+}

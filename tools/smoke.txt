@@ -6,3 +6,7 @@ vendor /index.html?dev=vendor
 fresh /index.html?seed=fresh
 devpanel /index.html?seed=plan-comfortable&dev=1
 intake /index.html?seed=fresh
+plan-comfortable /index.html?seed=plan-comfortable
+plan-tight /index.html?seed=plan-tight
+plan-rich /index.html?seed=plan-rich
+plan-after-denial /index.html?seed=plan-after-denial

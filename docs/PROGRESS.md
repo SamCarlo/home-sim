@@ -366,3 +366,33 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     `unicode-range` fallback or the latin-ext subset).
   - Task 17: pass `onPortfolio` to `renderHeader` in `main.js` and the button enables itself.
   - `applyIntake` only sets `finances.savingsCents` while phase is 'intake' (intake runs once).
+
+## Task 12 — The Phase 1 affordability table
+- attempt started 2026-10-01T10:07:53-10:00
+- done 2026-10-01T10:12:48-10:00
+- Added: `app/src/phases/plan/table.js` (DOM built once, `update(grid, view)` recolors; roving tabindex),
+  `phases/plan/tableModel.js` (pure: cellKey, deniedKeys, cellAriaLabel, upfrontText/monthlyText, isHiddenStatus,
+  moveFocus, firstVisible), `app/styles/plan.css`, `tests/unit/planTable.test.js` (5 tests), `tests/e2e/plan-keys.json`.
+  Changed: `phases/plan/planScreen.js` (real screen), `dev/seeds.js` (plan-tight, plan-rich, plan-after-denial),
+  `index.html` (plan.css), `tools/smoke.txt` (4 plan lines), `CLAUDE.md`.
+- Verified:
+  - `node --test tests/unit/planTable.test.js` 5/5; `bash tools/check.sh` → "check: OK (syntax 51 files · tests · data 9 files · smoke) in 14s" (smoke 10/10).
+  - e2e `plan-keys.json` (seed=plan-comfortable): focus roving cell → ArrowRight (r0 c1) → ArrowDown (Hilo shared,
+    aria-label "Hilo, shared room: upfront $1,625, monthly $910, comfortable") → Enter opens the placeholder row under
+    Hilo and sets plan.expanded → End/Home → Esc closes, clears expanded, focus returns to the cell → hide toggle
+    hides every red/n/a cell. intake/persist/register e2e still pass.
+  - `t12-plan-comfortable.png` (1366 light): numbers bar ($4,200/mo, $20,000, ⅓ $1,400, ⅕ $840), 5-chip legend +
+    hide toggle on a second line, sticky header, Hawaiʻi rows: apartments yellow Stretch, shared green, purchases red, Pāhoa condo gray "Not available"; notes under the frame.
+  - `t12-plan-tight.png` / `t12-tight-1024-scrolled.png` (1024×700, scrolled): mostly red/yellow; header row and place column stay put; no page scroll.
+  - `t12-plan-rich.png`: cyan rents, green/yellow Hawaiʻi purchases, red only for Waimea/Honolulu builds.
+  - `t12-dark.png`: dark tints with bright borders and light ink; all five statuses legible.
+  - `t12-plan-after-denial.png`: cash $8,950, red "Denied last time" pill on Hilo apartment.
+  - `t12-keys-open.png`: blue focus ring on Hilo shared, gray placeholder row "Hilo · Shared room Details coming in task 15." with "Close (Esc)".
+- Deviations: none. Judgment calls: with "Hide homes I can't afford" on, red **and** n/a cells hide (striped empty
+  slot), and rows/regions with nothing left hide too; column explainers are CSS hover tooltips (aria-hidden, the
+  cells' aria-labels already carry the type); clicking an open cell again closes it.
+- Notes for later tasks:
+  - Task 15: replace the `detail` callback in planScreen.js (it receives `{cell, location, homeType}`); the table
+    inserts its return value in a full-width row after the cell's row. Esc/close already restore focus via `table.focusCell(key)`.
+  - Red cells are still focusable/openable so the panel can explain why (D12); "Choose" must stay disabled there.
+  - Uppercase region label "HAWAIʻI" shows the same ʻokina fallback spacing noted in task 11 (task 54/55).
