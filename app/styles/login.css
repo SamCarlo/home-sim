@@ -48,10 +48,6 @@
 .login-mode-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sunset); }
 .login-mode[data-mode="online"] .login-mode-dot { background: var(--st-green); }
 
-/* App header: who is playing + Log out */
-.header-user { display: flex; align-items: center; gap: var(--sp-2); font-size: .9rem; color: var(--ink-2); }
-.header-user strong { color: var(--ink); }
-
 @media (max-height: 700px) {
   .login-body { padding: var(--sp-4) var(--sp-5); }
   .login-title { font-size: 1.7rem; }

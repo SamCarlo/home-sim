@@ -54,7 +54,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 ## Folder map
 ```
 app/index.html admin.html      entry pages (import map: three → vendor/, firebase/* → gstatic 12.19.0)
-app/styles/                    tokens.css base.css components.css (+ one file per area)
+app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css)
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
@@ -73,7 +73,7 @@ app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js hom
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
-tests/e2e/                     shoot.mjs step scripts (example.json, persist.json, register.json)
+tests/e2e/                     shoot.mjs step scripts (example.json, persist.json, register.json, intake.json)
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
@@ -137,7 +137,11 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
   `baseState(now)`; `afterIntake(s, {netMonthlyIncomeCents, startingSavingsCents})` gives a plan-phase player.
   `tests/unit/state.test.js` validates every registered seed automatically. Current: `fresh`, `plan-comfortable`.
 - Calendar: `util/dates.js` `monthLabel/monthName/daysInMonth/weekday (0 = Sunday)/dayLabel`. Jan 1, 2033 is a Saturday.
-- Save indicator: `renderSaveStatus(persistence.status)` from `ui/saveStatus.js` (task 11 puts it in the header).
+- Save indicator: `renderSaveStatus(persistence.status)` from `ui/saveStatus.js`; the header shows it.
+- Intake (04 §1): rules in `phases/intake/intakeModel.js` (pure, DOM-free; limits in `config.INTAKE`); `applyIntake(s, player)`
+  writes player.*, savings (only while phase is 'intake') and phase 'plan'. e2e: `tests/e2e/intake.json` with `?seed=fresh`.
+- Header: `renderHeader(phase, {user, onLogout, persistence, onPortfolio})`; Portfolio stays disabled until `onPortfolio`
+  is passed (task 17). main.js calls `header.destroy()` before re-rendering it.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

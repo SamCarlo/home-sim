@@ -336,3 +336,33 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     (lot, construction, site work, project, loan). `cell.metrics` has `kind` (stars/bar/number) and `max`.
   - `cellCost(loc, type, {...FINANCE, downPaymentPct})` already handles other down payments (paperwork/underwriting).
   - Bump `DATA_VERSION` in `data/locations/index.js` whenever any location figure changes.
+
+## Task 11 — Intake screen and app header
+- attempt started 2026-10-01T08:07:51-10:00
+- done 2026-10-01T08:12:18-10:00
+- Added: `app/src/phases/intake/intakeModel.js` (pure rules: validateIntake, parseMoneyField, parseHours, checkName,
+  payRates/payLine, applyIntake, INTAKE_MESSAGES), `app/styles/intake.css`, `tests/unit/intake.test.js` (8 tests),
+  `tests/e2e/intake.json`. Changed: `phases/intake/intakeScreen.js` (real screen), `ui/header.js` (save status,
+  disabled Portfolio button, responsive labels, `el.destroy()`), `main.js` (passes persistence, destroys the old header
+  on re-render/logout), `config.js` (`INTAKE` limits), `components.css` (header), `login.css` (moved header-user
+  rules out), `index.html` (intake.css), `tools/smoke.txt` (`intake` line), `CLAUDE.md`.
+- Verified:
+  - `node --test tests/unit/intake.test.js` 8/8; `bash tools/check.sh` → "check: OK (syntax 49 files · tests · data 9 files · smoke) in 10s" (smoke 6/6).
+  - e2e `intake.json` (seed=fresh): 4 field errors + summary + focus on first bad field; $450 → range message; valid
+    "$3,200.50"/40/"8,000" → one-liner "$38,406 … $18.46 per hour" → Continue → phase 'plan', player.* and
+    savingsCents 800000, stepper "Plan" current, "Saved ✓", localStorage phase 'plan'. `register.json` and `persist.json` still pass.
+  - `t11-empty.png` (1366 light): form card left (name prefilled "dev", hours 40, $ prefix, "hrs" suffix), cream net/gross
+    card right with a green/striped pay bar; header title, 4 unhighlighted steps, "Saved ✓", disabled Portfolio, "Playing as dev", Log out.
+  - `t11-errors.png`: red borders + "!" messages on name/income/hours/savings, red "4 boxes need a fix" bar beside Continue;
+    the card's bottom edge just touches 768 (page scrolls slightly; fine outside the life phase).
+  - `t11-filled.png`: all fields filled, blue one-liner "That's about $38,400 per year take-home, or $18.46 per hour."
+  - `t11-dark.png`: same layout in dark; good contrast, green Continue, readable explainer.
+  - `t11-1024-errors.png` / `t11-1024-plan.png` (1024×700): no overlap; lead hides at short heights; step labels collapse
+    to numbers except the current one ("1 Plan"); "Playing as" hides, username + Log out stay.
+- Deviations: none.
+- Notes for later tasks:
+  - The ʻokina in a typed name ("Kalāʻau") renders with visible side spacing in headless Chromium; probably the Plex
+    Google Fonts subset lacks U+02BB and a fallback font is used. Worth checking in task 54/55 (maybe add
+    `unicode-range` fallback or the latin-ext subset).
+  - Task 17: pass `onPortfolio` to `renderHeader` in `main.js` and the button enables itself.
+  - `applyIntake` only sets `finances.savingsCents` while phase is 'intake' (intake runs once).

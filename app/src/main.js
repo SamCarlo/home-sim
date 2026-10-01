@@ -75,16 +75,20 @@ async function boot() {
     if (!loaded) await persistence.saveNow(fixture ? `seed:${params.get('seed')}` : 'account-created');
     const ctx = { store, accounts, persistence, config, user, dev };
     let shownPhase = null;
+    let header = null;
     const render = async (force = false) => {
       if (game?.store !== store) return;
       const { phase } = store.getState();
       if (phase === shownPhase && !force) return;
       shownPhase = phase;
+      header?.destroy();
+      header = renderHeader(phase, { user, persistence, onLogout: () => logout().catch(showError) });
       clear(root);
-      root.append(renderHeader(phase, { user, onLogout: () => logout().catch(showError) }), main);
+      root.append(header, main);
       await renderPhase(main, ctx);
     };
-    game = { store, persistence, user, unsubscribe: store.subscribe(() => render().catch(showError)) };
+    const unsub = store.subscribe(() => render().catch(showError));
+    game = { store, persistence, user, unsubscribe: () => { unsub(); header?.destroy(); } };
     if (devAllowed) {
       window.__homesim = { store, getState: store.getState, update: store.update, seeds, version: STATE_VERSION, persistence, accounts, user };
     }

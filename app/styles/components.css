@@ -1,28 +1,49 @@
 /* Shared shells: app header with phase stepper, toasts, modal, drawer, error boundary.
    Phase-specific styles go in their own file with an area prefix (plan-, pw-, life-…). */
 
-/* Header + stepper */
+/* Header + stepper (04 §1). Full labels at 1366; at ≤1180 the labels shrink, at ≤1100 step labels hide except the current. */
 .app-header {
   display: flex; align-items: center; gap: var(--sp-4);
-  padding: var(--sp-3) var(--sp-5);
+  padding: var(--sp-2) var(--sp-5); min-height: 60px;
   background: var(--surface); border-bottom: 1px solid var(--line);
 }
-.app-title { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; margin: 0; color: var(--ink); }
+.app-title { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; margin: 0; color: var(--ink); white-space: nowrap; }
 .app-title .dot { color: var(--sunset); }
 .stepper { display: flex; gap: var(--sp-1); list-style: none; margin: 0 auto; padding: 0; }
 .stepper li {
   display: flex; align-items: center; gap: var(--sp-2);
   padding: .3rem .8rem; border-radius: var(--r-pill);
-  color: var(--muted); font-size: .9rem; font-weight: 500;
+  color: var(--muted); font-size: .9rem; font-weight: 500; white-space: nowrap;
 }
 .stepper .step-num {
-  display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem;
+  display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; flex: none;
   border-radius: 50%; border: 1px solid var(--line-2); font-size: .8rem;
 }
 .stepper li.is-current { background: var(--accent-wash); color: var(--accent-ink); font-weight: 600; }
 .stepper li.is-current .step-num { background: var(--accent); border-color: var(--accent); color: var(--accent-on); }
+.stepper li.is-done { color: var(--ink-2); }
 .stepper li.is-done .step-num { background: var(--accent-wash); border-color: var(--accent-line); color: var(--accent-ink); }
-.save-indicator { font-size: .85rem; color: var(--muted); }
+.header-tools { display: flex; align-items: center; gap: var(--sp-3); }
+.save-indicator { font-size: .85rem; color: var(--muted); white-space: nowrap; }
+.header-portfolio { min-height: 40px; }
+.header-user { display: flex; align-items: center; gap: var(--sp-1); font-size: .9rem; color: var(--ink-2); white-space: nowrap; }
+.header-user strong { color: var(--ink); }
+.header-logout { min-height: 40px; padding: .4rem .7rem; }
+@media (max-width: 1180px) {
+  .app-header { gap: var(--sp-3); padding-inline: var(--sp-4); }
+  .header-playing { display: none; }
+  .stepper li { padding: .3rem .6rem; }
+}
+@media (max-width: 1100px) {
+  .stepper li:not(.is-current) .step-label { display: none; }
+  .stepper li:not(.is-current) { padding: .3rem; }
+}
+@media (max-width: 760px) {
+  .app-header { flex-wrap: wrap; }
+  .stepper { order: 3; width: 100%; justify-content: center; }
+  .header-tools { margin-left: auto; }
+  .header-btn-label { display: none; }
+}
 
 .app-main { padding: var(--sp-5); }
 

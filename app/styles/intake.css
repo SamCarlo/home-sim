@@ -1,0 +1,81 @@
+/* Intake screen (04 §1, 12 §2, §4). Form card + net/gross explainer; fits 1366×768 and 1024 wide. */
+.intake-screen {
+  display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--sp-5); align-items: start;
+  max-width: 1080px; margin: 0 auto;
+}
+.intake-card { padding: var(--sp-4) var(--sp-6) var(--sp-5); }
+.intake-kicker { margin: 0 0 var(--sp-1); color: var(--sunset-ink); font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+.intake-title { font-size: 1.75rem; margin-bottom: var(--sp-1); }
+.intake-lead { color: var(--ink-2); margin-bottom: var(--sp-3); max-width: 60ch; }
+
+.intake-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--sp-5); }
+.intake-grid .field { margin-bottom: var(--sp-3); }
+.intake-grid .field p { margin: 0; }
+.intake-grid .hint { font-size: .82rem; line-height: 1.35; }
+.intake-grid .error { line-height: 1.35; }
+.intake-grid .input { min-height: 44px; }
+.intake-optional { font-weight: 400; color: var(--muted); }
+.field.has-error .input { border-color: var(--danger); }
+.intake-form .error::before {
+  content: "!"; display: inline-grid; place-items: center; width: 1.1em; height: 1.1em; margin-right: .35em; border-radius: 50%;
+  background: var(--danger); color: var(--danger-on); font-size: .8em; font-weight: 700; vertical-align: .05em;
+}
+
+/* $ prefix / hrs suffix inside the box */
+.intake-affix { position: relative; }
+.intake-affix .input { font-variant-numeric: tabular-nums; }
+.intake-affix.has-prefix .input { padding-left: 1.7rem; }
+.intake-affix.has-suffix .input { padding-right: 3rem; }
+.intake-prefix, .intake-suffix {
+  position: absolute; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-weight: 600;
+}
+.intake-prefix { left: .75rem; }
+.intake-suffix { right: .75rem; font-weight: 500; font-size: .9rem; }
+
+/* Live one-liner sits beside Savings */
+.intake-live-wrap { display: flex; align-items: center; padding-top: 1.6rem; margin-bottom: var(--sp-3); }
+.intake-live {
+  margin: 0; width: 100%; padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md);
+  background: var(--sky-wash); color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums;
+  border-left: 4px solid var(--sky);
+}
+.intake-live.is-empty { color: var(--muted); font-weight: 400; }
+
+.intake-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--sp-4); margin-top: var(--sp-2); }
+.intake-summary {
+  margin: 0; flex: 1; padding: var(--sp-2) var(--sp-3); border: 1px solid var(--st-red-line); border-left: 4px solid var(--danger);
+  border-radius: var(--r-sm); background: var(--danger-wash); color: var(--danger-ink); font-weight: 500;
+}
+.intake-continue { min-width: 180px; }
+
+/* Net vs gross explainer */
+.intake-explain { font-size: .95rem; }
+.intake-explain-title { font-size: 1.3rem; margin-bottom: var(--sp-2); }
+.intake-explain p { margin-bottom: var(--sp-3); }
+.intake-paybar {
+  display: flex; height: 40px; border-radius: var(--r-md); overflow: hidden; margin: var(--sp-3) 0 var(--sp-1);
+  font-size: .8rem; font-weight: 600; font-variant-numeric: tabular-nums; border: 1px solid var(--line-2);
+}
+.intake-paybar > div { display: flex; align-items: center; padding: 0 var(--sp-2); white-space: nowrap; }
+.intake-paybar-net { background: var(--accent); color: var(--accent-on); }
+.intake-paybar-tax {
+  flex: 1; justify-content: center; color: var(--ink-2);
+  background: repeating-linear-gradient(135deg, var(--surface-2) 0 6px, var(--surface) 6px 12px);
+}
+.intake-paybar-cap { font-size: .8rem; color: var(--muted); }
+.intake-explain-tip { margin: 0 !important; font-weight: 600; color: var(--sunset-ink); }
+
+@media (max-height: 720px) {
+  .intake-lead { display: none; }
+  .app-main:has(> .intake-screen) { padding-top: var(--sp-4); }
+}
+@media (max-width: 1100px) {
+  .intake-screen { grid-template-columns: minmax(0, 1fr) 260px; gap: var(--sp-4); }
+  .intake-card { padding: var(--sp-5); }
+  .intake-grid { column-gap: var(--sp-4); }
+}
+@media (max-width: 860px) {
+  .intake-screen { grid-template-columns: 1fr; }
+  .intake-grid { grid-template-columns: 1fr; }
+  .intake-live-wrap { padding-top: 0; }
+}

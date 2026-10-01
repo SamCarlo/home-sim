@@ -9,6 +9,16 @@ export const START_YEAR = 2033;
 /** Class codes accepted in local mode (11 §2). */
 export const LOCAL_CLASS_CODES = ['DEMO'];
 
+/** Intake field limits (04 §1). Money in cents. */
+export const INTAKE = {
+  nameMin: 2, nameMax: 30,
+  jobTitleMax: 40,
+  incomeMinCents: 50000, incomeMaxCents: 2000000,     // $500 – $20,000 per month
+  hoursMin: 10, hoursMax: 80, hoursDefault: 40,
+  savingsMinCents: 0, savingsMaxCents: 100000000,     // $0 – $1,000,000
+  weeksPerYear: 52,                                   // for the "per hour" one-liner
+};
+
 /** Housing cost defaults (04 §3; netToGross from 05 §7). */
 export const FINANCE = {
   downPaymentPct: 0.10,

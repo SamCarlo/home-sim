@@ -5,3 +5,4 @@ admin /admin.html
 vendor /index.html?dev=vendor
 fresh /index.html?seed=fresh
 devpanel /index.html?seed=plan-comfortable&dev=1
+intake /index.html?seed=fresh
