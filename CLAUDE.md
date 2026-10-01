@@ -65,11 +65,12 @@ app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?
                                seeds.js (fixtures) · devPanel.js (?dev=1)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
-app/src/accounts/ui/login.js   placeholder (task 05)
+app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
+                               ui/login.js (welcome screen: Log in / Create account tabs)
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
-tests/e2e/                     shoot.mjs step scripts (example.json, persist.json)
+tests/e2e/                     shoot.mjs step scripts (example.json, persist.json, register.json)
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
@@ -102,8 +103,12 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
-- `main.js`: `?seed=` → `local-dev` user + fixture (saved at once); otherwise the temporary `local-anon` save (task 05
-  replaces it with login). `ctx` also carries `user`. `window.__homesim` = `{store, getState, update, seeds, version, persistence}`.
+- `main.js`: `?seed=` → `local-dev` user + fixture (saved at once, no login); otherwise `accounts.current()` or the login
+  screen, and `accounts.onChange` starts the game on sign-in. Log out (header) flushes, detaches, signs out, shows login.
+  `ctx` also carries `user`. `window.__homesim` = `{store, getState, update, seeds, version, persistence, accounts, user}`.
+- A fresh profile lands on login: e2e scripts that need a player register through the UI first (see `tests/e2e/persist.json`).
+- Accounts: `AccountError {code, message, field}`; friendly text lives in `accounts/provider.js` `MESSAGES`. The local
+  provider takes `{local, session, crypto}` so Node tests use `globalThis.crypto` and a Map-backed storage shim.
 - Checkpoints within 5 s of the last one are *queued*, not dropped; a reload in that window still saves through the
   `pagehide` flush. In unit tests pass `attach(store, adapter, {clock, events})` (see `tests/unit/persistence.test.js`'s fake clock).
 - `store.replace(state)` swaps the whole state (seed load, reset) as a checkpoint. Listeners get `(state, {checkpoint, prev})`.

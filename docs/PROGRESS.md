@@ -130,3 +130,38 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Task 11: put `renderSaveStatus(ctx.persistence.status)` into the header's `.save-indicator` slot (header still renders an empty span).
   - The persistence adapter may resolve `{ok:false, code, message}` instead of throwing; the policy treats it as a failure.
   - Net worth treats a home's price as `home.purchasePriceCents` (or `choice.snapshot.priceCents`); the ledger task should keep one of those.
+
+## Task 05 — Login and registration (local mode)
+- attempt started 2026-09-30T20:07:51-10:00
+- done 2026-09-30T20:12:18-10:00
+- Added: `app/src/accounts/{provider,local}.js`, `app/styles/login.css`, `tests/unit/accounts.test.js`, `tests/e2e/register.json`.
+  Changed: `app/src/accounts/ui/login.js` (real welcome screen), `app/src/main.js` (provider → login → load/create save;
+  logout; `ANON_USER` gone), `app/src/ui/header.js` ("Playing as" + Log out), `app/index.html` (login.css),
+  `tests/e2e/persist.json` (registers first, save key from `__homesim.user.uid`), `tools/smoke.txt` (`boot` → `login`), `CLAUDE.md`.
+- Verified:
+  - `npm test` incl. 5 new account tests: `ab` rejected, `TestKid1` → `testkid1`, class code format, register/login/logout,
+    remember → localStorage session restored by `init()`, duplicate username, wrong password, unknown user, bad class code.
+  - `node tools/shoot.mjs --path "/index.html?theme=light" --steps tests/e2e/register.json` → OK (register testkid1 / password123 /
+    demo → intake, save in localStorage, Log out → login, session cleared, log in again → intake, reload stays signed in).
+  - `tests/e2e/persist.json` → OK. `bash tools/check.sh` → "check: OK (syntax 34 files · tests · data skipped · smoke) in 8s" (5/5).
+  - `t05-login-1366.png`: centered card, left sunset illustration (sky gradient, sun, lava ridge, green hills, cream house,
+    palm), right title, orange tagline, intro, pill tabs with Log in selected, two fields, Show toggle, keep-me checkbox, green
+    Log in button, "Forgot your password?"; "Local mode" pill below. Nothing clipped.
+  - `t05-register-1366-dark.png`: dark card, Create account tab selected, 2×2 grid (username/class code, password/confirm) with
+    hints, green button. Readable.
+  - `t05-register-errors-1024.png` (1024×640, light): "ab" + "short" + "NOPE" submitted → red borders and red-dot errors under
+    username and password; everything fits with room to spare, no page scroll.
+  - `t05-login-error-1024.png`: password shown via Hide/Show, red alert "Username or password doesn't match.", forgot-password
+    text expanded. Fits 1024×640.
+  - `e2e-register-intake.png`: header "Playing as testkid1" + Log out at right, About you placeholder.
+- Deviations: none. `uid = 'local-' + first 16 hex of SHA-256("homesim:<username>")` (stable per username).
+- Notes for later tasks:
+  - `AccountError` also carries `field` (username/password/confirm/classCode or null); the login UI puts field errors inline
+    and the rest in the alert box. Task 50's Firebase provider should set `field` too (e.g. taken username → 'username').
+  - `selectProvider({firebaseMode})` always returns local for now; task 50 adds the Firebase branch there.
+  - Login has no seed (no state); its smoke line is `login /index.html`. Seeds still bypass login as `local-dev`.
+  - `window.__homesim` now also has `accounts` and `user`. e2e scripts that need a player should register through the UI
+    (see persist.json) since a fresh profile lands on login.
+  - Loose end for task 54/55: in headless shots the ʻokina in body text ("Hawaiʻi") renders with extra space around it,
+    which looks like a fallback glyph (IBM Plex Sans may lack U+02BB). Worth checking on a Chromebook.
+  - The "Log out" text sits a pixel or two low in its 44 px button; cosmetic.

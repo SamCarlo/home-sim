@@ -1,0 +1,67 @@
+/* Welcome / login screen (11 §2, 12 §2, §4). Fits 1366×768 and 1024×640 without page scroll. */
+.login-screen {
+  min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: var(--sp-3); padding: var(--sp-4);
+  background: radial-gradient(ellipse at 20% 0%, var(--sunset-wash), transparent 60%), var(--bg);
+}
+.login-card { display: grid; grid-template-columns: 280px minmax(0, 1fr); width: min(860px, 100%); padding: 0; overflow: hidden; box-shadow: var(--shadow-lg); }
+.login-hero { position: relative; background: var(--sky-deep); min-height: 100%; }
+.login-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.login-body { padding: var(--sp-5) var(--sp-6); }
+.login-title { margin: 0; font-size: 2rem; }
+.login-tagline { margin: var(--sp-1) 0 var(--sp-2); font-family: var(--font-display); font-size: 1.1rem; color: var(--sunset-ink); }
+.login-intro { margin-bottom: var(--sp-4); font-size: .95rem; }
+
+.login-tabs { display: flex; gap: var(--sp-1); padding: 4px; margin-bottom: var(--sp-4); background: var(--surface-2); border-radius: var(--r-pill); }
+.login-tab {
+  flex: 1; min-height: 44px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--ink-2);
+  font-weight: 600; cursor: pointer;
+}
+.login-tab[aria-selected="true"] { background: var(--surface); color: var(--accent-ink); box-shadow: var(--shadow); }
+.login-tab:hover:not([aria-selected="true"]) { color: var(--ink); }
+
+.login-form .field { margin-bottom: var(--sp-3); }
+.login-form .field p { margin: 0; }
+.login-form .input { width: 100%; box-sizing: border-box; min-height: 44px; }
+.login-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--sp-4); }
+.login-pw { position: relative; }
+.login-pw .input { padding-right: 4.5rem; }
+.login-eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); min-height: 36px; padding: 0 .7rem; font-size: .85rem; }
+.field.has-error .input { border-color: var(--danger); }
+.login-form .error::before, .login-alert::before {
+  content: "!"; display: inline-grid; place-items: center; width: 1.1em; height: 1.1em; margin-right: .35em; border-radius: 50%;
+  background: var(--danger); color: var(--danger-on); font-size: .8em; font-weight: 700; vertical-align: .05em;
+}
+.login-check { display: flex; align-items: center; gap: var(--sp-2); min-height: 44px; margin: calc(-1 * var(--sp-2)) 0 var(--sp-2); cursor: pointer; }
+.login-check input { width: 20px; height: 20px; accent-color: var(--accent); }
+.login-alert {
+  margin-bottom: var(--sp-3); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--st-red-line);
+  border-left: 4px solid var(--danger); border-radius: var(--r-sm); background: var(--danger-wash); color: var(--danger-ink); font-weight: 500;
+}
+.login-submit { width: 100%; }
+.login-forgot { margin-top: var(--sp-3); font-size: .9rem; color: var(--ink-2); }
+.login-forgot summary { cursor: pointer; color: var(--accent-ink); min-height: 32px; display: inline-flex; align-items: center; }
+.login-forgot p { margin: var(--sp-1) 0 0; }
+
+.login-mode { display: inline-flex; align-items: center; gap: var(--sp-2); margin: 0; padding: .3rem .8rem; border-radius: var(--r-pill);
+  background: var(--surface); border: 1px solid var(--line); font-size: .85rem; color: var(--ink-2); }
+.login-mode-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sunset); }
+.login-mode[data-mode="online"] .login-mode-dot { background: var(--st-green); }
+
+/* App header: who is playing + Log out */
+.header-user { display: flex; align-items: center; gap: var(--sp-2); font-size: .9rem; color: var(--ink-2); }
+.header-user strong { color: var(--ink); }
+
+@media (max-height: 700px) {
+  .login-body { padding: var(--sp-4) var(--sp-5); }
+  .login-title { font-size: 1.7rem; }
+  .login-intro { display: none; }
+  .login-form .field { margin-bottom: var(--sp-2); }
+  .login-form .hint { font-size: .8rem; }
+}
+@media (max-width: 760px) {
+  .login-card { grid-template-columns: 1fr; }
+  .login-hero { display: none; }
+  .login-grid { grid-template-columns: 1fr; }
+}
+.app-main:has(> .login-screen) { padding: 0; }

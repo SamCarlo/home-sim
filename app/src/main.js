@@ -1,8 +1,8 @@
-// Game boot (01 §5): store + local persistence. Task 05 brings the account provider and login.
+// Game boot (01 §5): account provider → login → save → store + local persistence → phase screen.
 import * as config from './config.js';
 import { FIREBASE_ENABLED } from './firebase-config.js';
 import { h, clear } from './ui/dom.js';
-import { registerScreen, renderPhase } from './ui/screens.js';
+import { registerScreen, renderPhase, unmountCurrent } from './ui/screens.js';
 import { renderHeader } from './ui/header.js';
 import { devAllowed as isDevAllowed } from './dev/flags.js';
 import { mountGallery } from './dev/galleries.js';
@@ -12,9 +12,7 @@ import { migrate } from './state/migrate.js';
 import { createStore } from './state/store.js';
 import { attach } from './state/persistence.js';
 import { createLocalAdapter } from './persistence/local.js';
-
-/** Temporary player until login exists (task 05 replaces it). */
-const ANON_USER = { uid: 'local-anon', username: 'player', classCode: 'DEMO' };
+import { selectProvider } from './accounts/provider.js';
 
 registerScreen('login', () => import('./accounts/ui/login.js'));
 registerScreen('intake', () => import('./phases/intake/intakeScreen.js'));
@@ -26,6 +24,7 @@ registerScreen('life', () => import('./phases/life/lifeScreen.js'));
 const params = new URLSearchParams(location.search);
 const devAllowed = isDevAllowed();
 const firebaseMode = FIREBASE_ENABLED && !params.has('adapter') && !params.has('seed');
+const dev = { allowed: devAllowed, params, firebaseMode };
 
 applyTheme(devAllowed ? params.get('theme') : null);
 installErrorBoundary();
@@ -33,54 +32,77 @@ boot().catch(showError);
 
 async function boot() {
   const root = document.getElementById('app');
+  const main = h('main', { class: 'app-main', id: 'screen' });
   // ?dev=<gallery> renders a dev gallery instead of the game (01 §7). ?dev=1 is the dev panel (below).
   const gallery = devAllowed ? params.get('dev') : null;
   if (gallery && gallery !== '1') {
-    const main = h('main', { class: 'app-main', id: 'screen' });
     clear(root).append(main);
     if (await mountGallery(gallery, main)) return;
   }
-  // Seed mode (01 §7): the local dev user with a fixture. Otherwise the temporary local-anon save.
-  const seedName = devAllowed ? params.get('seed') : null;
-  const user = seedName ? DEV_USER : ANON_USER;
+
+  const accounts = await selectProvider({ firebaseMode });
+  await accounts.init();
   const adapter = createLocalAdapter();
-  let state;
-  let fresh = false;
-  if (seedName) {
-    state = buildSeed(seedName, Date.now());
-    fresh = true;
-  } else {
-    const loaded = await adapter.load(user.uid);
-    state = loaded ? migrate(loaded) : createInitialState({ ...user, now: Date.now() });
-    fresh = !loaded;
-  }
+  let game = null; // { store, persistence, unsubscribe, devPanel, user }
 
-  const store = createStore(state);
-  const persistence = attach(store, adapter, { uid: user.uid });
-  if (fresh) await persistence.saveNow(seedName ? `seed:${seedName}` : 'account-created');
-  const ctx = { store, accounts: null, persistence, config, user, dev: { allowed: devAllowed, params, firebaseMode } };
-
-  if (devAllowed) {
-    window.__homesim = { store, getState: store.getState, update: store.update, seeds, version: STATE_VERSION, persistence };
-  }
-
-  const main = h('main', { class: 'app-main', id: 'screen' });
-  let shownPhase = null;
-  const render = async (force = false) => {
-    const { phase } = store.getState();
-    if (phase === shownPhase && !force) return;
-    shownPhase = phase;
-    clear(root);
-    root.append(renderHeader(phase), main);
-    await renderPhase(main, ctx);
+  /** No one signed in: show the welcome screen; accounts.onChange picks up the sign-in. */
+  const showLogin = async () => {
+    clear(root).append(main);
+    await renderPhase(main, { store: null, accounts, persistence: null, config, dev, phase: 'login' });
   };
-  store.subscribe(() => render().catch(showError));
-  await render();
 
-  if (devAllowed && params.get('dev') === '1') {
-    const { mountDevPanel } = await import('./dev/devPanel.js');
-    mountDevPanel({ store, persistence, user, rerender: () => render(true).catch(showError) });
-  }
+  /** Flush the save, detach autosave, sign out, back to login (11 §2). */
+  const logout = async () => {
+    const g = game;
+    game = null;
+    if (g) {
+      await g.persistence.flush();
+      g.persistence.detach();
+      g.unsubscribe();
+      g.devPanel?.();
+    }
+    unmountCurrent(main);
+    await accounts.logout();
+    await showLogin();
+  };
+
+  /** Load or create the player's save, then render their phase. fixture = seed state (dev). */
+  const startGame = async (user, fixture = null) => {
+    const loaded = fixture ? null : await adapter.load(user.uid);
+    const state = fixture ?? (loaded ? migrate(loaded) : createInitialState({ ...user, now: Date.now() }));
+    const store = createStore(state);
+    const persistence = attach(store, adapter, { uid: user.uid });
+    if (!loaded) await persistence.saveNow(fixture ? `seed:${params.get('seed')}` : 'account-created');
+    const ctx = { store, accounts, persistence, config, user, dev };
+    let shownPhase = null;
+    const render = async (force = false) => {
+      if (game?.store !== store) return;
+      const { phase } = store.getState();
+      if (phase === shownPhase && !force) return;
+      shownPhase = phase;
+      clear(root);
+      root.append(renderHeader(phase, { user, onLogout: () => logout().catch(showError) }), main);
+      await renderPhase(main, ctx);
+    };
+    game = { store, persistence, user, unsubscribe: store.subscribe(() => render().catch(showError)) };
+    if (devAllowed) {
+      window.__homesim = { store, getState: store.getState, update: store.update, seeds, version: STATE_VERSION, persistence, accounts, user };
+    }
+    await render();
+    if (devAllowed && params.get('dev') === '1') {
+      const { mountDevPanel } = await import('./dev/devPanel.js');
+      game.devPanel = mountDevPanel({ store, persistence, user, rerender: () => render(true).catch(showError) });
+    }
+  };
+
+  accounts.onChange((user) => { if (user && !game) startGame(user).catch(showError); });
+
+  // Seed mode (01 §7): the local dev user with a fixture, no login.
+  const seedName = devAllowed ? params.get('seed') : null;
+  if (seedName) return startGame(DEV_USER, buildSeed(seedName, Date.now()));
+  const user = accounts.current();
+  if (user) return startGame(user);
+  return showLogin();
 }
 
 /** ?theme=light|dark (dev) overrides the OS setting; settings.theme takes over in a later task. */
