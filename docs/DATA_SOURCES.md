@@ -44,6 +44,15 @@ knowledge, a reasonable estimate). Figures in the data files are rounded per 03 
   Manhattan, downtown Miami/Brickell, Houston's Energy Corridor, the Strip/downtown Las Vegas, downtown Chattanooga,
   downtown Halifax). All estimates.
 - **Sanity bands (cities)**: all seven city records are inside their 03 §5 bands; the validator prints no warnings.
+- **Checked (towns)**: task 09 (2026-10-01) ran web searches for house medians in all eight towns, rents in Marquette,
+  Bisbee and Homer, Montpelier's tax rate, Valentine/Cherry County tax data, Yellow Pine's winter road and population, and
+  whether Ascend WV still serves Elkins (it does: applications open in 2026). Other figures are best knowledge, marked unverified.
+- **Towns: groceries and commutes**: USDA Moderate plan × local factor (~1.05–1.15 for most towns, ~1.4 for Yellow Pine
+  and ~1.5 for Homer, where food is hauled or shipped). Commutes are short in-town drives except Bisbee (Sierra Vista jobs).
+- **Sanity bands (towns)**: seven of the eight are inside their 03 §5 bands. **Montpelier's house price ($450,000)** is
+  above its band because 2025 sales medians ($470,500–514,500) are; the validator prints that one warning by design.
+- **Condo availability (03 §3)**: marked unavailable in Yellow Pine (03 §3), Elkins, Clarksdale, Bisbee and Valentine;
+  kept available in Marquette, Montpelier and Homer, which have small condo/townhome markets.
 
 ## Pāhoa
 
@@ -237,6 +246,124 @@ All CAD figures × 0.71 (see Global notes).
 | Groceries | $440 | CAD 620 | unverified |
 | Seasons | hurricane months June–Nov | Post-tropical storms (Fiona 2022, Juan 2003) reach Nova Scotia | verified (general knowledge) |
 
+## Yellow Pine
+
+| Figure | Value | Basis / source / year | Status |
+|---|---|---|---|
+| 1BR apartment / condo | unavailable | 03 §3 decisions; ~25–30 year-round residents (Valley Lookout 2026; census CDP counts ~90 incl. part-timers) | n/a; population **verified** |
+| Room | $600 | Estimate; rooms rarely come up | unverified |
+| House | $300,000 | Zillow ZHVI ~$268,000 (2026); listings $260,000 (1BR cabin) to $729,000 (10 acres). A 2BR cabin set a little above the ZHVI | **verified** (range) |
+| Lot / build | $60,000 lot; $375/sq ft; site $55,000; 18 months | Remote hauling, summer-only building season, well or community water hookup, septic, power | unverified |
+| Property tax | 0.50% | Valley County levies with the Idaho homeowner's exemption | unverified |
+| HO-3 | $2,200/yr | Remote wildfire-country cabin far from a staffed fire station; few insurers write here | unverified |
+| Utilities | $250 + $150 Nov–Apr | Electricity plus propane and firewood | unverified |
+| Internet | $120/mo | Satellite (Starlink residential plan); local listings advertise Starlink | **verified** (general) |
+| Transport | car $575/mo | 4WD truck, tires and fuel for 70-mile gravel trips to Cascade (~2.5 hours) | unverified; distance **verified** |
+| Groceries | $525 | Moderate plan × 1.4 for bulk buying and hauling | unverified |
+| Winter access | | South Fork Road is the only plowed winter route; a January 7, 2026 landslide closed it until May 2026 (Valley Lookout) | **verified** |
+| Metrics | movie 75 mi (McCall/Cascade side), concert hall 150 mi (Boise), medianAge 64 (census 64.7) | | median age **verified**; distances estimates |
+
+## Marquette
+
+| Figure | Value | Basis / source / year | Status |
+|---|---|---|---|
+| 1BR rent | $1,050 | Average rent ~$1,028 (all units) and 1BR ~$1,100 (Apartments.com / Rent.com, June 2025) | **verified** |
+| Room | $550 | Student-area listings | unverified |
+| Condo | $230,000 (HOA $300) | Marquette County 1BR sold median ~$215,000 (Rocket, June 2025); a 2BR set above it | estimate near a verified figure |
+| House | $295,000 | Redfin recent month ~$330,000 (noisy; 12-month figure skewed by lake-front sales); band 230–300K. A typical in-town house set at the top of the band | **verified** (range) |
+| Lot / build | $50,000 lot; $240/sq ft; 10 months | Deep frost-line foundations | unverified |
+| Property tax | 1.60% | Michigan principal-residence (PRE) millage on taxable value (~50% of market); taxable value resets to SEV on sale | unverified |
+| HO-3 / HO-6 | $1,300 / $400 per yr | Michigan averages | unverified |
+| Utilities | $190 + $110 Nov–Apr | Natural gas heat; ~150 in. of snow a year (NWS Marquette) | unverified |
+| Metrics | medianAge 28 (Northern Michigan University); concert hall: NMU's Forest Roberts Theatre / Kaufman Auditorium | | unverified |
+
+## Montpelier
+
+| Figure | Value | Basis / source / year | Status |
+|---|---|---|---|
+| 1BR rent | $1,400 | Central Vermont listings; HUD FY2026 FMR Washington County | unverified |
+| Room | $750 | Listings | unverified |
+| Condo | $275,000 (HOA $350) | Estimate; few condos | unverified |
+| House | $450,000 | Hickok & Boardman: Montpelier 2025 single-family median $514,500 on 38 sales; another summary gives $470,500. Set a little below these small-sample medians. **Above the 03 §5 band (330–420K)**: the source wins, so the validator prints one warning here | **verified** |
+| Lot / build | $90,000 lot; $300/sq ft; 10 months | Hillside lots above the flood plain | unverified |
+| Property tax | 2.10% | City of Montpelier FY25 homestead rate ~$2.317 per $100 of grand-list value (municipal + homestead education); grand list runs a little below market | rate **verified**; effective unverified |
+| HO-3 / HO-6 | $1,200 / $400 per yr | Vermont averages | unverified |
+| Flood | $1,500/yr, zone-required | NFIP near the Winooski / North Branch. Downtown flooded July 10–11, 2023 and again July 2024 | floods **verified**; premium unverified |
+| Utilities | $230 + $160 Nov–Apr | Oil/propane heat | unverified |
+| Hook | | Smallest state capital by population; the only state capital with no McDonald's | verified (general knowledge) |
+| Metrics | movie 1 mi (Savoy Theater downtown), concert hall 7 mi (Barre Opera House) | | unverified |
+
+## Elkins
+
+| Figure | Value | Basis / source / year | Status |
+|---|---|---|---|
+| 1BR rent | $750 | HUD FY2026 FMR Randolph County range; listings | unverified |
+| Room | $425 | Listings | unverified |
+| Condo | unavailable | Searches show houses and lots only; condos are genuinely rare (03 §3) | judgment |
+| House | $195,000 | Median residential sale ~$201,700 over the past year (RealtyTrac 2025–26); listing median ~$249,000 runs higher | **verified** |
+| Lot / build | $30,000 lot (0.5 ac); $200/sq ft; 9 months | Estimates | unverified |
+| Property tax | 0.65% | WV Class II (owner-occupied) assessed at 60% of value; Elkins + Randolph County + schools ≈ $1.1 per $100 assessed | unverified |
+| HO-3 / HO-6 | $1,100 / $350 per yr | WV averages | unverified |
+| Flood | $700/yr, zone-required | Tygart Valley River; November 1985 flood | unverified |
+| Ascend WV | | Greater Elkins is an Ascend community; applications are open in 2026. $12,000 cash over two years plus free outdoor recreation and coworking (Ascend WV, WV Public Broadcasting, CBS Pittsburgh). Kept in present tense with "As of 2026" | **verified** |
+
+## Clarksdale
+
+| Figure | Value | Basis / source / year | Status |
+|---|---|---|---|
+| 1BR rent | $650 | HUD FY2026 FMR Coahoma County range; listings | unverified |
+| Room | $375 | Estimate | unverified |
+| Condo | unavailable | Almost no condo stock in Clarksdale (03 §3 suggestion confirmed by listing searches) | judgment |
+| House | $85,000 | Zillow ZHVI ~$45,700 (June 2026) includes many houses needing major repair; Homes.com median ~$100,000; AreaVibes ~$119,000. A move-in-ready 3BR set at $85,000, inside the 60–120K band | **verified** (range) |
+| Lot / build | $10,000 lot; $170/sq ft; 8 months | Estimates; new builds often cost more than they appraise for | unverified |
+| Property tax | 1.30% | Mississippi homestead exemption with city + county + school millage | unverified |
+| HO-3 / HO-6 | $2,200 / $400 per yr | Mississippi averages are high (wind, hail, tornado) | unverified |
+| Metrics | movie 35 mi (Cleveland, MS), "concert hall" 1 mi = in-town blues clubs (Ground Zero, Red's) and festivals | | unverified |
+| Jobs | | "Fewer jobs" phrasing; Coahoma County unemployment and out-migration are well above state averages | verified (general knowledge) |
+
+## Bisbee
+
+| Figure | Value | Basis / source / year | Status |
+|---|---|---|---|
+| 1BR rent | $850 | Zillow Bisbee rentals $845–2,200, average all units $1,356 (2025); a 1BR near the low end | **verified** (range) |
+| Room | $500 | Estimate | unverified |
+| Condo | unavailable | Old hillside houses; condo listings are very rare | judgment |
+| House | $260,000 | Redfin 12-month median sale ~$259,000 (2025); single months swing $209K–366K | **verified** |
+| Lot / build | $35,000 lot; $260/sq ft; site $45,000 (retaining walls, access); 11 months | Estimates | unverified |
+| Property tax | 0.75% | Arizona owner-occupied (primary + secondary) rates in Cochise County | unverified |
+| HO-3 | $1,400/yr | Arizona averages | unverified |
+| Climate | Cool months extra Jun–Sep; monsoon Jul–Sep | ~5,300 ft elevation; hottest in June; monsoon flash floods | verified (general knowledge) |
+| Commute | 30 min | Many jobs are in Sierra Vista / Fort Huachuca, ~25 miles | estimate |
+
+## Valentine
+
+| Figure | Value | Basis / source / year | Status |
+|---|---|---|---|
+| 1BR rent | $700 | HUD FY2026 FMR Cherry County range | unverified |
+| Room | $400 | Estimate | unverified |
+| Condo | unavailable | No condo buildings in a town of ~2,700 | judgment |
+| House | $175,000 | Ownwell median value ~$134,000–159,000 (2025 assessments, which lag sales); set a little higher for a market price | **verified** (range) |
+| Lot / build | $25,000 lot; $210/sq ft; 9 months | Estimates | unverified |
+| Property tax | 1.40% | Nebraska levies run ~1.6–1.8% of value before state credits; Ownwell's bill-based effective rate is lower (0.57–0.87%) because the new state school credits come off the bill. Uses the bottom of the 03 §5 band as a middle ground | unverified (conflicting sources) |
+| HO-3 | $3,000/yr | Nebraska is among the most expensive states for home insurance because of hail and wind | unverified |
+| Windstorm add-on | $400/yr, optional | Buys down the separate wind/hail deductible (1–2% of dwelling value is typical in Nebraska) | unverified |
+| Metrics | concert hall 150 mi (North Platte); movie 1 mi (in-town theater) | | unverified |
+
+## Homer
+
+| Figure | Value | Basis / source / year | Status |
+|---|---|---|---|
+| 1BR rent | $1,250 | Median rent ~$1,238; "$1,200–1,250 a practical starting point" (Apartments.com and local guides, 2025) | **verified** |
+| Room | $700 | Estimate | unverified |
+| Condo | $300,000 (HOA $350) | Estimate; a few in-town condos/townhomes exist | unverified |
+| House | $475,000 | Median list $499,000 (June 2025), median list $488,000 (Sept 2026); June 2025 median sale $567,000 (small sample) | **verified** |
+| Lot / build | $75,000 lot (1 ac); $350/sq ft; 12 months | Estimates; materials trucked from Anchorage | unverified |
+| Property tax | 1.10% | Kenai Peninsula Borough + City of Homer mill rates (~11 mills) | unverified |
+| HO-3 / HO-6 | $1,500 / $450 per yr | Alaska averages | unverified |
+| Earthquake | $900/yr, optional | 1964 and 2018 quakes | unverified |
+| Utilities | $280 + $180 Sep–May | Homer Electric Association power plus Enstar natural gas or heating oil | unverified |
+| Groceries | $575 | Moderate plan × ~1.5 (Alaska prices) | unverified |
+
 ## Sources
 
 - UHERO, *The Hawaiʻi Housing Factbook 2025*: https://uhero.hawaii.edu/the-hawaii-housing-factbook-2025/
@@ -266,3 +393,14 @@ All CAD figures × 0.71 (see Global notes).
 - CMHC 2025 Rental Market Report: https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/market-reports/rental-market-reports-major-centres
 - CBC, Halifax 2025–26 tax rate: https://www.cbc.ca/news/canada/nova-scotia/halifax-to-keep-property-tax-rate-flat-bills-going-up-about-4-7-1.7494224
 - Bank of Canada daily exchange rates: https://www.bankofcanada.ca/rates/exchange/daily-exchange-rates/
+- Valley Lookout, Yellow Pine winter route landslide (Jan 2026) and reopening (May 2026): https://valleylookout.com/2026/01/09/people-in-yellow-pine-are-tough-landslide-closes-primary-winter-access-to-backcountry-village/ and https://valleylookout.com/2026/05/22/backcountry-road-near-mccall-re-opens-following-winter-landslide/
+- Zillow, Yellow Pine: https://www.zillow.com/yellow-pine-id/
+- Rocket, Marquette County June 2025: https://rocket.com/homes/market-reports/mi/marquette-county and Apartments.com Marquette: https://www.apartments.com/rent-market-trends/marquette-mi/
+- Hickok & Boardman, Washington County VT report: https://www.hickokandboardman.com/vermont-market-report/market/washington-county/
+- City of Montpelier FY25 tax rate worksheet: https://www.montpelier-vt.org/DocumentCenter/View/11325/FY25-Tax-Rate-Worksheet-with-Comparison
+- Ascend WV, Greater Elkins: https://ascendwv.com/ and https://wvpublic.org/story/economy/ascend-west-virginia-adds-another-community-to-the-program/
+- RealtyTrac, Elkins: https://www.realtytrac.com/market-trends/elkins-wv/
+- Zillow / Homes.com, Clarksdale: https://www.zillow.com/friars-point-ms-38631/home-values/ and https://www.homes.com/clarksdale-ms/
+- Redfin, Bisbee: https://www.redfin.com/city/1658/AZ/Bisbee/housing-market and Zillow Bisbee rentals: https://www.zillow.com/rental-manager/market-trends/bisbee-az/
+- Ownwell, Valentine: https://www.ownwell.com/trends/nebraska/cherry-county/valentine
+- Rocket, Homer June 2025: https://rocket.com/homes/market-reports/ak/homer and Apartments.com Homer: https://www.apartments.com/rent-market-trends/homer-ak/

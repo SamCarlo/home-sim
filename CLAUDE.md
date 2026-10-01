@@ -107,7 +107,8 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 
 ## Location data (03, `app/src/data/`, pure)
 - `locations/index.js`: `LOCATIONS` (03 §1 order), `byId`, `REGION_LABELS`. Records follow 03 §2 exactly; money is cents
-  (`usd(d)` helper inside each data file). `CITIES` (task 08) is filled; task 09 fills `TOWNS` in `towns.js`.
+  (`usd(d)` helper inside each data file). All 20 records exist (`HAWAII`, `CITIES`, `TOWNS`). Unavailable cells: Pāhoa condo, Brooklyn build, Yellow Pine apartment +
+  condo, and condo in Elkins, Clarksdale, Bisbee and Valentine. Montpelier's house price prints one cited sanity warning by design.
   Halifax money is stored in USD (CAD × `CAD_USD` 0.71, exported from `cities.js`); its `currency` is for display only.
   Don't write "U.S." in a blurb: the validator's sentence counter splits on ". ".
 - `enums.js`: regions, settlements, biomes, `STYLE_FAMILIES` (16), `STYLE_VARIANTS`, `LANDMARKS` (20), `HAZARDS`,

@@ -99,3 +99,39 @@ test('city specifics: Brooklyn build n/a, Halifax CAD, Katy MUD + flood, Vegas N
   assert.ok(byId.katy.ownership.propertyTaxRate > byId['las-vegas'].ownership.propertyTaxRate);
   assert.ok(byId.miami.ownership.homeInsuranceAnnualCents > byId.seattle.ownership.homeInsuranceAnnualCents);
 });
+
+test('all 20 places: exact 03 §1 order, zero errors, three region groups', () => {
+  assert.deepEqual(LOCATIONS.map((l) => l.id), ORDER);
+  assert.deepEqual(validateLocations(LOCATIONS).errors, []);
+  assert.deepEqual(LOCATIONS.filter((l) => l.region === 'towns').map((l) => l.id), ORDER.slice(12));
+  for (const r of REGIONS) assert.ok(LOCATIONS.some((l) => l.region === r));
+});
+
+test('town specifics: Yellow Pine n/a + remote, Elkins Ascend, Valentine wind/hail, Montpelier flood, Bisbee hillside', () => {
+  const yp = byId['yellow-pine'];
+  assert.equal(yp.housing.apartment.available, false);
+  assert.equal(yp.housing.condo.available, false);
+  assert.match(yp.blurb, /gravel/);
+  assert.match(yp.blurb, /satellite/);
+  assert.ok(yp.metrics.movieTheaterMiles >= 50 && yp.metrics.transit === 1);
+  for (const id of ['elkins', 'clarksdale', 'bisbee', 'valentine']) assert.equal(byId[id].housing.condo.available, false, id);
+  assert.match(byId.elkins.blurb, /Ascend WV/);
+  assert.ok(byId.valentine.hazards.includes('hail'));
+  assert.ok(byId.valentine.ownership.hazardCoverage.some((c) => c.type === 'windstorm'));
+  assert.ok(byId.montpelier.ownership.hazardCoverage.some((c) => c.type === 'flood' && /2023/.test(c.note)));
+  assert.ok(byId.montpelier.ownership.propertyTaxRate >= 0.018);
+  assert.equal(byId.bisbee.styleVariant, 'hillside');
+  assert.equal(byId.homer.styleVariant, 'alaska');
+  assert.ok(byId.homer.living.utilitiesSeasonal.heatExtraCents >= byId.seattle.living.utilitiesSeasonal.heatExtraCents);
+  assert.match(byId.clarksdale.blurb, /blues/);
+});
+
+test('cross-place sanity: Clarksdale cheapest, Brooklyn and Honolulu among the dearest', () => {
+  const house = (l) => (l.housing.house.available ? l.housing.house.priceCents : Infinity);
+  const cheapest = [...LOCATIONS].sort((a, b) => house(a) - house(b))[0];
+  assert.equal(cheapest.id, 'clarksdale');
+  const rents = LOCATIONS.filter((l) => l.housing.apartment.available).sort((a, b) => a.housing.apartment.rentCents - b.housing.apartment.rentCents);
+  assert.equal(rents[0].id, 'clarksdale');
+  const topHouses = [...LOCATIONS].sort((a, b) => house(b) - house(a)).slice(0, 4).map((l) => l.id);
+  assert.ok(topHouses.includes('brooklyn') && topHouses.includes('honolulu'), topHouses.join());
+});

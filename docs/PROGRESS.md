@@ -255,3 +255,51 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Miami HO-3 includes windstorm (Florida practice), so there is no separate hurricane add-on there; Katy likewise.
   - Avoid "U.S." inside blurbs: the validator's sentence counter splits on ". " and would count an extra sentence.
   - Brooklyn `transport.mode` is 'transit' ($135 MetroCard); task 10's cost engine should not add car costs there.
+
+## Task 09 — Small-town and rural locations
+- attempt started 2026-10-01T04:07:51-10:00
+- done 2026-10-01T04:12:59-10:00
+- Added: `app/src/data/locations/towns.js` (8 records). Changed: `tests/unit/locations.test.js` (3 new tests),
+  `docs/DATA_SOURCES.md` (town global notes, 8 sections, sources), `CLAUDE.md` (Location data note).
+- Verified:
+  - `node --test tests/unit/locations.test.js`: 12/12 (all 20 in exact 03 §1 order, zero errors; town specifics;
+    cross-place: Clarksdale has the cheapest house and rent, Brooklyn and Honolulu are in the top 4 house prices).
+  - One validator **warning** by design: Montpelier house $450,000 is above the 03 §5 band (330–420K); cited to the
+    2025 sales medians ($470,500–514,500, Hickok & Boardman) in DATA_SOURCES.md.
+  - `bash tools/check.sh` → "check: OK (syntax 43 files · tests · data 7 files · smoke) in 8s" (smoke 5/5). No new screens.
+  - WebSearch checked: house medians for all eight, rents for Marquette/Bisbee/Homer, Montpelier tax rate, Valentine tax,
+    Yellow Pine winter road (Jan–May 2026 landslide closure) and population, Ascend WV still open for Elkins in 2026.
+  - Summary table, all 20 (sanity-read: Clarksdale cheapest by far; Brooklyn top for rent and house; Honolulu and the
+    Kona/Waimea pair next; towns mostly cheapest except Montpelier and Homer; Valentine and Miami/Katy insurance high):
+
+    | id | 1BR rent | house | condo | property tax | HO-3 / yr | hazard add-on / yr |
+    |---|---|---|---|---|---|---|
+    | pahoa | $1,400 | $400,000 | n/a | 0.54% | $1,100 | lava $4,000 (HPIA, required) |
+    | hilo | $1,550 | $565,000 | $350,000 | 0.55% | $1,500 | none required |
+    | kailua-kona | $2,100 | $1,050,000 | $600,000 | 0.57% | $1,800 | none required |
+    | waimea | $1,950 | $1,195,000 | $650,000 | 0.58% | $1,700 | none required |
+    | honolulu | $2,100 | $1,160,000 | $535,000 | 0.31% | $1,400 | none required |
+    | seattle | $1,975 | $950,000 | $550,000 | 0.88% | $1,300 | earthquake $1,000 (optional) |
+    | brooklyn | $3,750 | $1,450,000 | $925,000 | 0.85% | $2,000 | flood $1,200 (optional) |
+    | miami | $2,450 | $680,000 | $400,000 | 1.75% | $5,000 | flood $900 (optional) |
+    | katy | $1,400 | $375,000 | $250,000 | 2.45% | $3,200 | flood $750 (advised) |
+    | las-vegas | $1,350 | $475,000 | $265,000 | 0.60% | $1,300 | earthquake $500 (optional) |
+    | chattanooga | $1,250 | $340,000 | $275,000 | 0.95% | $1,900 | flood $600 (optional) |
+    | halifax | $1,325 | $400,000 | $320,000 | 1.05% | $1,280 | flood $285 (optional) |
+    | yellow-pine | n/a | $300,000 | n/a | 0.50% | $2,200 | none |
+    | marquette | $1,050 | $295,000 | $230,000 | 1.60% | $1,300 | none |
+    | montpelier | $1,400 | $450,000 | $275,000 | 2.10% | $1,200 | flood $1,500 (zone-required) |
+    | elkins | $750 | $195,000 | n/a | 0.65% | $1,100 | flood $700 (zone-required) |
+    | clarksdale | $650 | $85,000 | n/a | 1.30% | $2,200 | flood $650 (optional) |
+    | bisbee | $850 | $260,000 | n/a | 0.75% | $1,400 | none |
+    | valentine | $700 | $175,000 | n/a | 1.40% | $3,000 | windstorm $400 (optional) |
+    | homer | $1,250 | $475,000 | $300,000 | 1.10% | $1,500 | earthquake $900 (optional) |
+- Deviations: none. Judgment calls (DATA_SOURCES.md): condo n/a in Elkins, Clarksdale, Bisbee, Valentine (kept in
+  Marquette, Montpelier, Homer); Clarksdale house uses a move-in-ready $85K, not Zillow's $46K ZHVI; Valentine tax 1.40%
+  sits between the gross levy and Ownwell's after-credit bills; Elkins keeps Ascend WV in present tense ("As of 2026").
+- Notes for later tasks:
+  - Yellow Pine `gymMonthlyCents` is 0 (no gym); task 10/43 should treat a 0 cost as "not available", not free.
+  - Yellow Pine commutes assume remote or local work (all ~10 min); `apartment`/`condo` commute values exist only
+    because the validator requires them for every type.
+  - `condoInsuranceAnnualCents` is filled even where condos are n/a (validator requires it); ignore it there.
+  - Montpelier and Elkins flood add-ons are zone-required but `requiredForMortgage: false` for the typical home, like Brooklyn.
