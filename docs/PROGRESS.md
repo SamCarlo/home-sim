@@ -396,3 +396,41 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     inserts its return value in a full-width row after the cell's row. Esc/close already restore focus via `table.focusCell(key)`.
   - Red cells are still focusable/openable so the panel can explain why (D12); "Choose" must stay disabled there.
   - Uppercase region label "HAWAIʻI" shows the same ʻokina fallback spacing noted in task 11 (task 54/55).
+
+## Task 13 — 2D preview backgrounds and landmarks
+- attempt started 2026-10-01T12:07:57-10:00
+- done 2026-10-01T12:14:52-10:00
+- Added: `app/src/phases/plan/preview2d/palette.js` (VIEW, BIOME_PALETTE for all 17 biomes, paletteFor),
+  `preview2d/landmarks.js` (all 20 landmark drawings + landmarkDescription, LANDMARK_KEYS),
+  `preview2d/backgrounds.js` (sky, terrain, vegetation, plant, mailbox, fence, car, busStop, catchmentTank, people;
+  re-exports landmark), `preview2d/index.js` (renderPreviewSVG, captionText; placeholder home per type),
+  `app/src/dev/gallery2d.js`, `tests/unit/preview2d.test.js` (6 tests). Changed: `dev/galleries.js` (gallery2d),
+  `styles/components.css` (.dev-g2d-*), `tools/smoke.txt` (gallery2d line), `CLAUDE.md`.
+- Verified:
+  - `node --test tests/unit/preview2d.test.js` 6/6 (all 100 cells: starts with <svg, viewBox, title, desc, no
+    NaN/undefined/Infinity; deterministic; seed changes scenery; escaping; n/a sign; catchment only in Pāhoa).
+  - `bash tools/check.sh` → "check: OK (syntax 56 files · tests · data 9 files · smoke) in 18s" (smoke 11/11).
+  - `t13-hawaii.png` (1600x1400, house): Kīlauea low dark shield with a white steam plume; Maunakea broad blue-gray
+    shield with snowcap and domes; Hualālai cone over a blue ocean band; Kohala green hills with mist bands; Lēʻahi
+    crater ridge with Waikīkī towers and ocean. Palms, ʻōhiʻa with red blossoms, banana, ferns; Pāhoa has a catchment tank.
+  - `t13-cities.png`: Space Needle + snowy Rainier; dense Manhattan skyline (Empire State spire, One WTC) over a river;
+    white/teal Miami towers, wide teal bay and causeway; KATY water tower; Vegas mountains, pyramid, needle tower and
+    gold-trim slabs with cacti; Lookout Mountain forested ridge with bluff and river; red/white lighthouse with beams and
+    a row of colorful harbour houses. Bus stops in Seattle/Brooklyn/Honolulu/Halifax, cars elsewhere.
+  - `t13-towns.png`: pine ridges; ore dock trestle on Lake Superior with a freighter; gold-domed capitol among hills;
+    smooth layered blue Alleghenies; crossroads signpost with three blue guitars; Mule Mountains with white "B" and
+    hillside houses; windmill on sandhill dunes; Homer glaciers and the spit.
+  - First pass showed a thin pale sky line between landmark and ground in most scenes; fixed by starting the far ground
+    band just above the horizon (`wave(H - 1, 1.5)`). Re-shot `t13-towns-all.png` (type=all): gap gone; Yellow Pine
+    apartment/condo and Elkins/Clarksdale/Bisbee condos are grayed out with a "Not available here" sign.
+  - `t13-hawaii-all-dark.png` (dark page): previews unchanged (the art is theme-independent), labels readable.
+- Deviations: none. Judgment calls: landmark drawings live in `landmarks.js` (backgrounds.js re-exports `landmark`) to
+  keep files under 400 lines; scenery (terrain, vegetation) is seeded per place, not per cell, so all five types of a
+  place share one backdrop; gallery shows 20 places for one type (`&type=house` default, `&type=all` for all 100).
+  Car vs. bus stop: bus stop when transport mode is transit/mixed or the transit metric is ≥ 4.
+- Notes for later tasks:
+  - Task 14: replace `placeholderHome()` in `preview2d/index.js` with `buildings.js`. The home stands on
+    `GROUND = 238` centered at x 240; keep it within x 170–310 so the landmark stays visible. Props
+    (`people`, `fence`, `mailbox`) are exported from backgrounds.js; the shared-room people currently overlap the door.
+  - Gradient/filter ids are prefixed with a per-cell uid (`pv<hash>`), so many SVGs can be inlined on one page.
+  - Task 15 can inline `renderPreviewSVG(...)` with innerHTML: every text node goes through escapeHtml.

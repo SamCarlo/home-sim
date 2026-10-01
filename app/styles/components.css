@@ -123,3 +123,10 @@
 .save-indicator[data-status="saved"] { color: var(--st-green-ink); }
 .save-indicator[data-status="offline"] { color: var(--st-yellow-ink); }
 .save-indicator[data-status="error"] { color: var(--danger-ink); }
+
+/* ?dev=gallery2d (task 13) */
+.dev-g2d { padding: var(--sp-4); }
+.dev-g2d-grid { display: grid; gap: var(--sp-3); }
+.dev-g2d-cell { margin: 0; }
+.dev-g2d-art svg { display: block; width: 100%; height: auto; border-radius: var(--r-md); }
+.dev-g2d-cell figcaption { font-size: 0.8rem; color: var(--ink-2, var(--ink)); margin-top: 4px; }

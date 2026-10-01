@@ -5,6 +5,7 @@
 /** Gallery name → lazy module loader. */
 export const galleries = {
   vendor: () => import('./vendorCheck.js'),
+  gallery2d: () => import('./gallery2d.js'),
 };
 
 /** Mount gallery `name` into root. Returns false when no such gallery exists. */

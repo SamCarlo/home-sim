@@ -10,3 +10,4 @@ plan-comfortable /index.html?seed=plan-comfortable
 plan-tight /index.html?seed=plan-tight
 plan-rich /index.html?seed=plan-rich
 plan-after-denial /index.html?seed=plan-after-denial
+gallery2d /index.html?dev=gallery2d

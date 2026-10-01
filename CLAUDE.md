@@ -63,7 +63,7 @@ app/src/state/                 schema.js migrate.js summary.js (pure) · store.j
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · devPanel.js (?dev=1)
+                               seeds.js (fixtures) · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
@@ -148,6 +148,11 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
   denied, expanded, detail}), focusCell(key)}`; builds DOM once, recolors via `st-<status>` classes (plan.css sets
   `--st-accent/-bg/-line/-ink` per class; reuse them for status chips elsewhere). Pure rules in `tableModel.js`.
   `detail(x)` in planScreen.js is the task-15 hook. e2e: `tests/e2e/plan-keys.json`.
+- 2D previews (04 §7, pure): `phases/plan/preview2d/index.js` `renderPreviewSVG({location, homeTypeId, seed?})` → SVG string
+  (480×270, title/desc, caption chip, muted + "Not available here" for n/a cells). Layers: `backgrounds.js` `sky(biome, uid)`,
+  `landmark(key)` (drawings in `landmarks.js`), `terrain/vegetation(biome, rng)`, props `mailbox fence car busStop
+  catchmentTank people`; palettes in `palette.js`. The home is a placeholder until task 14 (`GROUND` 238, x 170–310).
+  Gallery: `?dev=gallery2d&region=<r>&type=<id|all>`; shoot at `--size 1600x1400`.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
