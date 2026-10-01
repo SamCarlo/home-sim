@@ -37,6 +37,11 @@ export const FINANCE = {
     insuranceScaleMax: 1.5,
   },
   netToGross: 0.76,              // gross = net ÷ 0.76
+  fha: {                         // 05 §4 (simplified FHA)
+    minDownPct: 0.035,
+    upfrontMipPct: 0.0175,       // financed into the loan
+    annualMipPct: 0.0055,        // of the loan, paid monthly
+  },
 };
 
 /** Affordability colors (04 §4): red if over cash/income, yellow above ⅓, cyan at ⅕ or less. */

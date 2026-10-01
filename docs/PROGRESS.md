@@ -165,3 +165,27 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Loose end for task 54/55: in headless shots the ʻokina in body text ("Hawaiʻi") renders with extra space around it,
     which looks like a fallback glyph (IBM Plex Sans may lack U+02BB). Worth checking on a Chromebook.
   - The "Log out" text sits a pixel or two low in its 44 px button; cosmetic.
+
+## Task 06 — Money and loan math
+- attempt started 2026-09-30T22:07:52-10:00
+- done 2026-09-30T22:10:06-10:00
+- Added: `app/src/finance/{money,loans}.js`, `tests/unit/{money,loans}.test.js`. Changed: `app/src/util/format.js`
+  (re-exports `formatMoney` from `finance/money.js`), `app/src/config.js` (`FINANCE.fha`: 3.5% min down, 1.75% upfront
+  MIP, 0.55%/yr MIP), `CLAUDE.md` (folder map + Finance helpers section).
+- Verified:
+  - `npm test`: 43/43 pass. New: $300,000 @ 6.5% / 360 = 189620 ($1,896.20); $100,000 @ 6% / 360 = 59955 ($599.55);
+    0% = principal ÷ n (rounded up); schedules for four loans sum principal to the loan and end at balance 0, first-month
+    interest $1,625.00; totalInterest = payments − principal; PMI $270,000 @ 0.6% = $135; FHA $400,000 → down $14,000,
+    upfront MIP $6,755, loan $392,755, MIP $180.01/mo, 3.5% floor; construction reserve $400,000 @ 7% × 9 months = $10,500;
+    card $1,000 @ 24.99% on minimums = 76 months, $947.90 interest; a $25-flat minimum on $10,000 @ 29.99% = Infinity;
+    mulRate half-away rounding incl. 1005 × 0.1 → 101 and negatives; dollarsToCents on 12 good inputs, float drift
+    (1.005 → 101) and 21 bad inputs → null; assertCents/sumCents/pctOf/clampCents; format.js delegates.
+  - `bash tools/check.sh` → "check: OK (syntax 36 files · tests · data skipped · smoke) in 8s" (smoke 5/5). No screens, no shots.
+- Deviations: none. `formatMoney` takes `{showCents}` per the task and keeps `{cents}` as an alias (existing tests use it).
+- Notes for later tasks:
+  - `pmt` rounds to the nearest cent, so the final amortization row is a few dollars larger than the rest; the life sim
+    (task 44) should pay `min(payment, balance + interest)` the same way.
+  - FHA annual MIP is on the full financed loan (base + upfront MIP), simplified per 05 §4.
+  - `cardPayoff` with `minRule: {floorCents: 2500, pct: 0}` gives a pure "$25 minimum" example if task 30 wants 05 §6's wording;
+    the default rule is max($25, 1% + interest) (09 §6).
+  - `pctOf` returns a decimal ratio (for DTI/utilization), not cents; use `mulRate` for "x% of y cents".

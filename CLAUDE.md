@@ -58,6 +58,7 @@ app/styles/                    tokens.css base.css components.css (+ one file pe
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
+app/src/finance/               money.js loans.js (pure; see Finance helpers below)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js
@@ -91,6 +92,17 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
   - Update `VERSIONS.md`, run `npm test` and the `?dev=vendor` shot.
 - Dev galleries: add `name: () => import('./x.js')` to `dev/galleries.js`; the module exports `mount(root)` (sets ready,
   may return a cleanup) and gets a `tools/smoke.txt` line `<name> /index.html?dev=<name>`.
+
+## Finance helpers (`app/src/finance/`, pure, integer cents, rates are annual decimals)
+- `money.js`: `dollarsToCents(input)` (numbers, "3,200", "$3,200.50", "-$45"; null when unparseable) · `assertCents` ·
+  `mulRate(cents, rate)` (the one rounding rule: half away from zero) · `sumCents(arr | ...n)` · `pctOf(part, whole)` →
+  decimal ratio (0 if whole is 0) · `clampCents(c, min?, max?)` · `formatMoney(cents, {showCents})` (single source;
+  `util/format.js` re-exports it; the old `{cents: true}` still works).
+- `loans.js`: `pmt(p, rate, months)` (0% → ceil(p ÷ n)) · `amortizationSchedule` → `[{month, paymentCents, interestCents,
+  principalCents, balanceCents}]` (last row absorbs rounding, ends at 0) · `totalInterest` · `pmiMonthly(loan, rate?)` ·
+  `fhaLoan({priceCents, downPct?, annualRate?, months?})` (`config.FINANCE.fha`) · `constructionInterestReserve({loanCents,
+  rate?, months, avgDrawnPct?})` · `cardPayoff({balanceCents, apr, minRule?})` → `{months, interestCents}`
+  (`DEFAULT_MIN_RULE` = max($25, 1% + interest); Infinity if the minimum never covers interest).
 
 ## State and seeds (02)
 - New save: `createInitialState({uid, username, classCode, now})`; check with `validateState(s) → string[]`.
