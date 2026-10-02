@@ -74,6 +74,7 @@ app/src/phases/<phase>/        one screen per phase (placeholders until their ta
                                paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
                                ui/login.js (welcome screen: Log in / Create account tabs)
+app/src/content/names.js       fictional people/businesses per region (pure, seeded)
 app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
                                locations/{hawaii,cities,towns,index}.js (pure)
 app/src/admin/adminMain.js     placeholder (task 52)
@@ -179,7 +180,9 @@ and returns a result, never a new state. Accounts `'checking' | 'savings' | 'car
   `plan-tight`, `plan-rich`, `plan-after-denial` (denied Hilo apartment, $50 fee spent), `plan-detail-open` (same, Hilo
   apartment panel open), `portfolio-demo` (phase life, April 2033: Hilo house, mortgage with PMI, card, 11 bills,
   4 agreements, 2 scored letters, 3 applications, credit history), `paperwork-{apartment,shared,condo,house,build}-start`
-  and `paperwork-apartment-cosigner` (built with `paperworkStart(now, {locationId, homeTypeId, income, savings})`).
+  and `paperwork-apartment-cosigner` (built with `paperworkStart(now, {locationId, homeTypeId, income, savings})`),
+  `paperwork-apartment-lease`, `paperwork-shared-agreement` (earlier steps done via `finishSteps(s, ids, values)`;
+  `SAMPLE_APPLICATION` = valid application answers for "Kai Mana").
 - Calendar: `util/dates.js` `monthLabel/monthName/daysInMonth/weekday (0 = Sunday)/dayLabel`. Jan 1, 2033 is a Saturday.
 - Save indicator: `renderSaveStatus(persistence.status)` from `ui/saveStatus.js`; the header shows it.
 - Intake (04 §1): rules in `phases/intake/intakeModel.js` (pure, DOM-free; limits in `config.INTAKE`); `applyIntake(s, player)`
@@ -263,6 +266,17 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   complete?}`. Placeholders come from `steps/placeholder.js` (dev-only "Mark done" via `devAllowed()`). The screen renders
   'form' + `schema` with `renderForm` (drafts on change, read-only when done), otherwise `mount(container, {store, config,
   state, status, values, onDone, onDraft})`. e2e `tests/e2e/paperwork-flow.json`.
+- A step's `complete(s, values, now)` pays its own fees (`payFee`/`completeStep`), calls `setStep(s, id, 'done', …)` and
+  returns `{ok, shortfallCents}`. Signed documents: store `docType: <step id>` + full `terms` on the agreement and register
+  the schema builder in `phases/paperwork/docs.js` (the portfolio imports it), so the doc rebuilds from the agreement alone.
+- Renter steps (task 20): `steps/renterTerms.js` `renterTerms(s)` (landlord, contact, phone, unit, rent, deposit, first month,
+  fee, roommates; seeded) + `gameIdField` / `partiesFields`. `lease.js` `lateFee(day)` (config `LEASE`), `leaseClauses`
+  (10 apartment / 8 room), `trapQuestions`, `trapScore` → `options.leaseTrapScore`. `roommate-agreement.js`
+  `roommateComfort(values)` → `options.roommateComfort` (−1…1). `move-in-payment.js` → `options.moveIn` (no charge).
+  Applications: kinds 'rental' / 'room'. e2e `tests/e2e/renter-apartment.json` (on paperwork-apartment-start),
+  `renter-shared.json` (on paperwork-shared-agreement).
+- Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
+  `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

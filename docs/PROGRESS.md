@@ -654,3 +654,48 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - The screen only remounts a step when the active id or its finished/locked state changes; draft saves don't remount.
   - Task 31: results.js is the 'results' step; set it done (or commit) from there. Seeds `paperwork-ready-<type>` can use
     `completeStep` for every id in `stepsFor(s)` except results.
+
+## Task 20 — Renter paperwork: applications, lease, roommate agreement, move-in
+- attempt started 2026-10-01T20:31:47-10:00
+- done 2026-10-01T20:40:39-10:00
+- Added: `app/src/content/names.js` (NAMES pools per region, `businessFor`, `peopleFor`, `phoneFor`, `nameRng`,
+  `regionOf`), `phases/paperwork/steps/renterTerms.js` (`renterTerms`, `gameIdField`, `partiesFields`, `variantOf`),
+  `phases/paperwork/docs.js` (portfolio doc registration, `termsFromAgreement`), `tests/unit/renterPaperwork.test.js`
+  (6 tests), `tests/e2e/renter-apartment.json`, `tests/e2e/renter-shared.json`. Rewrote steps `rental-application.js`
+  (+ `applicationSchema`, `applicationStep(variant)`), `room-application.js`, `lease.js` (`lateFee`, `leaseClauses`,
+  `trapQuestions`, `leaseSchema`, `trapScore`), `roommate-agreement.js` (`ROOMMATE_CHOICES`, `roommateComfort`,
+  `roommateSchema`), `move-in-payment.js` (`moveInSchema`, `moveInTotal`). Changed: `config.js` (`LEASE`),
+  `finance/ledgerRecords.js` (addAgreement keeps `docType`), `paperworkScreen.js` (passes `Date.now()` as complete's 3rd
+  arg), `ui/portfolio/index.js` (imports docs.js), `dev/seeds.js` (`SAMPLE_APPLICATION`, `finishSteps`, seeds
+  `paperwork-apartment-lease`, `paperwork-shared-agreement`), `tools/smoke.txt` (+2), `tests/e2e/paperwork-flow.json`
+  (fills the three real forms instead of the dev button), CLAUDE.md, DEVIATIONS, OPEN_ITEMS.
+- Verified:
+  - `node --test tests/unit/renterPaperwork.test.js` → 6 pass (name pools/seeding, late fee $0 → $85 → $105, 10/8 clauses
+    with initials errors "Clause 4 needs your initials, KM", application fee charged once + pending app + all-or-nothing
+    when broke, room fee $25, lease agreement docType/terms/trap score with no money moved, portfolio rebuilds the lease
+    schema from the agreement, roommate comfort 1 for best answers, move-in authorization charges nothing, states valid).
+  - `bash tools/check.sh` → "check: OK (syntax 114 files · tests · data 10 files · smoke) in 33s", smoke 22/22.
+  - e2e ✓: `renter-apartment.json` (apartment path on paperwork-apartment-start, letters/insurance/card via dev button,
+    $50 fee only, wrong trap answers show explanations, trap score 1, results unlocked "6 of 7 done"),
+    `renter-shared.json` (paperwork-shared-agreement: agreement, 8-clause room lease, move-in), `paperwork-flow.json`,
+    `portfolio.json`, `portfolio-agreement.json`.
+  - Shots in tools/shots/t20/ (1366×2400):
+    - 1-rental-application: filled light form, parties block (ʻĀina Kai Rental Group, Analyn Domingo), ratio 2.7×, teach box, refs, "15 of 15".
+    - 2-lease-trap-wrong: 10 initialed clauses; "Quiet hours" struck out with "Not quite. Quiet hours are about noise, not a deadline."
+    - 3-lease-filled / 5-lease-readonly: all three correct with explanations; read-only shows "Right after 2 tries" etc. and the signature.
+    - 4-move-in-payment: deposit $1,550 + first month $1,550 = $3,100 table, savings after $16,850, checkbox, signature.
+    - 6-roommate-agreement (dark): all radios, hoʻoponopono option + teach box, housemates line.
+    - 7-room-lease-filled (dark): 8 clauses, room rent $1,100, homeowner landlord, correct explanations.
+    - 8-room-application-readonly: the room application as signed.
+- Deviations: move-in month is display-only (January 1, 2033); move-in charges nothing (commit charges unpaid lines);
+  roommate comfort stored as −1…1 (DEVIATIONS).
+- Notes for later tasks:
+  - Task 29: `paperwork.options.roommateComfort` (−1…1) × `UNDERWRITING.roommates.agreementBonus` is the roommate bonus;
+    05 §4 says ±5% but config has 0.1, so pick one. Applications kinds: 'rental' / 'room'. `options.leaseTrapScore` is feedback only.
+  - Task 31: `options.moveIn` = {authorized, account, depositCents, firstMonthCents, totalCents}; deposit + first-month
+    lines stay unpaid until commit. Lease/roommate agreements are 'pending' with `docType`; set them active/void.
+  - Steps 21–30: use `content/names.js` `businessFor(state, 'lenders'|'insurers'|'inspectors'|'contractors'|'hoas')`
+    (seeded per attempt); register signed docs in `phases/paperwork/docs.js`; a step's `complete(s, values, now)`
+    should call `setStep(…'done')` itself and return {ok, shortfallCents}. `dev/seeds.js` `finishSteps(s, ids, values)`
+    builds "later step" seeds.
+  - The UI font draws the ʻokina with extra space ("Hawai ʻ i") in some weights; see OPEN_ITEMS.

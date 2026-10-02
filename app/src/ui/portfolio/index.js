@@ -7,6 +7,7 @@ import { renderAccounts, renderExpenses } from './accounts.js';
 import { renderAgreements, renderLetters, renderApplications } from './records.js';
 import { renderCredit } from './credit.js';
 import { renderSettings } from './settings.js';
+import '../../phases/paperwork/docs.js'; // registers the signed paperwork documents (agreementDoc.js)
 
 /** Tab ids in order; ?tab=<id> (dev) or openPortfolio({tab}) picks the first one shown. */
 export const TABS = [

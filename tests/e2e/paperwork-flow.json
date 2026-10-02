@@ -12,19 +12,70 @@
   "eval": "window.__cash0 = window.__homesim.getState().finances.savingsCents + window.__homesim.getState().finances.checkingCents"
  },
  {
-  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'rental-application' && document.querySelector('.pw-step-title').textContent.length > 0"
- },
- {
-  "assert": "document.querySelector('.pw-placeholder').textContent.includes('Coming in task 20')"
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'rental-application' && document.querySelector('.pw-step-title, .fm-title').textContent.length > 0"
  },
  {
   "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
  },
  {
-  "click": ".pw-dev-done"
+  "eval": "(e=>{e.value=\"family\";e.dispatchEvent(new Event('change',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=living] select'))"
  },
  {
-  "wait": 150
+  "eval": "document.querySelector('[data-field=history] input[value=\"first\"]').click()"
+ },
+ {
+  "click": "[data-field=employer] input"
+ },
+ {
+  "type": [
+   "[data-field=employer] input",
+   "Hilo Bay Dental"
+  ]
+ },
+ {
+  "eval": "(e=>{e.value=\"year\";e.dispatchEvent(new Event('change',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=time-at-job] select'))"
+ },
+ {
+  "eval": "(e=>{e.value=\"Lani Pereira\";e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=ref1-name] input'))"
+ },
+ {
+  "eval": "(e=>{e.value=\"boss\";e.dispatchEvent(new Event('change',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=ref1-relation] select'))"
+ },
+ {
+  "eval": "(e=>{e.value=\"(808) 555-0142\";e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=ref1-phone] input'))"
+ },
+ {
+  "eval": "(e=>{e.value=\"Mr. Okada\";e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=ref2-name] input'))"
+ },
+ {
+  "eval": "(e=>{e.value=\"teacher\";e.dispatchEvent(new Event('change',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=ref2-relation] select'))"
+ },
+ {
+  "eval": "(e=>{e.value=\"(808) 555-0177\";e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=ref2-phone] input'))"
+ },
+ {
+  "eval": "document.querySelector('[data-field=pets] input[value=\"none\"]').click()"
+ },
+ {
+  "eval": "document.querySelector('[data-field=smoking] input[value=\"no\"]').click()"
+ },
+ {
+  "eval": "document.querySelector('[data-field=auth] input[type=checkbox]').click()"
+ },
+ {
+  "click": "[data-field=signature] input"
+ },
+ {
+  "type": [
+   "[data-field=signature] input",
+   "Kai Mana"
+  ]
+ },
+ {
+  "click": ".fm-actions button[type=submit]"
+ },
+ {
+  "wait": 250
  },
  {
   "assert": "window.__homesim.getState().paperwork.steps['rental-application'].status === 'done' && document.querySelector('.pw-item[data-step=\"rental-application\"]').dataset.status === 'done'"
@@ -33,7 +84,7 @@
   "assert": "window.__cash0 - (window.__homesim.getState().finances.savingsCents + window.__homesim.getState().finances.checkingCents) === 5000 && window.__homesim.getState().paperwork.paidUpfront.application === 5000"
  },
  {
-  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'rental-cover' && document.querySelector('.pw-step-title').textContent.length > 0"
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'rental-cover' && document.querySelector('.pw-step-title, .fm-title').textContent.length > 0"
  },
  {
   "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
@@ -48,7 +99,7 @@
   "assert": "window.__homesim.getState().paperwork.steps['rental-cover'].status === 'done' && document.querySelector('.pw-item[data-step=\"rental-cover\"]').dataset.status === 'done'"
  },
  {
-  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'renters-insurance' && document.querySelector('.pw-step-title').textContent.length > 0"
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'renters-insurance' && document.querySelector('.pw-step-title, .fm-title').textContent.length > 0"
  },
  {
   "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
@@ -63,16 +114,58 @@
   "assert": "window.__homesim.getState().paperwork.steps['renters-insurance'].status === 'done' && document.querySelector('.pw-item[data-step=\"renters-insurance\"]').dataset.status === 'done'"
  },
  {
-  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'lease' && document.querySelector('.pw-step-title').textContent.length > 0"
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'lease' && document.querySelector('.pw-step-title, .fm-title').textContent.length > 0"
  },
  {
   "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
  },
  {
-  "click": ".pw-dev-done"
+  "eval": "document.querySelectorAll('[data-field=init] input').forEach(i=>{i.value='KM';i.dispatchEvent(new Event('input',{bubbles:true}))})"
  },
  {
-  "wait": 150
+  "eval": "document.querySelector('[data-field=q-date] input[value=\"renewal\"]').click()"
+ },
+ {
+  "click": "[data-field=q-date] .fm-q-check"
+ },
+ {
+  "wait": 100
+ },
+ {
+  "eval": "document.querySelector('[data-field=q-allowed] input[value=\"wear-and-tear\"]').click()"
+ },
+ {
+  "click": "[data-field=q-allowed] .fm-q-check"
+ },
+ {
+  "wait": 100
+ },
+ {
+  "eval": "document.querySelector('[data-field=q-late] input[value=\"right\"]').click()"
+ },
+ {
+  "click": "[data-field=q-late] .fm-q-check"
+ },
+ {
+  "wait": 100
+ },
+ {
+  "assert": "/\\$105/.test(document.querySelector('[data-field=q-late] .fm-q-feedback').textContent)"
+ },
+ {
+  "click": "[data-field=signature] input"
+ },
+ {
+  "type": [
+   "[data-field=signature] input",
+   "Kai Mana"
+  ]
+ },
+ {
+  "click": ".fm-actions button[type=submit]"
+ },
+ {
+  "wait": 250
  },
  {
   "assert": "window.__homesim.getState().paperwork.steps['lease'].status === 'done' && document.querySelector('.pw-item[data-step=\"lease\"]').dataset.status === 'done'"
@@ -81,22 +174,34 @@
   "shot": "tools/shots/t19/e2e-midway.png"
  },
  {
-  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'move-in-payment' && document.querySelector('.pw-step-title').textContent.length > 0"
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'move-in-payment' && document.querySelector('.pw-step-title, .fm-title').textContent.length > 0"
  },
  {
   "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
  },
  {
-  "click": ".pw-dev-done"
+  "eval": "document.querySelector('[data-field=only-if-approved] input[type=checkbox]').click()"
  },
  {
-  "wait": 150
+  "click": "[data-field=signature] input"
+ },
+ {
+  "type": [
+   "[data-field=signature] input",
+   "Kai Mana"
+  ]
+ },
+ {
+  "click": ".fm-actions button[type=submit]"
+ },
+ {
+  "wait": 250
  },
  {
   "assert": "window.__homesim.getState().paperwork.steps['move-in-payment'].status === 'done' && document.querySelector('.pw-item[data-step=\"move-in-payment\"]').dataset.status === 'done'"
  },
  {
-  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'credit-card-offer' && document.querySelector('.pw-step-title').textContent.length > 0"
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'credit-card-offer' && document.querySelector('.pw-step-title, .fm-title').textContent.length > 0"
  },
  {
   "click": ".pw-dev-done"

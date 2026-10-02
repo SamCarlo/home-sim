@@ -239,6 +239,24 @@ export const FORMS = {
   initialsMax: 4,                     // longest initials box
 };
 
+/** Renter documents (05 §4, task 20): the lease's clause numbers, also used by the late-fee question. */
+export const LEASE = {
+  termMonths: 12,
+  startLabel: 'January 1, 2033',
+  renewalNoticeDays: 60,              // automatic renewal unless you give this much written notice
+  lateFeeCents: 7500,                 // flat fee once rent is late …
+  lateFeeGraceDay: 5,                 // … after the 5th
+  lateFeePerDayCents: 1000,           // plus this per day after the grace day
+  lateQuestionDay: 8,                 // "If rent arrives on the 8th, what's the late fee?"
+  repairShareCents: 10000,            // tenant pays the first $100 of a repair
+  guestNights: 14,                    // per 6 months
+  petFeeCents: 30000,
+  petRentCents: 3500,
+  breakMonths: 2,                     // breaking the lease costs 2 months' rent
+  entryNoticeDays: 2,
+  quietHours: '10 pm to 7 am',
+};
+
 /** Student accounts (11 §2). */
 export const ACCOUNTS = {
   usernamePattern: /^[a-z0-9][a-z0-9_-]{2,19}$/,

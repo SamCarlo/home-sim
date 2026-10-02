@@ -37,3 +37,10 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   `requires` on each step module; they live in `phases/paperwork/flow.js` instead (`appliesTo`, `LETTER_STEPS`,
   `prerequisites`) so the flow stays pure and testable in one place. Non-letter steps unlock in order; letters need only
   their own prerequisite and never block form steps; Results needs everything.
+- **2026-10-01, task 20**: renter paperwork. 05 §4 lists a "move-in month" on the application; the lease starts January 1,
+  2033 for everyone, so it's shown read-only instead of a pick. Move-in payment only records the authorization
+  (`paperwork.options.moveIn`); the deposit and first month are charged at commit as unpaid upfront lines ("charged only if
+  approved"). The roommate agreement stores housemates' comfort as −1…1 (`paperwork.options.roommateComfort`); task 29
+  scales it to the ± bonus. `addAgreement` now keeps an optional `docType`. Step `complete(state, values, now)` gets the
+  time as a third argument from the paperwork screen. Signed documents register in `phases/paperwork/docs.js`, which the
+  portfolio imports. Code: `phases/paperwork/steps/{rental-application,room-application,lease,roommate-agreement,move-in-payment,renterTerms}.js`.

@@ -14,12 +14,12 @@ function nextId(list, prefix) {
   return `${prefix}${n}`;
 }
 
-/** Add an agreement {type, title, counterparty, summary, terms, docValues, signedAt}; status defaults to 'pending'. */
+/** Add an agreement {type, docType?, title, counterparty, summary, terms, docValues, signedAt}; status defaults to 'pending'. */
 export function addAgreement(state, a) {
   const list = state.finances.agreements;
   const stored = { id: a.id ?? nextId(list, 'ag'), type: a.type, title: a.title ?? '', status: a.status ?? 'pending',
     signedAt: a.signedAt ?? null, counterparty: a.counterparty ?? '', summary: a.summary ?? '',
-    terms: a.terms ?? {}, docValues: a.docValues ?? {} };
+    terms: a.terms ?? {}, docValues: a.docValues ?? {}, ...(a.docType ? { docType: a.docType } : {}) };
   if (!AGREEMENT_STATUSES.includes(stored.status)) throw new RangeError(`bad agreement status "${stored.status}"`);
   list.push(stored);
   return stored;

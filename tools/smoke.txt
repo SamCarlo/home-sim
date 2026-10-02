@@ -20,3 +20,5 @@ paperwork-shared-start /index.html?seed=paperwork-shared-start
 paperwork-condo-start /index.html?seed=paperwork-condo-start
 paperwork-house-start /index.html?seed=paperwork-house-start
 paperwork-build-start /index.html?seed=paperwork-build-start
+paperwork-apartment-lease /index.html?seed=paperwork-apartment-lease
+paperwork-shared-agreement /index.html?seed=paperwork-shared-agreement&theme=light

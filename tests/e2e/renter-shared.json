@@ -1,0 +1,161 @@
+[
+ {
+  "waitReady": true
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'roommate-agreement'"
+ },
+ {
+  "eval": "document.querySelector('[data-field=chores] input[value=\"chart\"]').click()"
+ },
+ {
+  "eval": "document.querySelector('[data-field=quiet] input[value=\"10pm\"]').click()"
+ },
+ {
+  "eval": "document.querySelector('[data-field=guests] input[value=\"1\"]').click()"
+ },
+ {
+  "eval": "document.querySelector('[data-field=pets] input[value=\"ask\"]').click()"
+ },
+ {
+  "eval": "document.querySelector('[data-field=groceries] input[value=\"basics\"]').click()"
+ },
+ {
+  "eval": "document.querySelector('[data-field=bills] input[value=\"equal\"]').click()"
+ },
+ {
+  "click": "[data-field=thermostat] input"
+ },
+ {
+  "type": [
+   "[data-field=thermostat] input",
+   "AC on above 85°F, set to 78°F"
+  ]
+ },
+ {
+  "eval": "document.querySelector('[data-field=conflict] input[value=\"hooponopono\"]').click()"
+ },
+ {
+  "click": "[data-field=signature] input"
+ },
+ {
+  "type": [
+   "[data-field=signature] input",
+   "Kai Mana"
+  ]
+ },
+ {
+  "eval": "window.scrollTo(0,0); document.querySelector('.pw-main')?.scrollIntoView()"
+ },
+ {
+  "shot": "tools/shots/t20/6-roommate-agreement.png"
+ },
+ {
+  "click": ".fm-actions button[type=submit]"
+ },
+ {
+  "wait": 250
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.steps['roommate-agreement'].status === 'done' && document.querySelector('.pw-item[data-step=\"roommate-agreement\"]').dataset.status === 'done'"
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.options.roommateComfort === 1 && window.__homesim.getState().finances.agreements.at(-1).docType === 'roommate-agreement'"
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'lease'"
+ },
+ {
+  "assert": "document.querySelectorAll('[data-field=init] .fm-clause').length === 8"
+ },
+ {
+  "eval": "document.querySelectorAll('[data-field=init] input').forEach(i=>{i.value='KM';i.dispatchEvent(new Event('input',{bubbles:true}))})"
+ },
+ {
+  "eval": "document.querySelector('[data-field=q-date] input[value=\"renewal\"]').click()"
+ },
+ {
+  "click": "[data-field=q-date] .fm-q-check"
+ },
+ {
+  "wait": 100
+ },
+ {
+  "eval": "document.querySelector('[data-field=q-allowed] input[value=\"wear-and-tear\"]').click()"
+ },
+ {
+  "click": "[data-field=q-allowed] .fm-q-check"
+ },
+ {
+  "wait": 100
+ },
+ {
+  "eval": "document.querySelector('[data-field=q-late] input[value=\"right\"]').click()"
+ },
+ {
+  "click": "[data-field=q-late] .fm-q-check"
+ },
+ {
+  "wait": 100
+ },
+ {
+  "assert": "/\\$105/.test(document.querySelector('[data-field=q-late] .fm-q-feedback').textContent)"
+ },
+ {
+  "click": "[data-field=signature] input"
+ },
+ {
+  "type": [
+   "[data-field=signature] input",
+   "Kai Mana"
+  ]
+ },
+ {
+  "eval": "window.scrollTo(0,0); document.querySelector('.pw-main')?.scrollIntoView()"
+ },
+ {
+  "shot": "tools/shots/t20/7-room-lease-filled.png"
+ },
+ {
+  "click": ".fm-actions button[type=submit]"
+ },
+ {
+  "wait": 250
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.steps['lease'].status === 'done' && document.querySelector('.pw-item[data-step=\"lease\"]').dataset.status === 'done'"
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'move-in-payment'"
+ },
+ {
+  "eval": "document.querySelector('[data-field=only-if-approved] input[type=checkbox]').click()"
+ },
+ {
+  "click": "[data-field=signature] input"
+ },
+ {
+  "type": [
+   "[data-field=signature] input",
+   "Kai Mana"
+  ]
+ },
+ {
+  "click": ".fm-actions button[type=submit]"
+ },
+ {
+  "wait": 250
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.steps['move-in-payment'].status === 'done' && document.querySelector('.pw-item[data-step=\"move-in-payment\"]').dataset.status === 'done'"
+ },
+ {
+  "click": ".pw-item[data-step=room-application]"
+ },
+ {
+  "wait": 150
+ },
+ {
+  "shot": "tools/shots/t20/8-room-application-readonly.png"
+ }
+]

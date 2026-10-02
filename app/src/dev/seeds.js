@@ -8,6 +8,8 @@ import { post, addRecurring, openLoan, payLoan, addAgreement, addApplication, re
 import { recordInquiry, monthlyUpdate } from '../finance/creditScore.js';
 import { buildGrid, gridCells } from '../finance/grid.js';
 import { applyChoice } from '../phases/plan/detailModel.js';
+import { completeStep } from '../phases/paperwork/flow.js';
+import { step as paperworkStep } from '../phases/paperwork/steps/index.js';
 
 /** The dev account every seed runs as (01 §7). */
 export const DEV_USER = { uid: 'local-dev', username: 'dev', classCode: 'DEMO' };
@@ -193,6 +195,36 @@ for (const [name, description, opts] of [
   ['paperwork-build-start', 'Paperwork to build in Pāhoa (land, construction loan, bids, permit, utilities).',
     { locationId: 'pahoa', homeTypeId: 'build', netMonthlyIncomeCents: 900000, startingSavingsCents: 15000000, jobTitle: 'Architect' }],
 ]) seeds[name] = { phase: 'paperwork', description, build: (now) => paperworkStart(now, opts) };
+
+/** Valid rental/room application answers for "Kai Mana" (task 20 seeds and tests). */
+export const SAMPLE_APPLICATION = {
+  living: 'family', history: 'first', employer: 'Hilo Bay Dental', 'job-title': 'Dental assistant', 'time-at-job': 'year',
+  'ref1-name': 'Lani Pereira', 'ref1-relation': 'boss', 'ref1-phone': '(808) 555-0142',
+  'ref2-name': 'Mr. Okada', 'ref2-relation': 'teacher', 'ref2-phone': '(808) 555-0177',
+  pets: 'none', smoking: 'no', auth: true, signature: 'Kai Mana',
+};
+
+/** Finish paperwork steps in order: real `complete()` for built steps (with `values[id]`), completeStep otherwise. */
+export function finishSteps(s, ids, values = {}, now = 0) {
+  for (const id of ids) {
+    const mod = paperworkStep(id);
+    if (mod.complete) mod.complete(s, values[id] ?? {}, now);
+    else completeStep(s, id, { values: values[id] ?? {}, upfrontKey: mod.upfrontKey, now });
+  }
+  return s;
+}
+
+// Task 20 seeds: land on the lease / roommate agreement with the earlier steps done.
+seeds['paperwork-apartment-lease'] = { phase: 'paperwork',
+  description: 'Hilo apartment: application, cover letter and renters insurance done; the lease is next.',
+  build: (now) => finishSteps(paperworkStart(now, { locationId: 'hilo', homeTypeId: 'apartment', netMonthlyIncomeCents: 420000,
+    startingSavingsCents: 2000000, jobTitle: 'Dental assistant' }), ['rental-application', 'rental-cover', 'renters-insurance'],
+  { 'rental-application': SAMPLE_APPLICATION }, now) };
+seeds['paperwork-shared-agreement'] = { phase: 'paperwork',
+  description: 'Honolulu shared house: room application, roommate intro and renters insurance done; the roommate agreement is next.',
+  build: (now) => finishSteps(paperworkStart(now, { locationId: 'honolulu', homeTypeId: 'shared', netMonthlyIncomeCents: 420000,
+    startingSavingsCents: 2000000, jobTitle: 'Barista' }), ['room-application', 'roommate-intro', 'renters-insurance'],
+  { 'room-application': SAMPLE_APPLICATION }, now) };
 
 /** Register a seed (later tasks): addSeed('paperwork-apartment-start', { phase, description, build }). */
 export function addSeed(name, def) {

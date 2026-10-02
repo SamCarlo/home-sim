@@ -53,7 +53,7 @@ export function mount(container, ctx) {
     const mod = stepModule(id);
     let result = null;
     store.update((s) => {
-      result = mod.complete ? (mod.complete(s, values) ?? { ok: true })
+      result = mod.complete ? (mod.complete(s, values, Date.now()) ?? { ok: true })
         : completeStep(s, id, { values, upfrontKey: mod.upfrontKey, now: Date.now() });
       if (mod.complete && result.ok !== false && s.paperwork.steps[id]?.status !== 'done') setStep(s, id, 'done', values, Date.now());
     }, { checkpoint: `paperwork-${id}` });
