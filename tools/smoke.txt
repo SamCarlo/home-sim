@@ -33,3 +33,7 @@ paperwork-build-loan /index.html?seed=paperwork-build-loan&theme=light
 paperwork-build-bids /index.html?seed=paperwork-build-bids&theme=light
 paperwork-build-permit /index.html?seed=paperwork-build-permit
 paperwork-build-utilities /index.html?seed=paperwork-build-utilities&theme=light
+paperwork-renters-insurance /index.html?seed=paperwork-renters-insurance&theme=light
+paperwork-condo-insurance /index.html?seed=paperwork-condo-insurance&theme=light
+paperwork-house-insurance /index.html?seed=paperwork-house-insurance&theme=light
+paperwork-build-insurance /index.html?seed=paperwork-build-insurance&theme=light

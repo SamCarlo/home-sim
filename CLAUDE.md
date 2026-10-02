@@ -59,7 +59,7 @@ app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
 app/src/finance/               money.js loans.js costs.js affordability.js grid.js · ledger.js (+ ledgerRecords.js
-                               ledgerTotals.js) creditScore.js loanOptions.js buying.js build.js (pure; see Finance helpers, Plan numbers, Ledger)
+                               ledgerTotals.js) creditScore.js loanOptions.js buying.js build.js insurance.js (pure; see Finance helpers, Plan numbers, Ledger)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
@@ -303,6 +303,14 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `project`, `contractorId`, `bid`, `contractorRisk` (Bid A only), `permit`, `siteUtilities`. Application kind 'construction'.
   Seeds `paperwork-build-{loan,bids,permit,utilities}` (Pāhoa, Cozy, Bid B), `SAMPLE_BUILD_VALUES`. e2e
   `tests/e2e/builder-pahoa.json` (on paperwork-build-start). Form display fields have no `data-field`: assert on `.fm-form` text.
+- Insurance (task 24): pure `finance/insurance.js` (`config.INSURANCE`): `policyKind(type)` renters/condo/home,
+  `insuredValueCents`, `basePremiumMonthlyCents`, `quotes` (Basic/Standard/Premium), `addOns` (required = locked for
+  buyers/builders; renters/condo pay `addOnFactor` of the dwelling price; `provider` = HPIA in Lava Zones 1–2), `hurricaneDeductible`
+  (FL), `insuranceOffer(state)`, `policyMonthlyCents`, `outOfPocket(loss, quote)`, `choosePolicy(state, {quoteId, addOns},
+  {stepId, insurer})` → `options.insurance` (+ `recurring` draft) and `options.deductibleCents`, snapshot insurance/hazard
+  lines rewritten, pending agreement type 'insurance'. UI: `phases/paperwork/insuranceShop.js` `insuranceStep({id, title})`
+  (the three steps are one-liners), `policySchema` (registered in docs.js). Seeds `paperwork-{renters,condo,house,build}-insurance`
+  (Hilo, Miami, Katy, Pāhoa build). e2e `tests/e2e/insurance-katy.json`.
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 

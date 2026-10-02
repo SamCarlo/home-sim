@@ -135,15 +135,6 @@ export const UNDERWRITING = {
   cosignerBelowRatio: 2.5,
 };
 
-/** Insurance quotes (05 §5): premium multipliers and deductibles. */
-export const INSURANCE = {
-  quotes: [
-    { key: 'basic', premiumX: 0.8, deductibleHomeCents: 250000, deductibleRentersCents: 100000, liabilityCents: 10000000 },
-    { key: 'standard', premiumX: 1.0, deductibleHomeCents: 100000, deductibleRentersCents: 50000, liabilityCents: 30000000 },
-    { key: 'premium', premiumX: 1.3, deductibleHomeCents: 50000, deductibleRentersCents: 25000, liabilityCents: 50000000 },
-  ],
-};
-
 /** Life phase: time budget (09 §4), money (09 §6), events (09 §7), wellbeing (09 §8),
  *  animation (09 §9) and care minigame (09 §10). */
 export const LIFE = {
@@ -327,6 +318,26 @@ export const BUILD = {
     batteryMonthlyCents: 3000,          // battery upkeep off the grid
     catchmentGallons: 10000,
   },
+};
+
+/** Insurance shopping (05 §5, task 24). */
+export const INSURANCE = {
+  quotes: [                             // 05 §5 table: premium factor on the base, deductibles, coverage
+    { id: 'basic', label: 'Basic', factor: 0.8, deductibleCents: { home: 250000, renters: 100000 }, liabilityCents: 10000000,
+      coverage: 'Actual cash value (pays what your things are worth today, after wear)', extras: [] },
+    { id: 'standard', label: 'Standard', factor: 1.0, deductibleCents: { home: 100000, renters: 50000 }, liabilityCents: 30000000,
+      coverage: 'Replacement cost (pays to buy new things)', extras: [] },
+    { id: 'premium', label: 'Premium', factor: 1.3, deductibleCents: { home: 50000, renters: 25000 }, liabilityCents: 50000000,
+      coverage: 'Replacement cost', extras: ['Valuables (jewelry, electronics)', 'Water backup'] },
+  ],
+  defaultQuote: 'standard',
+  // Hazard add-ons on a contents-only policy cost a share of the dwelling price (DEVIATIONS 2026-10-02).
+  addOnFactor: { renters: 0.1, condo: 0.25, home: 1 },
+  hpiaMaxLavaZone: 2,                   // lava zones 1–2: only HPIA writes lava coverage (05 §5)
+  hpiaName: 'HPIA (Hawaiʻi Property Insurance Association)',
+  hurricaneDeductiblePct: [0.02, 0.05], // Florida: separate hurricane deductible, 2–5% of the dwelling (05 §5)
+  hurricaneDeductibleStates: ['FL'],
+  sampleLossCents: 300000,              // the mini calculator's first example: a $3,000 loss
 };
 
 /** Student accounts (11 §2). */

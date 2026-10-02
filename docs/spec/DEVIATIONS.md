@@ -71,3 +71,13 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   the monthly effect is folded into the snapshot's utilities line. Tier, bid and utilities rewrite `choice.snapshot`
   (`finance/build.js refreshBuildSnapshot`). Code: `finance/build.js`,
   `phases/paperwork/steps/{land-purchase,construction-loan-application,contractor-bids,building-permit,site-utilities}.js`.
+- 2026-10-02, task 24, insurance add-ons on contents-only policies: 05 §5 prices hazard add-ons from
+  `ownership.hazardCoverage`, which is a dwelling price. Renters pay `INSURANCE.addOnFactor.renters` (10%) and condo owners
+  25% of it, since their policy covers belongings or the unit interior only; renters may pick any add-on and none are
+  locked. Only house/build pay the full price. Where: `finance/insurance.js` `addOns`, `config.INSURANCE`.
+- 2026-10-02, task 24, insurance scaling: house and build premiums scale by insured value ÷ the local median house
+  price (clamped 0.5–1.5, the same rule `costs.js` uses for build), with the value = final purchase price for houses and
+  `options.project.projectCents` for builds. Add-ons don't scale. The unused task-01 `INSURANCE` stub in config.js was replaced.
+- 2026-10-02, task 24, Pāhoa home-insurance screenshot: taken on the Pāhoa **build** path (`paperwork-build-insurance`),
+  which uses the same `home-insurance` step and HPIA rule as a Pāhoa house; reaching it on the house path takes
+  inspection + appraisal seeds that don't exist for Pāhoa.

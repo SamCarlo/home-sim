@@ -813,3 +813,35 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Task 44: `options.contractorRisk` = extraMonths + defect (month 0–5, label, cents), Bid A only;
     `options.siteUtilities.monthlyDeltaCents` is already folded into the snapshot utilities line.
   - Form display fields (computed/info) have no `data-field`, so e2e asserts on `.fm-form` text.
+
+## Task 24 — Insurance shopping
+- attempt started 2026-10-02T00:21:48-10:00
+- done 2026-10-02T00:28:27-10:00
+- Added: `app/src/finance/insurance.js` (pure), `app/src/phases/paperwork/insuranceShop.js` (shop + `insuranceStep` +
+  `policySchema`), `tests/unit/insurance.test.js` (7 tests), `tests/e2e/insurance-katy.json`. Rewrote placeholder steps
+  `renters-insurance.js`, `condo-insurance.js`, `home-insurance.js`. Changed: `config.js` (`INSURANCE`, replacing the unused
+  task-01 stub), `docs.js` (policy doc for all three step ids), `dev/seeds.js` (4 seeds), `styles/paperwork.css`,
+  `tools/smoke.txt` (+4), CLAUDE.md, DEVIATIONS.
+- Verified:
+  - `node --test tests/unit/insurance.test.js` → 7 pass (base premiums + value scaling; quote factors/deductibles/liability;
+    locked required add-ons for buyers/builders, never renters; HPIA + Florida deductible; calculator; renters choose →
+    policy, recurring draft, deductible, snapshot lines, pending agreement; Pāhoa lava forced on, Miami condo defaults).
+  - `bash tools/check.sh` → "check: OK (syntax 119 files · tests · data 10 files · smoke) in 48s".
+  - e2e ✓ `insurance-katy.json` on paperwork-house-insurance: Basic + flood = $275.84/mo, calculator caps at $2,500,
+    buy → options.insurance basic/flood, deductible $2,500, agreement "Basic HO-3 + flood: $275.84 a month, $2,500 deductible."
+  - Shots in tools/shots/t24/:
+    - 1-renters-hilo: HO-4, Koaʻe Insurance Group quotes $12 / $15 / $19.50 with $1,000 / $500 / $250 deductibles; hurricane + flood add-ons ($7.50, $5.83) unlocked; calculator "$500 … $2,500".
+    - 2-condo-miami: HO-6 $80 / $100 / $130; optional flood $18.75; "Florida hurricane deductible" box ($8,000 to $20,000 on $400,000).
+    - 3-home-pahoa (build path): HO-3 $92.13 / $115.16 / $149.71; lava and fire $333.33 checked + disabled, "Required by your lender" + HPIA chip; Lava Zone 1 warning; total $448.49.
+    - 4-home-katy: HO-3 $213.34 / $266.67 / $346.67; flood advised but optional ($62.50), Harvey note.
+    - 6-portfolio-policy: the Agreements tab shows the policy doc (premium table, deductible, liability, coverage), Pending approval.
+- Deviations: see DEVIATIONS (contents-only add-on factor, value scaling, Pāhoa shot on the build path).
+- Notes for later tasks:
+  - Task 31 (commit): `paperwork.options.insurance.recurring` = `{label, amountCents (negative), category 'insurance',
+    source 'insurance'}` → `addRecurring` with `startsMonth: 0`; the policy agreement (type 'insurance', docType = step id)
+    goes active/void with the others. Results card: `options.insurance` has quoteLabel, monthlyCents, deductibleCents, addOns.
+  - Task 29: the snapshot's `insurance`/`renters-insurance` + `hazard` lines are rewritten to the chosen policy, so DTI sees it.
+    `refreshBuildSnapshot` would overwrite them if called after home-insurance (nothing does today).
+  - Task 44 / 09 §7: insured losses use `options.deductibleCents` and `outOfPocket(loss, {deductibleCents})`; Florida
+    hurricanes can use `options.insurance.hurricaneDeductible.lowCents`.
+  - e2e: wait ~300 ms after `.pw-ins` appears before clicking quote buttons, or the first click can miss.

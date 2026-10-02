@@ -319,3 +319,32 @@ for (const [name, upTo, description] of [
   ['paperwork-build-permit', 4, 'Pāhoa build: Bid B chosen; the building permit checklist is next.'],
   ['paperwork-build-utilities', 5, 'Pāhoa build: permit paid; choose water, power and sewer.'],
 ]) seeds[name] = { phase: 'paperwork', description, build: (now) => finishSteps(pahoaBuild(now), BUILD_STEPS.slice(0, upTo), SAMPLE_BUILD_VALUES, now) };
+
+// Task 24 seeds: each lands on an insurance shop (05 §5).
+seeds['paperwork-renters-insurance'] = { phase: 'paperwork',
+  description: 'Hilo apartment: application and cover letter done; shop for renters insurance.',
+  build: (now) => finishSteps(paperworkStart(now, { locationId: 'hilo', homeTypeId: 'apartment', netMonthlyIncomeCents: 420000,
+    startingSavingsCents: 2000000, jobTitle: 'Dental assistant' }), ['rental-application', 'rental-cover'],
+  { 'rental-application': SAMPLE_APPLICATION }, now) };
+seeds['paperwork-condo-insurance'] = { phase: 'paperwork',
+  description: 'Miami condo: HOA review, inspection and appraisal done; shop for condo insurance (flood, hurricane deductible).',
+  build: (now) => {
+    const s = seeds['paperwork-condo-hoa'].build(now);
+    finishSteps(s, ['hoa-review'], {}, now);
+    hireInspector(s, 'standard');
+    finishSteps(s, ['home-inspection'], { 'home-inspection': { decision: 'accept' } }, now);
+    orderAppraisal(s);
+    if (!s.paperwork.options.purchase) payGap(s);
+    return finishSteps(s, ['appraisal'], {}, now);
+  } };
+seeds['paperwork-house-insurance'] = { phase: 'paperwork',
+  description: 'Katy house: inspection and appraisal done; shop for home insurance (flood advised).',
+  build: (now) => {
+    const s = katyToAppraisal(now);
+    orderAppraisal(s);
+    if (!s.paperwork.options.purchase) payGap(s);
+    return finishSteps(s, ['appraisal'], {}, now);
+  } };
+seeds['paperwork-build-insurance'] = { phase: 'paperwork',
+  description: 'Pāhoa build: every builder document done; shop for home insurance (HPIA lava coverage required).',
+  build: (now) => finishSteps(pahoaBuild(now), BUILD_STEPS, SAMPLE_BUILD_VALUES, now) };

@@ -108,3 +108,24 @@
 .pw-bid-facts dd { margin: 0; font-weight: 600; text-align: right; }
 .pw-flags { padding-left: 1.1rem; margin: 0.25rem 0 0.75rem; color: var(--sunset-ink); }
 .pw-bid.is-chosen { outline: 2px solid var(--accent); }
+
+/* Insurance shop (task 24) */
+.pw-per { font-size: .85rem; font-weight: 500; color: var(--muted); }
+.pw-quote.is-chosen { outline: 2px solid var(--accent); }
+.pw-quote-cover { font-size: .9rem; color: var(--ink-2); }
+.pw-quote-extras { list-style: none; padding: 0; margin: 0 0 .5rem; font-size: .9rem; color: var(--accent-ink); }
+.pw-addons { border: 1px solid var(--line); border-radius: var(--radius, 8px); padding: var(--sp-3) var(--sp-4); margin: var(--sp-3) 0; }
+.pw-addons legend { font-weight: 700; padding: 0 .25rem; }
+.pw-addons > p { margin: 0 0 var(--sp-2); }
+.pw-addon { display: flex; gap: .6rem; align-items: flex-start; padding: .5rem 0; border-top: 1px solid var(--line); }
+.pw-addon input { margin-top: .3rem; }
+.pw-addon label { display: flex; flex-wrap: wrap; gap: .25rem .5rem; align-items: baseline; }
+.pw-addon-price { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.pw-addon-note { flex-basis: 100%; color: var(--muted); font-size: .9rem; }
+.pw-chip { font-size: .75rem; font-weight: 600; padding: .1rem .5rem; border-radius: 999px; background: var(--surface-2, var(--line)); color: var(--ink); }
+.pw-chip-hpia { background: var(--sunset-ink); color: var(--surface); }
+.pw-calc { display: grid; grid-template-columns: auto 10rem; gap: .4rem .75rem; align-items: center; margin: var(--sp-3) 0;
+  padding: var(--sp-3) var(--sp-4); border-radius: var(--radius, 8px); background: var(--surface-2, transparent); border: 1px dashed var(--line-2); }
+.pw-calc h3, .pw-calc-out { grid-column: 1 / -1; margin: 0; }
+.pw-calc-input { width: 10rem; }
+.pw-ins-total { font-size: 1.05rem; margin: var(--sp-3) 0; }

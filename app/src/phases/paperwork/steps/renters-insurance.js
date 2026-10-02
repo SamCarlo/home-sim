@@ -1,4 +1,4 @@
-// Renters insurance (05 §3–§4). Placeholder until task 24.
-import { placeholderStep } from './placeholder.js';
+// Renters insurance (05 §5, task 24): the shared insurance shop.
+import { insuranceStep } from '../insuranceShop.js';
 
-export default placeholderStep({ id: 'renters-insurance', title: 'Renters insurance', kind: 'choice', task: 24 });
+export default insuranceStep({ id: 'renters-insurance', title: 'Renters insurance' });

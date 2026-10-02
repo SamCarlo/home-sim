@@ -7,6 +7,7 @@ import { leaseSchema } from './steps/lease.js';
 import { roommateSchema } from './steps/roommate-agreement.js';
 import { hoaSchema } from './steps/hoa-review.js';
 import { landSchema } from './steps/land-purchase.js';
+import { policySchema } from './insuranceShop.js';
 
 /** Renter terms from an agreement, with defaults for anything missing. */
 export function termsFromAgreement(a) {
@@ -20,3 +21,4 @@ registerAgreementDoc('lease', (a) => leaseSchema(termsFromAgreement(a)));
 registerAgreementDoc('roommate-agreement', (a) => roommateSchema(termsFromAgreement(a)));
 registerAgreementDoc('hoa-review', (a, state) => hoaSchema(a.terms, state));
 registerAgreementDoc('land-purchase', (a) => landSchema(a.terms));
+for (const id of ['renters-insurance', 'condo-insurance', 'home-insurance']) registerAgreementDoc(id, (a) => policySchema(a.terms));

@@ -1,0 +1,15 @@
+[
+  {"waitFor": ".pw-ins"},
+  {"wait": 300},
+  {"click": "[data-pick=basic]"},
+  {"click": "#pw-addon-flood"},
+  {"assert": "document.querySelector('.pw-ins-total').textContent.includes('$275.84')"},
+  {"type": ["#pw-loss", "8000"]},
+  {"assert": "document.querySelector('.pw-calc-out').textContent.includes('you pay $2,500')"},
+  {"click": ".pw-buy"},
+  {"wait": 400},
+  {"assert": "window.__homesim.getState().paperwork.options.insurance.quoteId === 'basic'"},
+  {"assert": "window.__homesim.getState().paperwork.options.insurance.addOns[0].type === 'flood'"},
+  {"assert": "window.__homesim.getState().paperwork.options.deductibleCents === 250000"},
+  {"eval": "window.__homesim.getState().finances.agreements.at(-1).summary"}
+]
