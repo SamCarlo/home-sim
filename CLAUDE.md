@@ -60,7 +60,7 @@ app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
 app/src/finance/               money.js loans.js costs.js affordability.js grid.js · ledger.js (+ ledgerRecords.js
-                               ledgerTotals.js) creditScore.js loanOptions.js buying.js build.js insurance.js (pure; see Finance helpers, Plan numbers, Ledger)
+                               ledgerTotals.js) creditScore.js loanOptions.js buying.js build.js insurance.js creditCard.js underwriting.js (pure; see Finance helpers, Plan numbers, Ledger)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
@@ -354,13 +354,21 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   draw, hardFail, factors[{label, value, note}], reasons, terms}`; `terms.upfront`/`upfrontCents` is exactly what commit
   charges. Draw = `drawFor(state, kind)` (seedFor(meta.seed, 'decision', kind, plan.attempts.length)). Mortgages reuse
   `loanOptions`/`findOption` + `options.closing.finalRate`; construction's 680 floor uses `options.pulledScore`. The card
-  offer is read from `paperwork.options.card = {accepted, autopay}`. `homeApproved(decisions)`, `letterFor(state, stepId)`.
+  offer is read from `paperwork.options.card = {accepted, autopay, pulledScore}` (the tier uses pulledScore). `homeApproved(decisions)`, `letterFor(state, stepId)`.
 - Commit (task 29, 05 §8, pure): `phases/paperwork/commit.js` `commitPaperwork(state, decisions, now)` → `{approved,
   chargedCents, loan, recurring, card}`; approved → upfront charged (month −1), loan opened, bills added (`recurringFor`,
   living costs with source 'living'), agreements active, applications approved, attempt 'approved', `home` set, phase
   'design'; denied → agreements void, applications denied, earnest refunded if `options.land.contingency`, attempt
   'denied', choice null, `freshPaperwork()` (letters and fee transactions stay), phase 'plan'. The card opens either way.
   Seeds `paperwork-ready-{apartment,shared,condo,house,build}` (Results next; apartment draws a denial, the rest approve).
+- Credit card (task 30, 05 §6, 09 §6): pure `finance/creditCard.js` `offerFor(state, {score?})` (tiers in `CREDIT.card`; secured
+  under 640 or 600), `minimumPayment(balance, interest)`, `cycle(card, {chargesCents, payFrom, autopay?})` → `{statementCents,
+  interestCents, minimumCents, paidCents, carried, lateFeeCents, missed, balanceCents}` (interest only when
+  `carriedLastMonth`; pure, the ledger moves are the caller's), `applyCycle`, `payoffExample(offer)`, `durationText`. Step
+  `steps/credit-card-offer.js` (form; `cardSchema(terms)` also registered in docs.js): accept = inquiry −5 + pending
+  'credit-card' application + pending agreement (docType 'credit-card-offer', `terms.attempt`) + `options.card = {accepted,
+  autopay, pulledScore}`; decline = void agreement; one-time via `priorAnswer`. Seeds `paperwork-card-offer(-secured)`,
+  `CARD_ACCEPT` values; e2e `tests/e2e/card-offer.json`.
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 

@@ -1047,3 +1047,38 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Commit throws if the cash isn't there; underwriting hard-fails that case first, so only a bug can hit it.
   - Insurance's `options.insurance.recurring.amountCents` is negative; recurring items are positive expenses, so commit uses
     the absolute value.
+
+## Task 30 — Credit card offer and card mechanics
+- attempt started 2026-10-02T05:43:47-10:00
+- done 2026-10-02T05:49:40-10:00
+- First attempt. Files: `app/src/finance/creditCard.js` (new: `tierFor`, `offerFor`, `minimumPayment`, `cycle`,
+  `applyCycle`, `payoffExample`, `durationText`), `steps/credit-card-offer.js` (real step: `CARD_EXPLANATION`,
+  `schumerRows`, `exampleText`, `cardSchema`, `cardTerms`, `currentAnswer`, `priorAnswer`), `phases/paperwork/docs.js`
+  (registers the offer doc), `finance/underwriting.js` (`cardDecision` uses `offerFor` + `options.card.pulledScore`),
+  `dev/seeds.js` (`CARD_ACCEPT`; ready seeds now accept through the real step; new `paperwork-card-offer`,
+  `paperwork-card-offer-secured`), `tests/unit/creditCard.test.js` (9 tests), `tests/unit/underwriting.test.js` (2 tests
+  updated for the card records), `tests/e2e/card-offer.json`, `tools/smoke.txt` (+2).
+- Verified: `node --test tests/unit/creditCard.test.js` 9/9; `bash tools/check.sh` → OK (syntax 138 files · tests · data 11 ·
+  smoke 46/46); `node tools/shoot.mjs --path "/index.html?seed=paperwork-card-offer&theme=light" --steps tests/e2e/card-offer.json` ✓.
+  - `tools/shots/t30/1-offer-full.png`: Uluwehi Savings Bank offer, explanation verbatim, "Regular card, $1,000 limit" / score 680,
+    Schumer box (25.99%, penalty 29.99%, 25-day grace, minimum rule, $1,000 limit, no annual fee, $30 late fee), APR ÷ 12 note,
+    worked example ($1,000 at the minimum: starts $31.66, 78 months, $1,010.39 interest; $100/mo: 12 months, $139.44; full: $0),
+    accept/decline radios. No overlaps.
+  - `2-accept-filled.png`: Accept chosen → autopay (full preselected, minimum picked here) + "Minimum payments are expensive"
+    warning, hard-check warning, checkbox, signature "Kai Mana".
+  - `3-after-accept.png`: step 6 Done, Results next; the e2e asserts autopay 'minimum', score −5, pending credit-card application
+    and pending agreement.
+  - `4-secured-full.png` (dark): score 620 → "Secured card, $300 limit", secured-card note, Security deposit row, 27.99%
+    example (81 months, $1,137.54).
+- Deviations: see DEVIATIONS (card tier uses the pulled score; decline stored as a void agreement; worked example uses the real
+  minimum rule plus a $100/month contrast).
+- Notes for later tasks:
+  - Task 44 (month sim): `cycle(card, {chargesCents, payFrom: checking})` → apply with `applyCycle`; the returned
+    `paidCents` must be moved with `transfer(s, 'checking', 'card', …)` and new charges posted with `charge(s, 'card', …)`,
+    so set `balanceCents` through the ledger (or apply only `carriedLastMonth`) to keep ledger sums consistent. `missed` →
+    a card late fee + credit −60. Penalty APR is disclosed but not applied in `cycle` (09 §6 doesn't use it); add it there
+    if wanted.
+  - Task 31 (Results): the card decision's terms now match what the student was offered (pulled score). The accepted offer
+    is a pending agreement (docType 'credit-card-offer') + pending 'credit-card' application; commit resolves both.
+  - The offer is one-time: `priorAnswer(state)` ('open' | 'declined' | 'accepted') makes later attempts show a short
+    "Already answered" form; `options.card = {accepted: false, prior}` then.

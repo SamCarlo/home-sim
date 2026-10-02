@@ -130,3 +130,14 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
 - 2026-10-02, task 29, roommate bonus: `UNDERWRITING.roommates.agreementBonus` is 0.05 (05 §4's ±5%), not the earlier 0.1.
   Factor = 1 + comfort (−1…1) × 0.05. A co-signer decision is still drawn for a shared room when the co-signer letter
   applied, but only the lease uses it (05 §7's roommates formula has no co-signer term).
+- 2026-10-02, task 30, card tier from the pulled score: accepting the offer records the card's hard inquiry (−5), so a
+  700 student would be offered $1,500 but decided at 695 ($1,000). The step stores `paperwork.options.card.pulledScore`
+  (the score before its own inquiry) and `cardDecision` uses it, so the card that opens matches the offer. Where:
+  `finance/underwriting.js`, `steps/credit-card-offer.js`.
+- 2026-10-02, task 30, decline noted as a void agreement: 05 §6 says a decline is "noted in the portfolio". Agreements only
+  have pending/active/void, so a decline is a void 'credit-card' agreement (summary "You declined this offer.", the offer
+  document read-only). No inquiry, no application. The offer is one-time: later attempts show "Already answered" when a card
+  is open or an earlier attempt answered. Where: `steps/credit-card-offer.js` `priorAnswer`.
+- 2026-10-02, task 30, worked example wording: 05 §6 says "$1,000 paid at the $25 minimum". The real minimum on $1,000 is
+  $31.66 at 25.99% (1% + interest), so the example pays the card's actual minimum ("starts at $31.66 and never drops under
+  $25") with `cardPayoff`, and adds a $100/month contrast and "pay in full = $0". Where: `finance/creditCard.js` `payoffExample`.

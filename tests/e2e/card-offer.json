@@ -1,0 +1,23 @@
+[
+ {"waitReady": true},
+ {"assert": "document.querySelector('.pw-item.is-active').dataset.step === 'credit-card-offer'"},
+ {"assert": "document.querySelector('.fm-form').textContent.includes('A credit card can help you build credit and cover expenses if you ever have a burst of spending, like car repairs, a vacation, or the holidays.')"},
+ {"assert": "document.querySelector('.fm-form').textContent.includes('29.99%') && document.querySelector('.fm-form').textContent.includes('25.99%')"},
+ {"eval": "window.__score0 = window.__homesim.getState().finances.credit.score"},
+ {"shot": "tools/shots/t30/1-offer-top.png"},
+ {"eval": "document.querySelector('[data-field=decision] input[value=\"accept\"]').click()"},
+ {"wait": 200},
+ {"assert": "document.querySelector('[data-field=autopay] input[value=\"full\"]').checked"},
+ {"eval": "document.querySelector('[data-field=autopay] input[value=\"minimum\"]').click()"},
+ {"wait": 200},
+ {"eval": "document.querySelector('[data-field=auth] input[type=checkbox]').click()"},
+ {"click": "[data-field=signature] input"},
+ {"type": ["[data-field=signature] input", "Kai Mana"]},
+ {"eval": "document.querySelector('[data-field=decision]').scrollIntoView({block: 'start'})"},
+ {"wait": 300},
+ {"shot": "tools/shots/t30/2-accept-filled.png"},
+ {"click": ".fm-actions button[type=submit]"},
+ {"wait": 600},
+ {"assert": "(s => s.paperwork.options.card.accepted === true && s.paperwork.options.card.autopay === 'minimum' && s.finances.credit.score === window.__score0 - 5 && s.finances.applications.some(a => a.kind === 'credit-card' && a.status === 'pending') && s.finances.agreements.some(a => a.docType === 'credit-card-offer' && a.status === 'pending'))(window.__homesim.getState())"},
+ {"shot": "tools/shots/t30/3-after-accept.png"}
+]

@@ -44,3 +44,5 @@ paperwork-ready-shared /index.html?seed=paperwork-ready-shared
 paperwork-ready-condo /index.html?seed=paperwork-ready-condo
 paperwork-ready-house /index.html?seed=paperwork-ready-house
 paperwork-ready-build /index.html?seed=paperwork-ready-build
+paperwork-card-offer /index.html?seed=paperwork-card-offer
+paperwork-card-offer-secured /index.html?seed=paperwork-card-offer-secured

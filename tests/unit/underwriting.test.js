@@ -141,6 +141,9 @@ test('credit card: tiers at 600+, secured below', () => {
   const s = ready('house');
   const card = () => decide(s).find((d) => d.kind === 'credit-card');
   assert.deepEqual([card().approved, card().terms.limitCents, card().terms.secured], [true, 100000, false]);
+  s.paperwork.options.card.pulledScore = 710;          // the score the issuer pulled at the offer (task 30)
+  assert.equal(card().terms.limitCents, 150000);
+  delete s.paperwork.options.card.pulledScore;         // without it: the current score
   s.finances.credit.score = 710;
   assert.equal(card().terms.limitCents, 150000);
   s.finances.credit.score = 590;
@@ -225,8 +228,11 @@ test('commit (denied): letters and fees kept, agreements void, attempt recorded,
   assert.ok(fees.length > 0);
   assert.deepEqual(s.finances.transactions.filter((t) => t.category === 'fees'), fees);
   assert.equal(cash(s), before, 'nothing charged, nothing refunded (no secured deposit)');
-  assert.ok(s.finances.agreements.every((a) => a.status === 'void'));
-  assert.ok(s.finances.applications.every((a) => a.status === 'denied'));
+  const isCard = (a) => a.type === 'credit-card' || a.kind === 'credit-card';
+  assert.ok(s.finances.agreements.filter((a) => !isCard(a)).every((a) => a.status === 'void'));
+  assert.ok(s.finances.applications.filter((a) => !isCard(a)).every((a) => a.status === 'denied'));
+  assert.equal(s.finances.agreements.find(isCard).status, 'active', 'the accepted card offer opens anyway');
+  assert.equal(s.finances.applications.find(isCard).status, 'approved');
   assert.deepEqual([s.phase, s.choice, s.plan.attempts.at(-1).outcome], ['plan', null, 'denied']);
   assert.deepEqual(s.plan.attempts.at(-1).reasons, ds.find((d) => d.required).reasons);
   assert.deepEqual(s.paperwork.steps, {});

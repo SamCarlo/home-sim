@@ -373,14 +373,15 @@ export const leaseValuesFor = (s) => ({ init: Object.fromEntries(leaseClauses(re
 const BEST_ROOMMATE = Object.fromEntries(Object.entries(ROOMMATE_CHOICES)
   .map(([k, l]) => [k, l.reduce((a, b) => (b.comfort > a.comfort ? b : a)).value]));
 const MOVE_IN = { 'only-if-approved': true, signature: 'Kai Mana' };
+/** Accepting the card offer with autopay in full (task 30). */
+export const CARD_ACCEPT = { decision: 'accept', autopay: 'full', auth: true, signature: 'Kai Mana' };
 function ready(s, ids, now) {
   for (const id of ids) {
     const v = id === 'lease' ? leaseValuesFor(s) : id === 'move-in-payment' ? MOVE_IN : id === 'closing-disclosure'
-      ? { signature: 'Kai Mana', flagged: true } : id === 'roommate-agreement'
+      ? { signature: 'Kai Mana', flagged: true } : id === 'credit-card-offer' ? CARD_ACCEPT : id === 'roommate-agreement'
         ? { ...BEST_ROOMMATE, thermostat: 'AC on above 85°F, set to 78°F', signature: 'Kai Mana' } : {};
     finishSteps(s, [id], { [id]: v }, now);
   }
-  s.paperwork.options.card = { accepted: true, autopay: 'full' };
   return s;
 }
 for (const [type, from, ids, description] of [
@@ -391,3 +392,16 @@ for (const [type, from, ids, description] of [
   ['build', 'paperwork-build-insurance', ['home-insurance', 'credit-card-offer'], 'Pāhoa build'],
 ]) seeds[`paperwork-ready-${type}`] = { phase: 'paperwork', description: `${description}: every step done; Results are next.`,
   build: (now) => ready(seeds[from].build(now), ids, now) };
+
+// Task 30 seeds: the card offer is the active step (Hilo apartment, score 680 → regular $1,000 card; and a 620 score →
+// secured card).
+const cardOfferSeed = (score) => (now) => {
+  const s = seeds['paperwork-apartment-lease'].build(now);
+  finishSteps(s, ['lease', 'move-in-payment'], { lease: leaseValuesFor(s), 'move-in-payment': MOVE_IN }, now);
+  if (score) s.finances.credit.score = score;
+  return s;
+};
+seeds['paperwork-card-offer'] = { phase: 'paperwork',
+  description: 'Hilo apartment: lease and move-in done; the credit card offer is next (regular card).', build: cardOfferSeed(null) };
+seeds['paperwork-card-offer-secured'] = { phase: 'paperwork',
+  description: 'Hilo apartment with a 620 credit score: the card offer is a secured card.', build: cardOfferSeed(620) };

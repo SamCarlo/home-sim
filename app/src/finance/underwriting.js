@@ -2,13 +2,14 @@
 // decide(state) → one decision record per decision this attempt needs (lease, cosigner, roommates, mortgage,
 // construction, credit-card). Each record lists its factors and readable reasons so Results (task 31) can explain it,
 // and the terms commit (phases/paperwork/commit.js) applies. The draw is seeded by save + kind + attempt index.
-import { FINANCE, UNDERWRITING, CREDIT, BUILD } from '../config.js';
+import { FINANCE, UNDERWRITING, BUILD } from '../config.js';
 import { byId } from '../data/locations/index.js';
 import { createRng, seedFor } from '../util/rng.js';
 import { scoreLetter, needsScore } from '../letters/score.js';
 import { businessFor } from '../content/names.js';
 import { formatMoney, sumCents } from './money.js';
 import { pmt, totalInterest } from './loans.js';
+import { offerFor } from './creditCard.js';
 import { cashOf } from './grid.js';
 import { unpaidUpfront } from './ledgerRecords.js';
 import { loanOptions, findOption, programBlock, creditTier, optionLabel } from './loanOptions.js';
@@ -249,17 +250,19 @@ export function cardAccepted(state) {
   return o.card ? o.card.accepted === true : o.cardAccepted === true;
 }
 
-/** Credit card (05 §6–§7): approved on the tiers at ≥ 600; below that it becomes the secured card, always approved. */
-function cardDecision(state, cfg = CREDIT.card) {
-  const score = state.finances.credit.score;
-  const tier = score >= cfg.approveMinScore ? cfg.tiers.find((t) => score >= t.minScore) : cfg.tiers.at(-1);
-  const secured = tier.kind === 'secured';
+/**
+ * Credit card (05 §6–§7): approved on the tiers at ≥ 600; below that it becomes the secured card, always approved.
+ * The tier uses the score the issuer pulled before its own inquiry (options.card.pulledScore, task 30), else the current one.
+ */
+function cardDecision(state) {
+  const card = state.paperwork.options.card ?? {};
+  const o = offerFor(state, { score: card.pulledScore ?? state.finances.credit.score });
   return record(state, 'credit-card', { required: false,
-    factors: [factor('Credit', 1, `Score ${score}: ${secured ? 'secured card' : 'regular card'}`)],
-    reasons: [secured ? `Score ${score}: a secured card with a ${formatMoney(cfg.securedDepositCents)} deposit.`
-      : `Score ${score}: a ${formatMoney(tier.limitCents)} limit at ${(tier.apr * 100).toFixed(2)}% APR.`],
-    terms: { kind: tier.kind, secured, limitCents: tier.limitCents, apr: tier.apr, depositCents: secured ? cfg.securedDepositCents : 0,
-      autopay: state.paperwork.options.card?.autopay ?? 'full', lateFeeCents: cfg.lateFeeCents, graceDays: cfg.graceDays } });
+    factors: [factor('Credit', 1, `Score ${o.score}: ${o.secured ? 'secured card' : 'regular card'}`)],
+    reasons: [o.secured ? `Score ${o.score}: a secured card with a ${formatMoney(o.depositCents)} deposit.`
+      : `Score ${o.score}: a ${formatMoney(o.limitCents)} limit at ${(o.apr * 100).toFixed(2)}% APR.`],
+    terms: { kind: o.kind, secured: o.secured, limitCents: o.limitCents, apr: o.apr, depositCents: o.depositCents,
+      autopay: card.autopay ?? 'full', lateFeeCents: o.lateFeeCents, graceDays: o.graceDays } });
 }
 
 /**
