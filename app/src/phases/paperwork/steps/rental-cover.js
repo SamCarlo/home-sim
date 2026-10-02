@@ -1,4 +1,4 @@
-// Letter: cover letter to the landlord (05 §3–§4). Placeholder until task 25.
-import { placeholderStep } from './placeholder.js';
+// Letter: cover letter to the landlord (05 §3, 06 §1–§2): the shared letter box.
+import { letterStep } from '../letterBox.js';
 
-export default placeholderStep({ id: 'rental-cover', title: 'Letter: cover letter to the landlord', kind: 'letter', task: 25 });
+export default letterStep('rental-cover');

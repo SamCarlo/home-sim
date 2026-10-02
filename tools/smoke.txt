@@ -37,3 +37,4 @@ paperwork-renters-insurance /index.html?seed=paperwork-renters-insurance&theme=l
 paperwork-condo-insurance /index.html?seed=paperwork-condo-insurance&theme=light
 paperwork-house-insurance /index.html?seed=paperwork-house-insurance&theme=light
 paperwork-build-insurance /index.html?seed=paperwork-build-insurance&theme=light
+paperwork-letter /index.html?seed=paperwork-letter&theme=light

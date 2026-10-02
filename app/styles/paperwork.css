@@ -129,3 +129,39 @@
 .pw-calc h3, .pw-calc-out { grid-column: 1 / -1; margin: 0; }
 .pw-calc-input { width: 10rem; }
 .pw-ins-total { font-size: 1.05rem; margin: var(--sp-3) 0; }
+
+/* Letter box (task 25, 06 §2): recipient card, prompt, writing area beside a static tip list, the sent confirmation. */
+.pw-letter { padding: var(--sp-5); }
+.pw-letter-to { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--sp-2); margin: 0 0 var(--sp-3);
+  padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-left: 4px solid var(--sky); border-radius: var(--r-md);
+  background: var(--surface-2); }
+.pw-letter-to-label { font-weight: 700; color: var(--muted); }
+.pw-letter-to-name { font-weight: 600; }
+.pw-letter-to-org { color: var(--ink-2); }
+.pw-letter-to-org::before { content: '· '; color: var(--muted); }
+.pw-letter-prompt { margin: 0 0 var(--sp-4); max-width: 70ch; color: var(--ink-2); }
+.pw-letter-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); gap: var(--sp-4); align-items: start; }
+.pw-letter-label { display: block; margin: 0 0 var(--sp-1); font-weight: 600; }
+.pw-letter-text { display: block; width: 100%; min-height: 18rem; resize: vertical; padding: var(--sp-3);
+  border: 1px solid var(--field-line); border-radius: var(--r-md); background: var(--field); color: var(--ink);
+  font: inherit; font-size: 1rem; line-height: 1.55; }
+.pw-letter-text:focus-visible { outline: 3px solid var(--sky); outline-offset: 1px; }
+.pw-letter-count { margin: var(--sp-1) 0 0; font-size: .88rem; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pw-letter-count[data-status="ok"] { color: var(--st-green-ink); }
+.pw-letter-count[data-status="long"] { color: var(--st-yellow-ink); }
+.pw-letter-note { margin: var(--sp-2) 0 0; font-size: .88rem; color: var(--ink-2); }
+.pw-letter-actions { margin-top: var(--sp-3); }
+.pw-letter-tips { padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--sky-wash); font-size: .92rem; }
+.pw-letter-tips h3 { margin: 0 0 var(--sp-2); font-size: 1rem; }
+.pw-letter-tips ul { margin: 0 0 var(--sp-3); padding-left: 1.2em; }
+.pw-letter-tips li + li { margin-top: 4px; }
+.pw-letter-examples { margin: var(--sp-1) 0 0; color: var(--ink-2); }
+.pw-letter-sent { margin: 0 0 var(--sp-3); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md);
+  background: var(--st-green-bg); border: 1px solid var(--st-green-line); color: var(--st-green-ink); }
+.pw-letter-sent p { margin: 0; }
+.pw-letter-sent-head { font-size: 1.15rem; font-weight: 700; }
+.pw-letter-copy { max-width: 70ch; padding: var(--sp-3) var(--sp-4); border: 1px solid var(--line); border-radius: var(--r-md);
+  white-space: pre-line; }
+.pw-letter-copy p { margin: 0 0 var(--sp-2); }
+.pw-letter-next { margin-top: var(--sp-3); }
+@media (max-width: 1100px) { .pw-letter-grid { grid-template-columns: 1fr; } }

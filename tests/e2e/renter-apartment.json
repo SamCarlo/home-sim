@@ -90,7 +90,25 @@
   "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'rental-cover'"
  },
  {
-  "click": ".pw-dev-done"
+  "type": [
+   ".pw-letter-text",
+   "Dear Analyn Domingo, I would love to rent this apartment. Thank you, Kai Mana"
+  ]
+ },
+ {
+  "click": ".pw-letter-send"
+ },
+ {
+  "waitFor": ".modal-confirm"
+ },
+ {
+  "click": ".modal-confirm"
+ },
+ {
+  "waitFor": ".pw-letter-next"
+ },
+ {
+  "click": ".pw-letter-next"
  },
  {
   "wait": 150
@@ -99,10 +117,19 @@
   "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'renters-insurance'"
  },
  {
-  "click": ".pw-dev-done"
+  "waitFor": ".pw-ins"
  },
  {
-  "wait": 150
+  "wait": 300
+ },
+ {
+  "click": "[data-pick=basic]"
+ },
+ {
+  "click": ".pw-buy"
+ },
+ {
+  "wait": 250
  },
  {
   "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'lease'"

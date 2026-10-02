@@ -63,8 +63,12 @@ export function mount(container, ctx) {
       return;
     }
     error.hidden = true;
-    const next = nextStep(store.getState());
-    select(next ?? 'results');
+    if (mod.stayOnDone) { render(store.getState()); body.querySelector('.pw-step-title')?.focus(); return; }
+    goNext();
+  }
+
+  function goNext() {
+    select(nextStep(store.getState()) ?? 'results');
   }
 
   function saveDraft(id, values) {
@@ -134,7 +138,7 @@ export function mount(container, ctx) {
       });
     } else if (mod.mount) {
       const un = mod.mount(body, { store, config, state, status, values: stored?.values ?? {},
-        onDone: (values = {}) => finish(id, values), onDraft: (values) => saveDraft(id, values) });
+        onDone: (values = {}) => finish(id, values), onDraft: (values) => saveDraft(id, values), onNext: goNext });
       unmountStep = typeof un === 'function' ? un : null;
     }
   }

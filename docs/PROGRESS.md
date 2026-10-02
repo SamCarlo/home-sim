@@ -845,3 +845,39 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Task 44 / 09 §7: insured losses use `options.deductibleCents` and `outOfPocket(loss, {deductibleCents})`; Florida
     hurricanes can use `options.insurance.hurricaneDeductible.lowCents`.
   - e2e: wait ~300 ms after `.pw-ins` appears before clicking quote buttons, or the first click can miss.
+
+## Task 25 — Letter writing step
+- attempt started 2026-10-02T01:07:49-10:00
+- done 2026-10-02T01:15:37-10:00
+- Added: `app/src/letters/types.js` (6 types: prompt, tips, greeting/closing examples, content groups + keywords, target
+  words, recipient role), `letters/send.js` (`wordCount`, `lengthStatus`, `recipientFor`, `nextLetterId`, `sendLetter`),
+  `letters/score.js` (stub → `{likelihood: null, pending: true}`), `phases/paperwork/letterBox.js` (`mountLetterBox`,
+  `letterStep(id)`), `dev/sampleLetters.js`, `tests/unit/letterBox.test.js` (7 tests), `tests/e2e/letter.json`.
+  Changed: the six letter step files (one-liners), `paperworkScreen.js` (`stayOnDone` + `onNext` in the mount ctx),
+  `dev/seeds.js` (`paperwork-letter`; `finishSteps` sends the sample letter for letter steps), `styles/paperwork.css`,
+  `tools/smoke.txt` (+1), CLAUDE.md, DEVIATIONS.
+- Fixed earlier e2e scripts that clicked the dev "Mark done" button on steps that are now real: `paperwork-flow.json`
+  and `renter-apartment.json` (cover letter + renters insurance; the insurance half was already broken since task 24),
+  `builder-pahoa.json` (construction-purpose letter), `buyer-house.json` (home insurance, also broken since task 24).
+- Verified:
+  - `node --test tests/unit/letterBox.test.js` → 7 pass; `npm test` → 174 pass.
+  - `bash tools/check.sh` → "check: OK (syntax 124 files · tests · data 10 files · smoke) in 49s", smoke 38/38.
+  - e2e ✓ `letter.json` on paperwork-letter: textarea spellcheck="false", Send disabled when empty, 30-word count,
+    draft saved, confirm → step done, letter stored with `score.pending`, no score shown, listed in portfolio Letters
+    ("Analyn Domingo, ʻĀina Kai Rental Group"). Also ✓ paperwork-flow, renter-apartment, renter-shared, builder-pahoa,
+    buyer-house, mortgage-house, insurance-katy.
+  - Shots in tools/shots/t25/:
+    - 1-empty: recipient card "To: Analyn Domingo · ʻĀina Kai Rental Group", prompt, empty textarea with a neutral placeholder, tip panel with greeting/closing examples, "0 words · aim for 80 to 200".
+    - 2-draft: typed letter, focus ring, "30 words · aim for 80 to 200", made-up-names note, Send letter; checklist shows Draft.
+    - 3-sent: green "✓ Sent! You'll find out how it was received at the end of this phase.", recipient, the letter text, Next step; checklist 2 of 7 done.
+    - 4-portfolio: Letters tab lists "Rental cover letter", recipient and date.
+- Deviations: see DEVIATIONS (stay on the sent view with a Next step button; dictionary preload left to task 26).
+- Notes for later tasks:
+  - Task 26/28: `letters/score.js` `scoreLetter(text, type, {speller})` is called by `sendLetter` inside the store update;
+    keep it synchronous (load the speller before Send, e.g. when the letter box mounts, and pass it through
+    `mountLetterBox` → `onDone` values or a module-level cache). Content groups live in `LETTER_TYPES[id].groups`
+    (`keywords` are lowercase substrings; `patterns` optional). `dev/sampleLetters.js` has one in-range letter per type.
+  - Task 28: letters made before the real model have `score: {likelihood: null, pending: true}`; the portfolio only shows a
+    band when `score.band` exists. Results can rescore pending letters.
+  - Task 29: the step's `values.letterId` points at `state.letters[id]`; `paperwork.letterIds` lists this attempt's letters.
+  - e2e: after Send, click `.modal-confirm`, then `.pw-letter-next` to move on (the sent view stays up).

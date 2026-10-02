@@ -1,4 +1,4 @@
-// Letter: introduce yourself to the roommates (05 §3–§4). Placeholder until task 25.
-import { placeholderStep } from './placeholder.js';
+// Letter: introduce yourself to the roommates (05 §3, 06 §1–§2): the shared letter box.
+import { letterStep } from '../letterBox.js';
 
-export default placeholderStep({ id: 'roommate-intro', title: 'Letter: introduce yourself to the roommates', kind: 'letter', task: 25 });
+export default letterStep('roommate-intro');

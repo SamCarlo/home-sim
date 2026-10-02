@@ -14,6 +14,7 @@ import { hireInspector } from '../phases/paperwork/steps/home-inspection.js';
 import { orderAppraisal, payGap } from '../phases/paperwork/steps/appraisal.js';
 import { appraisalResult } from '../finance/buying.js';
 import { byId } from '../data/locations/index.js';
+import { SAMPLE_LETTERS } from './sampleLetters.js';
 
 /** The dev account every seed runs as (01 §7). */
 export const DEV_USER = { uid: 'local-dev', username: 'dev', classCode: 'DEMO' };
@@ -208,12 +209,16 @@ export const SAMPLE_APPLICATION = {
   pets: 'none', smoking: 'no', auth: true, signature: 'Kai Mana',
 };
 
-/** Finish paperwork steps in order: real `complete()` for built steps (with `values[id]`), completeStep otherwise. */
+/**
+ * Finish paperwork steps in order: real `complete()` for built steps (with `values[id]`), completeStep otherwise.
+ * Letter steps without values send the type's sample letter (dev/sampleLetters.js).
+ */
 export function finishSteps(s, ids, values = {}, now = 0) {
   for (const id of ids) {
     const mod = paperworkStep(id);
-    if (mod.complete) mod.complete(s, values[id] ?? {}, now);
-    else completeStep(s, id, { values: values[id] ?? {}, upfrontKey: mod.upfrontKey, now });
+    const v = values[id] ?? (SAMPLE_LETTERS[id] ? { text: SAMPLE_LETTERS[id] } : {});
+    if (mod.complete) mod.complete(s, v, now);
+    else completeStep(s, id, { values: v, upfrontKey: mod.upfrontKey, now });
   }
   return s;
 }
@@ -348,3 +353,10 @@ seeds['paperwork-house-insurance'] = { phase: 'paperwork',
 seeds['paperwork-build-insurance'] = { phase: 'paperwork',
   description: 'Pāhoa build: every builder document done; shop for home insurance (HPIA lava coverage required).',
   build: (now) => finishSteps(pahoaBuild(now), BUILD_STEPS, SAMPLE_BUILD_VALUES, now) };
+
+// Task 25 seed: the rental application is done, so the cover letter's writing box is the active step.
+seeds['paperwork-letter'] = { phase: 'paperwork',
+  description: 'Hilo apartment: application done; write the cover letter to the landlord.',
+  build: (now) => finishSteps(paperworkStart(now, { locationId: 'hilo', homeTypeId: 'apartment', netMonthlyIncomeCents: 420000,
+    startingSavingsCents: 2000000, jobTitle: 'Dental assistant' }), ['rental-application'],
+  { 'rental-application': SAMPLE_APPLICATION }, now) };

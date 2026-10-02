@@ -68,13 +68,14 @@ app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScre
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms)
+                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
                                paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
                                ui/login.js (welcome screen: Log in / Create account tabs)
 app/src/content/names.js       fictional people/businesses per region (pure, seeded)
+app/src/letters/               types.js send.js score.js (pure; scoring pipeline lands in tasks 26–28)
 app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
                                locations/{hawaii,cities,towns,index}.js (pure)
 app/src/admin/adminMain.js     placeholder (task 52)
@@ -311,6 +312,14 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   lines rewritten, pending agreement type 'insurance'. UI: `phases/paperwork/insuranceShop.js` `insuranceStep({id, title})`
   (the three steps are one-liners), `policySchema` (registered in docs.js). Seeds `paperwork-{renters,condo,house,build}-insurance`
   (Hilo, Miami, Katy, Pāhoa build). e2e `tests/e2e/insurance-katy.json`.
+- Letters (task 25, 06 §1–§2): pure `letters/types.js` `LETTER_TYPES[id]` / `letterType(id)` (ids = the six letter step ids:
+  prompt, tips, greeting/closing examples, `groups[{id, label, keywords, patterns?}]`, `targetWords {min, max}`, recipientRole),
+  `letters/send.js` (`wordCount`, `lengthStatus` empty/short/ok/long, `recipientFor(s, id)` → `{name, org, line}` seeded,
+  `sendLetter(s, {type, text}, now, {speller})` → `letters['L<n>']` + `paperwork.letterIds`), `letters/score.js` `scoreLetter`
+  (stub `{likelihood: null, pending: true}` until task 28). UI `phases/paperwork/letterBox.js` `letterStep(id)` (the six
+  step files are one-liners; complete = send + `setStep` done with `{letterId}`). Steps with `stayOnDone: true` stay on
+  their done view after `onDone`; mount ctx has `onNext()`. `finishSteps` sends `dev/sampleLetters.js` text for letter
+  steps. Seed `paperwork-letter` (Hilo cover letter). e2e `tests/e2e/letter.json`.
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 

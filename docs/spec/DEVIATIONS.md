@@ -81,3 +81,8 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
 - 2026-10-02, task 24, Pāhoa home-insurance screenshot: taken on the Pāhoa **build** path (`paperwork-build-insurance`),
   which uses the same `home-insurance` step and HPIA rule as a Pāhoa house; reaching it on the house path takes
   inspection + appraisal seeds that don't exist for Pāhoa.
+- 2026-10-02, task 25, letter box: after Send the step stays on a sent view ("Sent! …", the recipient and the letter
+  text) with a **Next step** button, instead of jumping to the next step, so students see the confirmation 06 §2 asks for.
+  Step modules opt in with `stayOnDone: true`; `paperworkScreen.js` passes `onNext` in the mount context. The confirm
+  dialog also mentions the word count when it's outside the target. The spelling dictionary is not preloaded yet,
+  since the score is a stub; task 26 adds the lazy load when the box mounts. Where: `phases/paperwork/letterBox.js`.

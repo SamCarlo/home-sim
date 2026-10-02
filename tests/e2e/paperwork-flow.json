@@ -90,13 +90,31 @@
   "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
  },
  {
-  "click": ".pw-dev-done"
+  "type": [
+   ".pw-letter-text",
+   "Dear Analyn Domingo, I would love to rent this apartment. Thank you, Kai Mana"
+  ]
  },
  {
-  "wait": 150
+  "click": ".pw-letter-send"
+ },
+ {
+  "waitFor": ".modal-confirm"
+ },
+ {
+  "click": ".modal-confirm"
+ },
+ {
+  "waitFor": ".pw-letter-sent"
  },
  {
   "assert": "window.__homesim.getState().paperwork.steps['rental-cover'].status === 'done' && document.querySelector('.pw-item[data-step=\"rental-cover\"]').dataset.status === 'done'"
+ },
+ {
+  "click": ".pw-letter-next"
+ },
+ {
+  "wait": 150
  },
  {
   "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'renters-insurance' && document.querySelector('.pw-step-title, .fm-title').textContent.length > 0"
@@ -105,10 +123,19 @@
   "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
  },
  {
-  "click": ".pw-dev-done"
+  "waitFor": ".pw-ins"
  },
  {
-  "wait": 150
+  "wait": 300
+ },
+ {
+  "click": "[data-pick=basic]"
+ },
+ {
+  "click": ".pw-buy"
+ },
+ {
+  "wait": 250
  },
  {
   "assert": "window.__homesim.getState().paperwork.steps['renters-insurance'].status === 'done' && document.querySelector('.pw-item[data-step=\"renters-insurance\"]').dataset.status === 'done'"
