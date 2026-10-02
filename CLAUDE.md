@@ -69,9 +69,9 @@ app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScre
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props)
+                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles)
 app/src/three/                 scene.js sky.js terrain.js landmarks.js materials.js · props.js propKit.js animals.js yard.js
-                               character.js (browser only, import() lazily; see 3D scene)
+                               character.js · styles.js styleParts.js styleSwatch.js (browser only, import() lazily; see 3D scene)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
                                paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
@@ -222,8 +222,8 @@ and returns a result, never a new state. Accounts `'checking' | 'savings' | 'car
   per family in `houses.js` `drawHouse(family, palette, opts)` → `{svg, porch}`, primitives + `GROUND` (238) in `shapes.js`.
   Gallery: `?dev=gallery2d&region=<r>&type=<id|all>` (default all 100); shoot at `--size 1600x1800` per region.
 - Style families (08 §4, pure): `data/styleFamilies.js` `STYLE_FAMILY_DATA`/`STYLE_FAMILY_LIST`, `styleFamily(key, variant)`
-  (merges `hillside`/`alaska`): palettes {wall, trim, roof, accent}, house traits, apartment + condo floorsBySettlement
-  and traits, vegetation, props. Shared by 2D and 3D (task 34 adds 3D params).
+  (merges `hillside`/`alaska`, incl. their `look`): palettes {wall, trim, roof, accent}, house traits, apartment + condo
+  floorsBySettlement and traits, vegetation, props, `look` (3D, see Style families in 3D). Shared by 2D and 3D.
 
 ## Forms (05 §2/§4, task 18; `app/src/forms/`)
 A paperwork document is a schema. `renderForm(container, schema, {values, state, onChange, onSubmit, readOnly})` →
@@ -395,7 +395,7 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   landmark backdrop. Snow = white ground + hidden deciduous crowns; fall = recolored leaf materials.
 - `landmarks.js` `addLandmark(batch, key, ctx)` for all 20 `LANDMARKS` (`LANDMARK_KEYS`).
 - `materials.js`: `mat(color, opts)` (cached, flat-shaded), `ownMat` (uncached, for recoloring), `canvasTexture('siding'|'brick'|
-  'shingle'|'metal')`, `texturedMat`, `createBatch()` → `add(geo, material, {x,y,z,rx,ry,rz,s,sx,sy,sz})` / `build({castShadow,
+  'shingle'|'metal'|'batten'|'log'|'stucco'|'ashlar'|'tile')`, `texturedMat`, `createBatch()` → `add(geo, material, {x,y,z,rx,ry,rz,s,sx,sy,sz})` / `build({castShadow,
   receiveShadow})` (one merged mesh per material), `disposeMaterials()` (called by `dispose`).
 - Gallery `?dev=scene&biome=&t=&month=&landmark=&loc=` shows calls/triangles vs the budget; `window.__scene` is the handle.
   Current scenes: 9–18 draw calls, ≤ 13.5k triangles.
@@ -412,6 +412,16 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   ms?) → Promise<bool>, setVisible, update(dt)}`; 5.6 ft tall; `characterColors(seed)` for seeded defaults; speeds in
   `config.CHARACTER3D`. Gallery `?dev=props&focus=all|trees|yard|animals|plants|character&month=&walk=1&anim=1&decor=1`
   (`window.__props` = triangle counts).
+- Style families in 3D (08 §4, task 34): each family in `data/styleFamilies.js` has a `look` (roof, pitch rise/run, eave,
+  ridge 'x'|'z', wallTex/roofTex, window jalousie|sash|grid|storefront + windowExtra shutters|arched|tall, porch, base,
+  rails, rooftop, trees (TREE_KINDS), extras). `styles.js` `styleKit(key, {variant, palette})` → `{look, palette, trees,
+  m: {wall roof trim accent glow dark iron wood concrete glass metal stone brick lava sandstone}, setNight(f)}`; helpers write
+  into a propKit `merged((add) => …)`: `addWalls`, `addRoof(add, kit, w, d, {y, shape, pitch, eave, ridge})` → ridge height
+  (`makeRoof`), `addWindow`/`addWindowRow` (`makeWindowRow`), `addDoor`, `addGarageDoor`, `polyGeo`; `styleParts.js`
+  (re-exported) `frame(add, {x,y,z,yaw})`, `texBox` (UVs in feet; use it for textured parts), `addBase` → floor height
+  (`BASE_HEIGHT`), `addPorch`/`makePorch`, `addRail`, `addSteps`, `addFireEscape`, `addChimney`, `addRooftop('water-tank'|
+  'ac'|'solar')`. `styleSwatch.js` `createSwatchHouse(key, {variant, palette, season})` (a template for task 37). Gallery
+  `?dev=styles&family=&variant=&palette=&loc=&month=&t=` (`window.__styles` = triangles per swatch).
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

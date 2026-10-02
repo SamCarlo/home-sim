@@ -57,6 +57,41 @@ const PAINTERS = {
       g.fillStyle = '#b4b4b4'; g.fillRect(0, r * rh + rh - 3, s, 3);
     }
   },
+  batten(g, s) { // board-and-batten: vertical boards with raised strips
+    g.fillStyle = '#f4f4f4'; g.fillRect(0, 0, s, s);
+    for (let x = 0; x < s; x += s / 6) { g.fillStyle = '#c4c4c4'; g.fillRect(x, 0, 4, s); g.fillStyle = '#ffffff'; g.fillRect(x + 4, 0, 2, s); }
+  },
+  log(g, s) { // stacked round logs with dark chinking
+    for (let y = 0; y < s; y += s / 5) {
+      const grad = g.createLinearGradient(0, y, 0, y + s / 5);
+      grad.addColorStop(0, '#bdbdbd'); grad.addColorStop(0.4, '#ffffff'); grad.addColorStop(0.9, '#a8a8a8'); grad.addColorStop(1, '#5a5a5a');
+      g.fillStyle = grad; g.fillRect(0, y, s, s / 5);
+    }
+  },
+  stucco(g, s) { // faint speckle
+    g.fillStyle = '#f6f6f6'; g.fillRect(0, 0, s, s);
+    for (let i = 0; i < 260; i++) {
+      const x = (i * 73) % s, y = (i * 151 + (i >> 3) * 37) % s;
+      g.fillStyle = i % 2 ? '#e8e8e8' : '#ffffff'; g.fillRect(x, y, 3, 3);
+    }
+  },
+  ashlar(g, s) { // brownstone: large smooth blocks
+    g.fillStyle = '#bdbdbd'; g.fillRect(0, 0, s, s);
+    const bh = s / 4, bw = s / 2;
+    for (let r = 0; r < 4; r++) for (let c = -1; c < 3; c++) {
+      g.fillStyle = (r + c) % 2 ? '#f2f2f2' : '#fbfbfb';
+      g.fillRect(c * bw + (r % 2 ? bw / 2 : 0) + 1, r * bh + 1, bw - 2, bh - 2);
+    }
+  },
+  tile(g, s) { // barrel tile: rounded vertical runs with stepped courses
+    const w = s / 6;
+    for (let x = 0; x < s; x += w) {
+      const grad = g.createLinearGradient(x, 0, x + w, 0);
+      grad.addColorStop(0, '#8a8a8a'); grad.addColorStop(0.45, '#ffffff'); grad.addColorStop(1, '#9a9a9a');
+      g.fillStyle = grad; g.fillRect(x, 0, w, s);
+    }
+    for (let y = 0; y < s; y += s / 4) { g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(0, y, s, 3); }
+  },
   metal(g, s) {
     const w = s / 8;
     for (let x = 0; x < s; x += w) {
@@ -67,7 +102,7 @@ const PAINTERS = {
   },
 };
 
-/** Gray-scale tileable canvas texture: 'siding' | 'brick' | 'shingle' | 'metal' (tinted by the material color). */
+/** Gray-scale tileable canvas texture: siding brick shingle metal batten log stucco ashlar tile (tinted by the material color). */
 export function canvasTexture(kind) {
   if (textures.has(kind)) return textures.get(kind);
   const paint = PAINTERS[kind];

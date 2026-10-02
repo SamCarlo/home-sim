@@ -1184,3 +1184,38 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     `await ch.walkTo(home.path, ms)` resolves true on arrival, false if interrupted (new walkTo or setVisible(false)).
   - `Box3.setFromObject` before the first render needs `scene.updateMatrixWorld(true)` first (merged meshes have
     matrixAutoUpdate off and parents' matrixWorld is stale) or the box comes out empty / at the origin.
+
+## Task 34 — Regional style families in 3D
+- attempt started 2026-10-02T10:19:50-10:00
+- done 2026-10-02T10:31:13-10:00
+- Files: `app/src/data/styleFamilies.js` (+ `look` 3D params per family, variant looks merged by `styleFamily`),
+  `three/styles.js` (styleKit, addRoof/makeRoof, addWalls, addWindow/addWindowRow/makeWindowRow, addDoor, addGarageDoor,
+  polyGeo; re-exports styleParts), `three/styleParts.js` (frame, texBox, BASE_HEIGHT, addBase, addRail, addSteps,
+  addPorch/makePorch, addFireEscape, addChimney, addRooftop), `three/styleSwatch.js` (SWATCH dims, createSwatchHouse),
+  `three/materials.js` (+ batten log stucco ashlar tile textures), `dev/stylesGallery.js` + `dev/galleries.js` (styles),
+  `styles/components.css` (.dev-styles-tag), `tools/smoke.txt` (+styles), `tests/unit/styleLook.test.js`.
+- Verified: `bash tools/check.sh` OK (155 files, tests, data 11, smoke 51/51). Shots in tools/shots/t34/:
+  - all.png (`?dev=styles`, 1600×1000): 4 × 4 labeled grid; each family reads differently: red hip on posts with lānai
+    (plantation), steep red gable + stone chimney + fence (upcountry), low brown hip + lava wall (Kona), 2-story modern shed
+    roof + carport + glass lānai rail (Honolulu), gable-to-street craftsman with shingle (PNW), 4-story brownstone with
+    cornice, water tank, fire escape, stoop (NYC), pink flat deco with teal bands/fins + AC units (Miami), brick 2-story hip
+    + front garage (Texas), barrel tile hip + block-wall courtyard (desert), green A-frame (cabin), white 2-story with red
+    shutters, center chimney and red barn (New England), red + blue saltbox pair (maritime), white farmhouse with green
+    metal roof and wraparound porch (Appalachian), long narrow shotgun (Delta), foursquare hip with dormer (Midwest), long
+    low ranch + barn + windmill (plains). Scene 481 calls / 65k tris.
+  - plantation.png, nyc.png, appalachian.png, desert.png, miami.png, kona.png (`&family=`): close-ups. Fixed after the
+    first look: solar panels tilted into the roof (pitch sign), brownstone stoop too low (new `raised` 5 ft base),
+    wraparound side roof pointing outward (frame yaw sign).
+  - alaska-winter.png (`&family=maritime&variant=alaska&palette=1&month=0&loc=homer`): red metal-sided gable house on snow.
+- Triangles per swatch (incl. trees/props): 914 (PNW) – 5,424 (NYC); single-family close-ups run 29–49 draw calls.
+- Deviations (DEVIATIONS.md): the all-families gallery is ~480 draw calls (16 houses at once); `look` table extends 08 §4.
+- Notes for later tasks:
+  - `kit = styleKit(familyKey, {variant, palette})` → materials in `kit.m`, `kit.look`, `kit.trees`; call
+    `kit.setNight(sc.nightFactor)` for window glow (one ownMat per kit). Build a whole house in one
+    `merged((add) => …)` with the add* helpers so it costs one mesh per material; `frame(add, {x, z, yaw})` places a
+    helper on another wall (yaw π/2 = facing +X).
+  - `addRoof(add, kit, w, d, {y, shape, pitch, eave, ridge})` returns the ridge height; hip/barrel pick the long axis;
+    gable ends are filled with wall material. Textured walls must use `texBox`/`addWalls` (plain 'box' stretches textures).
+  - `createSwatchHouse(key, opts)` is a working template for houseGen (task 37): base → walls → roof → windows/door →
+    porch → rooftop → extras → trees. Apartment parts for task 35: addRail (balconies/lānai), addFireEscape, addRooftop.
+  - Loose end: the NYC stoop's slanted handrails are thin and hard to see; no roof snow caps yet.

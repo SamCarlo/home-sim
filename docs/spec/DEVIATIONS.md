@@ -159,3 +159,10 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
 - 2026-10-02, task 33, prop extras: besides 08 §6, `createAnimal(kind, {color})` takes a coat color, `setTreeSeason(tree,
   season)` recolors/bares a tree after creation, and the windmill (`idle`) and street lamp (`setNight`) have hooks.
   Where: `three/animals.js`, `three/props.js`, `three/yard.js`.
+- 2026-10-02, task 34, 3D style parameters: 08 §4 gives the family table but no 3D fields, so `data/styleFamilies.js`
+  adds a `look` record per family (roof shape incl. `aframe`/`saltbox`/`barrel`, pitch as rise/run, eave, ridge axis, wall and
+  roof texture, window kind + extra, porch, base incl. `raised` for the brownstone stoop, rails, rooftop, tree kinds,
+  extras). Variants (`hillside`, `alaska`) carry their own `look` overrides. Where: `data/styleFamilies.js`, `three/styles.js`.
+- 2026-10-02, task 34, styles gallery draw calls: `?dev=styles` shows all 16 swatch houses at once (~480 draw calls, ~65k
+  triangles), over the 150-call whole-scene budget; one house (`&family=`) is 29–49 calls including terrain. Where:
+  `dev/stylesGallery.js`.

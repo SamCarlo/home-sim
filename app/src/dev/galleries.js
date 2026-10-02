@@ -10,6 +10,7 @@ export const galleries = {
   letters: () => import('./lettersGallery.js'),
   scene: () => import('./sceneGallery.js'),
   props: () => import('./propsGallery.js'),
+  styles: () => import('./stylesGallery.js'),
 };
 
 /** Mount gallery `name` into root. Returns false when no such gallery exists. */

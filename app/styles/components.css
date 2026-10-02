@@ -162,5 +162,8 @@ body.has-modal { overflow: hidden; }
 .dev-scene-view { position: absolute; inset: 0; }
 .dev-scene-label { position: absolute; left: var(--sp-3); bottom: var(--sp-3); padding: var(--sp-2) var(--sp-3);
   border-radius: var(--r-md); background: rgb(0 0 0 / 0.6); color: #fff; font-size: 0.85rem; }
+.dev-styles-tags { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.dev-styles-tag { position: absolute; transform: translate(-50%, -50%); padding: 2px 8px; border-radius: 999px;
+  background: rgb(11 16 32 / 0.78); color: #fff; font: 600 12px/1.4 var(--font-sans, system-ui); white-space: nowrap; }
 .dev-scene-label .is-ok { color: #8fe3a0; }
 .dev-scene-label .is-bad { color: #ff9a8a; }

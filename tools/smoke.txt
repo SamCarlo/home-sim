@@ -50,3 +50,4 @@ results-approved-house /index.html?seed=results-approved-house
 results-denied-apartment /index.html?seed=results-denied-apartment
 scene /index.html?dev=scene
 props /index.html?dev=props
+styles /index.html?dev=styles

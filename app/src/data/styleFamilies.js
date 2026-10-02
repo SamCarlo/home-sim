@@ -1,6 +1,6 @@
 // Regional style families (08 §4): palettes and traits shared by the 2D previews (task 14) and 3D (task 34).
 // Pure data. Each family: { key, label, palettes[3–4]{wall, trim, roof, accent}, house{…}, apartment{…}, condo{…},
-// vegetation[], props[], variants? }. Task 34 adds 3D parameters next to these.
+// vegetation[], props[], look{…}, variants? }. `look` (task 34) holds the 3D parameters three/styles.js reads.
 
 const FLOORS = { rural: [2, 3], 'small-town': [2, 3], 'small-city': [2, 4], 'mid-city': [3, 6], suburb: [2, 3], 'big-city': [5, 20] };
 const CONDO_FLOORS = { rural: [2, 3], 'small-town': [2, 3], 'small-city': [3, 4], 'mid-city': [4, 7], suburb: [2, 3], 'big-city': [12, 24] };
@@ -223,6 +223,35 @@ export const STYLE_FAMILY_DATA = {
   },
 };
 
+/**
+ * 3D parameters per family (08 §4, task 34), read by three/styles.js. roof: hip | gable | shed | flat | barrel | aframe |
+ * saltbox; pitch = rise per run; eave = overhang (ft); ridge 'x' runs across the front, 'z' puts the gable to the street.
+ * wallTex/roofTex: canvas texture kinds (materials.js). window: jalousie | sash | grid | storefront (+ windowExtra
+ * shutters | arched | tall). porch: lanai | front | craftsman | stoop | wraparound | patio | none. base: posts | piers |
+ * slab | sandstone | lava | raised (5 ft, wall material: the brownstone stoop level). rails: wood | iron | glass | pipe. rooftop: water-tank | ac | solar. trees: props.js TREE_KINDS.
+ */
+const LOOK = {
+  'hawaii-plantation': { roof: 'hip', pitch: 0.32, eave: 2.5, ridge: 'x', roofTex: 'metal', wallTex: 'batten', window: 'jalousie', porch: 'lanai', base: 'posts', rails: 'wood', rooftop: ['solar'], trees: ['palm', 'banana', 'mango'], extras: ['catchment', 'slippers'] },
+  'hawaii-upcountry': { roof: 'gable', pitch: 0.9, eave: 1.5, ridge: 'x', roofTex: 'metal', wallTex: 'batten', window: 'sash', porch: 'front', base: 'slab', rails: 'wood', rooftop: [], trees: ['birch', 'pine'], extras: ['chimney-stone', 'ranch-fence'] },
+  'kona-coastal': { roof: 'hip', pitch: 0.22, eave: 3, ridge: 'x', roofTex: 'metal', wallTex: 'stucco', window: 'grid', porch: 'lanai', base: 'lava', rails: 'glass', rooftop: ['solar'], trees: ['palm', 'citrus'], extras: ['lava-wall'] },
+  'honolulu-highrise': { roof: 'shed', pitch: 0.12, eave: 2, ridge: 'x', roofTex: null, wallTex: 'stucco', window: 'storefront', porch: 'none', base: 'slab', rails: 'glass', rooftop: ['ac'], trees: ['monkeypod', 'palm'], extras: ['carport', 'upper-lanai'] },
+  'pnw-urban': { roof: 'gable', pitch: 0.42, eave: 3, ridge: 'z', roofTex: 'shingle', wallTex: 'shingle', window: 'grid', porch: 'craftsman', base: 'slab', rails: 'wood', rooftop: [], trees: ['spruce', 'pine', 'maple'], extras: ['brackets'] },
+  'nyc-brownstone': { roof: 'flat', pitch: 0, eave: 0, ridge: 'x', roofTex: null, wallTex: 'ashlar', window: 'sash', windowExtra: 'tall', porch: 'stoop', base: 'raised', rails: 'iron', rooftop: ['water-tank'], trees: ['oak'], extras: ['cornice', 'fire-escape'] },
+  'miami-deco': { roof: 'flat', pitch: 0, eave: 0, ridge: 'x', roofTex: null, wallTex: 'stucco', window: 'sash', windowExtra: 'shutters', porch: 'patio', base: 'slab', rails: 'pipe', rooftop: ['ac'], trees: ['palm'], extras: ['deco-bands'] },
+  'texas-suburban': { roof: 'hip', pitch: 0.5, eave: 1.5, ridge: 'x', roofTex: 'shingle', wallTex: 'brick', window: 'sash', porch: 'none', base: 'slab', rails: 'wood', rooftop: [], trees: ['oak', 'citrus'], extras: ['garage-2', 'ac-ground'] },
+  'desert-southwest': { roof: 'barrel', pitch: 0.3, eave: 1.5, ridge: 'x', roofTex: 'tile', wallTex: 'stucco', window: 'sash', windowExtra: 'arched', porch: 'none', base: 'slab', rails: 'iron', rooftop: ['solar'], trees: ['cactus', 'agave'], extras: ['block-wall', 'gravel'] },
+  'mountain-cabin': { roof: 'aframe', pitch: 1.7, eave: 1.5, ridge: 'z', roofTex: 'metal', wallTex: 'log', window: 'grid', porch: 'front', base: 'piers', rails: 'wood', rooftop: [], trees: ['pine', 'spruce'], extras: ['woodpile', 'chimney-stone'] },
+  'new-england': { roof: 'gable', pitch: 0.85, eave: 1, ridge: 'x', roofTex: 'shingle', wallTex: 'siding', window: 'sash', windowExtra: 'shutters', porch: 'stoop', base: 'slab', rails: 'wood', rooftop: [], trees: ['maple', 'birch'], extras: ['chimney-brick', 'barn'] },
+  maritime: { roof: 'saltbox', pitch: 0.8, eave: 1, ridge: 'x', roofTex: 'shingle', wallTex: 'siding', window: 'sash', porch: 'stoop', base: 'slab', rails: 'wood', rooftop: [], trees: ['spruce', 'birch'], extras: ['row'] },
+  appalachian: { roof: 'gable', pitch: 0.55, eave: 1.5, ridge: 'x', roofTex: 'metal', wallTex: 'siding', window: 'sash', porch: 'wraparound', base: 'piers', rails: 'wood', rooftop: [], trees: ['oak', 'maple', 'pine'], extras: ['chimney-brick'] },
+  'delta-south': { roof: 'gable', pitch: 0.6, eave: 1.5, ridge: 'z', roofTex: 'metal', wallTex: 'siding', window: 'sash', windowExtra: 'tall', porch: 'front', base: 'piers', rails: 'wood', rooftop: [], trees: ['oak'], extras: ['shotgun'] },
+  'midwest-lakeside': { roof: 'hip', pitch: 0.5, eave: 2, ridge: 'x', roofTex: 'shingle', wallTex: 'siding', window: 'sash', porch: 'front', base: 'sandstone', rails: 'wood', rooftop: [], trees: ['birch', 'pine'], extras: ['dormer'] },
+  'plains-ranch': { roof: 'gable', pitch: 0.25, eave: 2, ridge: 'x', roofTex: 'shingle', wallTex: 'siding', window: 'grid', porch: 'none', base: 'slab', rails: 'wood', rooftop: [], trees: ['oak'], extras: ['barn', 'windmill'] },
+};
+for (const [k, look] of Object.entries(LOOK)) STYLE_FAMILY_DATA[k].look = look;
+STYLE_FAMILY_DATA['desert-southwest'].variants.hillside.look = { roof: 'shed', pitch: 0.15, roofTex: 'metal', wallTex: 'batten', porch: 'front', base: 'piers', extras: ['gravel'] };
+STYLE_FAMILY_DATA.maritime.variants.alaska.look = { roof: 'gable', pitch: 0.4, wallTex: 'metal', extras: ['boat'] };
+
 /** Ordered list (enums.js STYLE_FAMILIES order). */
 export const STYLE_FAMILY_LIST = Object.values(STYLE_FAMILY_DATA);
 
@@ -235,5 +264,6 @@ export function styleFamily(key, variant = null) {
   if (!base) throw new Error(`unknown style family "${key}"`);
   const v = variant ? base.variants?.[variant] : null;
   if (!v) return base;
-  return { ...base, label: v.label || base.label, variant, palettes: v.palettes || base.palettes, house: { ...base.house, ...v.house } };
+  return { ...base, label: v.label || base.label, variant, palettes: v.palettes || base.palettes, house: { ...base.house, ...v.house },
+    look: { ...base.look, ...(v.look || {}) } };
 }
