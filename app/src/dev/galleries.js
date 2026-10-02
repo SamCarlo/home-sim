@@ -7,6 +7,7 @@ export const galleries = {
   vendor: () => import('./vendorCheck.js'),
   gallery2d: () => import('./gallery2d.js'),
   forms: () => import('./formsGallery.js'),
+  letters: () => import('./lettersGallery.js'),
 };
 
 /** Mount gallery `name` into root. Returns false when no such gallery exists. */

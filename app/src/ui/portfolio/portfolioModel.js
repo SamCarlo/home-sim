@@ -55,6 +55,16 @@ export function loanProgress(loan) {
   };
 }
 
+/**
+ * May the player see this letter's score yet? Not while it belongs to the paperwork attempt in progress (D11, 06 §2):
+ * it's revealed once Results is done or `paperwork.lettersRevealed` is set (task 31 sets it when Results opens).
+ */
+export function letterRevealed(state, letter) {
+  const pw = state.paperwork ?? {};
+  if (state.phase !== 'paperwork' || !(pw.letterIds ?? []).includes(letter.id)) return true;
+  return Boolean(pw.lettersRevealed) || pw.steps?.results?.status === 'done';
+}
+
 /** Letters newest first: [{id, type, to, text, sentAt, attempt, score}]. */
 export function letterList(state) {
   return Object.values(state.letters || {}).sort((a, b) => (b.sentAt ?? 0) - (a.sentAt ?? 0));

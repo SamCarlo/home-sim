@@ -111,6 +111,7 @@ async function boot() {
       window.__homesim = { store, getState: store.getState, update: store.update, seeds, version: STATE_VERSION, persistence, accounts, user };
     }
     await render();
+    rescoreLetters(store).catch((err) => console.warn('Letters were not rescored.', err));
     // ?open=portfolio (dev, task 17) opens the drawer on load; &tab=<id> picks the tab.
     if (devAllowed && params.get('open') === 'portfolio' && store.getState().phase !== 'intake') {
       root.querySelector('.header-portfolio')?.focus(); // so closing returns focus there, as after a click
@@ -150,4 +151,16 @@ function showError(err) {
     devAllowed && params.has('dev') ? h('pre', null, String(err?.stack || err)) : null,
   ));
   document.body.dataset.ready = '1';
+}
+
+/**
+ * Letters saved before the real scorer (task 25 stubs) or before the dictionary loaded are scored once it's ready
+ * (06 §3, task 28). Only loads the scorer and dictionary when such a letter exists.
+ */
+async function rescoreLetters(store) {
+  const stale = (sc) => !sc || sc.pending === true || sc.likelihood == null || sc.spellChecked === false;
+  if (!Object.values(store.getState().letters ?? {}).some((l) => stale(l.score))) return;
+  const [{ rescorePending }, { loadSpeller }] = await Promise.all([import('./letters/score.js'), import('./letters/loadSpeller.js')]);
+  const speller = await loadSpeller().catch((err) => { console.warn('Spelling dictionary not loaded.', err); return null; });
+  store.update((s) => { rescorePending(s, { speller }); });
 }

@@ -38,3 +38,16 @@ export const SAMPLE_LETTERS = {
     + 'bill and my rent on time every month. I am working on my credit by keeping a small balance, using autopay, and '
     + 'following a budget.\n\nI promise to pay every loan payment on time. Thank you for understanding.\n\nRespectfully,\nKai Mana',
 };
+
+/** Three rental cover letters for the score-report gallery (?dev=letters, task 28): strong, middling and weak. */
+export const REPORT_SAMPLES = [
+  { id: 'strong', title: 'Strong sample', type: 'rental-cover', text: SAMPLE_LETTERS['rental-cover'] },
+  { id: 'middling', title: 'Middling sample', type: 'rental-cover',
+    text: 'Dear Landlord,\n\nMy name is Noa Kealoha and i work at the grocery store in town. I want to rent the apartment '
+      + 'becuase its close to my job and I like the area alot.\n\nI have a steady paycheck and I will pay the rent on time '
+      + 'every month. I am pretty quiet and I keep things clean.\n\nThank you for reading my letter.\n\nNoa' },
+  { id: 'weak', title: 'Weak sample', type: 'rental-cover',
+    text: "hi,\n\ni want to rent you're apartment. i have a job and i can pay. my freind says its a nice place so I want it. "
+      + "i dont have alot of money saved but i will try my best to pay on time. I hate my old place, the landlord was mean "
+      + 'and rude to me!! let me know\n\nJordan' },
+];

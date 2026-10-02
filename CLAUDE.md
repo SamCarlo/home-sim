@@ -55,7 +55,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 ## Folder map
 ```
 app/index.html admin.html      entry pages (import map: three → vendor/, firebase/* → gstatic 12.19.0)
-app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css forms.css paperwork.css)
+app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css forms.css paperwork.css letters.css)
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
@@ -64,12 +64,12 @@ app/src/finance/               money.js loans.js costs.js affordability.js grid.
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
-                               modal.js (openModal, confirmDialog) · icons.js · drawer.js (openDrawer) ·
+                               letterReport.js (renderLetterReport) · modal.js (openModal, confirmDialog) · icons.js · drawer.js (openDrawer) ·
                                portfolio/ (index.js openPortfolio + tabs; portfolioModel.js pure; settings.js applySettings;
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms)
+                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
                                paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
@@ -319,7 +319,7 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   prompt, tips, greeting/closing examples, `groups[{id, label, keywords, patterns?}]`, `targetWords {min, max}`, recipientRole),
   `letters/send.js` (`wordCount`, `lengthStatus` empty/short/ok/long, `recipientFor(s, id)` → `{name, org, line}` seeded,
   `sendLetter(s, {type, text}, now, {speller})` → `letters['L<n>']` + `paperwork.letterIds`), `letters/score.js` `scoreLetter`
-  (stub `{likelihood: null, pending: true}` until task 28). UI `phases/paperwork/letterBox.js` `letterStep(id)` (the six
+  (real since task 28, see Letter scores below). UI `phases/paperwork/letterBox.js` `letterStep(id)` (the six
   step files are one-liners; complete = send + `setStep` done with `{letterId}`). Steps with `stayOnDone: true` stay on
   their done view after `onDone`; mount ctx has `onNext()`. `finishSteps` sends `dev/sampleLetters.js` text for letter
   steps. Seed `paperwork-letter` (Hilo cover letter). e2e `tests/e2e/letter.json`.
@@ -341,6 +341,14 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   hyper}`. Retraining is deterministic. `tests/unit/letterModel.test.js` retrains and fails if model.json is stale, so
   rerun `npm run train:letters` after changing features, grammar rules or the corpus. A wrong required sign or CV < 0.80
   writes nothing (exit 1); fix the corpus, not the math.
+- Letter scores (task 28, 06 §3 steps 6–7, §5): `letters/score.js` `scoreLetter(text, type, {speller})` → `{likelihood
+  0–100, band, bandLabel, sentiment, wordCount, issues, features, contributions[{feature, value, effect, message}],
+  modelVersion, spellChecked}`; `predict(vector)`, `bandFor(likelihood)` (`LETTERS.bands`, each with an st-* `status`),
+  `needsScore`/`rescorePending(s, {speller})` (main.js rescores stubs and speller-less scores on boot), `issueExcerpt`.
+  Messages live in score.js `MESSAGES` (negSentenceRate and lexicalVariety never show). UI `ui/letterReport.js`
+  `renderLetterReport({text, score})` (text nodes only). Portfolio Letters tab shows it, hidden by
+  `portfolioModel.letterRevealed` for the paperwork attempt in progress until `paperwork.lettersRevealed` or Results done.
+  Gallery `?dev=letters` (strong/middling/weak `REPORT_SAMPLES`).
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 

@@ -1,0 +1,40 @@
+/* Letter score report (ui/letterReport.js, 06 §5, task 28). Band colors reuse the .st-<status> variables from plan.css. */
+.lr { display: flex; flex-direction: column; gap: var(--sp-4); }
+.lr-heading { margin: 0; font-size: 1.1rem; }
+.lr-title {
+  margin: 0 0 var(--sp-2); font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600;
+}
+.lr-part p { margin: 0; }
+
+.lr-meter { padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--st-bg); border: 1px solid var(--st-line); }
+.lr-meter-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-2); }
+.lr-num { font-size: 2rem; font-weight: 700; color: var(--st-ink); font-variant-numeric: tabular-nums; line-height: 1; }
+.lr-of { font-size: 1rem; font-weight: 500; color: var(--ink-2); }
+.lr-band { font-weight: 700; color: var(--st-ink); white-space: nowrap; }
+.lr-bar { height: 12px; border-radius: var(--r-pill); background: var(--surface); border: 1px solid var(--st-line); overflow: hidden; }
+.lr-fill { display: block; height: 100%; border-radius: inherit; background: var(--st-accent); }
+.lr-meter-note { margin: var(--sp-2) 0 0; font-size: .85rem; }
+.lr-encourage { margin: var(--sp-1) 0 0; font-size: .9rem; color: var(--ink); }
+
+.lr-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sp-4); }
+.lr-reasons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-1); }
+.lr-reasons li { display: flex; gap: var(--sp-1); line-height: 1.4; }
+.lr-mark { font-weight: 700; flex: none; }
+.lr-up .lr-mark { color: var(--st-green); }
+.lr-down .lr-mark { color: var(--st-red); }
+
+.lr-spell, .lr-grammar { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.lr-word { font-weight: 600; text-decoration: underline wavy var(--st-red); text-underline-offset: 3px; }
+.lr-grammar li { padding: var(--sp-2) var(--sp-3); border-radius: var(--r-sm); background: var(--surface-2); }
+.lr-excerpt { font-family: inherit; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: var(--sp-1) !important; }
+.lr-excerpt mark { background: var(--st-yellow-bg); color: var(--ink); border-bottom: 2px solid var(--st-yellow); padding: 0 1px; border-radius: 2px; }
+.lr-excerpt mark.lr-gap { color: var(--st-red); font-weight: 700; border-bottom: 0; background: transparent; }
+.lr-msg { font-size: .9rem; }
+.lr-more { margin-top: var(--sp-2) !important; font-size: .88rem; }
+
+.lr-how summary { cursor: pointer; font-weight: 600; color: var(--sky-deep); }
+.lr-how summary:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+.lr-how p { margin: var(--sp-2) 0 0; line-height: 1.5; color: var(--ink-2); }
+
+/* Portfolio Letters tab: room between the To/Sent rows and the report. */
+.pf-report { margin: var(--sp-4) 0; }

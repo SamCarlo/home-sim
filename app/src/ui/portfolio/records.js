@@ -7,7 +7,9 @@ import { HOME_TYPES_BY_ID } from '../../data/homeTypes.js';
 import { kv, empty, chip, rowButton, detail, humanKey } from './parts.js';
 import { agreementSchema } from './agreementDoc.js';
 import { renderForm } from '../../forms/engine.js';
-import { AGREEMENT_STATUS, APPLICATION_STATUS, letterList } from './portfolioModel.js';
+import { AGREEMENT_STATUS, APPLICATION_STATUS, letterList, letterRevealed } from './portfolioModel.js';
+import { renderLetterReport } from '../letterReport.js';
+import { bandFor } from '../../letters/score.js';
 
 const AG_CHIP = { pending: 'yellow', active: 'green', void: 'na' };
 const APP_CHIP = { pending: 'yellow', approved: 'green', denied: 'red' };
@@ -31,22 +33,27 @@ export function renderAgreements(state, nav) {
   })));
 }
 
-/** Letters list; opening one shows its text (the score report arrives in task 28). */
+/** Letters list; opening one shows the score report (06 §5, task 28) and the letter text. */
 export function renderLetters(state, nav) {
   const list = letterList(state);
   const open = list.find((l) => l.id === nav.openId);
   if (open) {
     return detail({ title: letterTitle(open), onBack: nav.back },
-      kv([['To', open.to || '—'], ['Sent', dateText(open.sentAt) || '—'],
-        open.score?.band ? ['Letter score', `${open.score.band}${open.score.likelihood != null ? ` (${Math.round(open.score.likelihood * 100)}% likely to help)` : ''}`] : null]),
+      kv([['To', open.to || '—'], ['Sent', dateText(open.sentAt) || '—']]),
+      h('div', { class: 'pf-report' }, letterRevealed(state, open) ? renderLetterReport(open)
+        : h('p', { class: 'muted' }, "You'll find out how this letter was received with your results at the end of this phase.")),
+      h('h4', { class: 'pf-block-title' }, 'Your letter'),
       h('div', { class: 'pf-letter' }, String(open.text || '').split(/\n{2,}/).map((p) => h('p', null, p))));
   }
   if (!list.length) return empty('No letters yet. Letters you write during paperwork are kept here.');
   return h('ul', { class: 'pf-list' }, list.map((l) => rowButton({
     title: letterTitle(l), meta: [l.to, dateText(l.sentAt)].filter(Boolean).join(' · '),
-    badge: l.score?.band ? h('span', { class: 'pf-tag' }, l.score.band) : null, onClick: () => nav.open(l.id),
+    badge: scored(l.score) && letterRevealed(state, l) ? chip(bandFor(l.score.likelihood).status, `${bandFor(l.score.likelihood).label} · ${l.score.likelihood}`) : null,
+    onClick: () => nav.open(l.id),
   })));
 }
+
+const scored = (score) => score && !score.pending && score.likelihood != null;
 
 function letterTitle(l) {
   return `${humanKey(l.type || 'letter')} letter`;

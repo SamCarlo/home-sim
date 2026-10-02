@@ -14,6 +14,7 @@ gallery2d /index.html?dev=gallery2d
 plan-detail-open /index.html?seed=plan-detail-open
 portfolio-demo /index.html?seed=portfolio-demo&open=portfolio
 forms /index.html?dev=forms
+letters /index.html?dev=letters
 paperwork-apartment-start /index.html?seed=paperwork-apartment-start
 paperwork-apartment-cosigner /index.html?seed=paperwork-apartment-cosigner
 paperwork-shared-start /index.html?seed=paperwork-shared-start

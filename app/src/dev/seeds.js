@@ -119,14 +119,15 @@ seeds['portfolio-demo'] = {
     post(s, { month: P, label: 'Down payment and closing costs', amountCents: -4800000, account: 'savings', category: 'housing' });
     post(s, { month: P, label: 'Move to checking', amountCents: -600000, account: 'savings', category: 'transfer' });
     post(s, { month: P, label: 'Move from savings', amountCents: 600000, account: 'checking', category: 'transfer' });
+    // Scores are filled in on load by main.js rescoreLetters (task 28), like any save made before the real scorer.
     s.letters = {
-      L1: { id: 'L1', type: 'cover', to: 'Kilauea Credit Union, Mortgage Desk', sentAt: now - 9 * 864e5, attempt: 0,
+      L1: { id: 'L1', type: 'loan-purpose', to: 'Kilauea Credit Union, Mortgage Desk', sentAt: now - 9 * 864e5, attempt: 0,
         text: 'Aloha,\n\nI am applying for a mortgage on the house at 214 Waiānuenue Avenue. I have worked as a nurse at '
           + 'Hilo Medical for three years and I have saved for this down payment every month.\n\nMahalo for your time,\nKai Mana',
-        score: { likelihood: 0.82, band: 'strong' } },
-      L2: { id: 'L2', type: 'landlord', to: 'Puna Rentals LLC', sentAt: now - 30 * 864e5, attempt: 0,
+        score: { likelihood: null, pending: true } },
+      L2: { id: 'L2', type: 'rental-cover', to: 'Puna Rentals LLC', sentAt: now - 30 * 864e5, attempt: 0,
         text: 'Hello,\n\nI would like to rent the apartment on Pāhoa Village Road. I am a good tenant.\n\nKai',
-        score: { likelihood: 0.41, band: 'okay' } },
+        score: { likelihood: null, pending: true } },
     };
     addAgreement(s, { type: 'mortgage', title: '30-year fixed mortgage', status: 'active', signedAt: now - 7 * 864e5,
       counterparty: 'Kilauea Credit Union', summary: 'You borrow $382,500 at 6.75% for 30 years to buy 214 Waiānuenue Avenue, Hilo.',

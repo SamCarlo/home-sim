@@ -101,3 +101,9 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   non-test letters only, so the held-out accuracy is honest. `model.json` adds `cv.k`, `test.logloss`, `test.n`, `corpus`
   and `hyper` (λ 0.05, rate 0.3, 3000 iterations, seed 27) to the 06 §4 fields. `version` is `letters-lr-<hash>` of the
   feature names, corpus and hyperparameters, so it changes exactly when the model can. Where: `tools/letter-model/`.
+- 2026-10-02, task 28, score contract extras: `scoreLetter` also returns `bandLabel` and `spellChecked`. Without a speller
+  (the dictionary not loaded yet) it still scores, with `spellChecked: false`, and `rescorePending` upgrades it once the
+  dictionary loads (main.js `rescoreLetters` on boot). Old `{likelihood: null, pending: true}` stubs are scored the same
+  way. Bands carry a `status` (st-* color) in config. The report merges grammar issues at the same spot and shows a
+  part-word suggestion as the whole word ("Try: Hi"), and adds one encouraging line for Fair/Weak/Needs work.
+  Where: `app/src/letters/score.js`, `app/src/ui/letterReport.js`, `app/src/main.js`.

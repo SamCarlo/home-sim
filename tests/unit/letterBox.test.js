@@ -36,8 +36,10 @@ test('sample letters sit in their target ranges', () => {
   }
 });
 
-test('score is a pending stub until task 28', () => {
-  assert.deepEqual(scoreLetter('Dear you, hi.', 'rental-cover'), { likelihood: null, pending: true });
+test('scoreLetter without a speller still scores, flagged for a spelling rescore', () => {
+  const sc = scoreLetter('Dear you, hi.', 'rental-cover');
+  assert.ok(Number.isInteger(sc.likelihood));
+  assert.equal(sc.spellChecked, false);
 });
 
 test('recipients are seeded, named and stable', () => {
@@ -64,7 +66,8 @@ test('sending stores the letter, marks the step done and keeps letters across id
   assert.equal(letter.sentAt, 5000);
   assert.equal(letter.attempt, 0);
   assert.equal(letter.to, recipientFor(s, 'rental-cover').line);
-  assert.equal(letter.score.pending, true);
+  assert.equal(letter.score.spellChecked, false);
+  assert.ok(Number.isInteger(letter.score.likelihood));
   assert.notEqual(nextLetterId(s), id);
   const second = sendLetter(s, { type: 'cosigner-request', text: 'Hi' }, 6000);
   assert.notEqual(second.id, id);

@@ -973,3 +973,35 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     Skip it in "What helped" (or give it neutral wording), and do the same for `lexicalVariety`, whose weight is negative.
   - After any change to `extractFeatures`, grammar rules or the corpus, run `npm run train:letters`; the stale-model test
     will remind you.
+
+## Task 28 — Letter scores and the score report
+- attempt started 2026-10-02T03:25:53-10:00
+- attempt started 2026-10-02T04:11:49-10:00
+- done 2026-10-02T04:16:01-10:00
+- Third attempt. The second attempt had built nearly everything (uncommitted); this run verified it, polished the report and wrapped up.
+- Files: `app/src/letters/score.js` (real `scoreLetter`, `predict`, `contributions` + MESSAGES table, `bandFor`,
+  `needsScore`, `rescorePending`, `issueExcerpt`), `app/src/ui/letterReport.js` (`renderLetterReport(letter)`,
+  `wholeWordFix`, `groupBySpot`), `app/styles/letters.css` (+ index.html link), `app/src/config.js` (`LETTERS.bands[].status`,
+  `topContributions`, `minEffect`, `reportMaxIssues`), `app/src/main.js` (`rescoreLetters` on boot),
+  `ui/portfolio/{records,portfolioModel}.js` (Letters tab uses the report; `letterRevealed` hides scores for the paperwork
+  attempt in progress until Results), `dev/lettersGallery.js` + `galleries.js` + `sampleLetters.js` `REPORT_SAMPLES`,
+  `dev/seeds.js` (portfolio-demo letters now real types with pending scores, scored on load), `tests/unit/letters.test.js`
+  (9 tests), `tests/unit/letterBox.test.js` (stub tests updated), `tools/smoke.txt` (`letters`).
+- Sanity letters (06 §4, rental-cover, with the dictionary): strong 93, rant 0, polite-but-empty 60 (told what it left out).
+  Gallery samples: strong 93 Excellent, middling 68 Fair, weak 0 Needs work. Deterministic (deepEqual on rescoring).
+- Verified: `node --test tests/unit/letters.test.js tests/unit/letterBox.test.js` all pass; `bash tools/check.sh` → OK
+  (syntax 135 files · tests · data 11 · smoke 39/39).
+  - `tools/shots/task28-letters.png` (1500×2100): three reports side by side. Strong: green meter 93 Excellent, three ↑
+    reasons, "Nothing hurt this letter", no spelling/grammar issues, Warm tone. Middling: cyan 68 Fair + "A good start…",
+    ↓ grammar, becuase/alot with suggestions, three grammar excerpts with the span highlighted. Weak: red 0 Needs work +
+    "Every writer rewrites…", the missing content groups named, 12 grammar cards then "…and 2 more", Negative tone.
+    First shot showed the same lowercase "i" flagged twice and "Try: H"; fixed (merged spots, "Try: Hi"), and a
+    regression ("Try: me!") on the exclamation card was fixed too.
+  - `tools/shots/task28-portfolio-letter-open.png`: portfolio-demo Letters tab, loan-purpose letter opened: report below
+    To/Sent (39 Needs work, too short at 42 words, one block of text). List rows show band chips ("Needs work · 39", "· 3").
+- Notes for later tasks:
+  - Task 31 (Results): `renderLetterReport({text, score})` from `ui/letterReport.js`; set `paperwork.lettersRevealed = true`
+    when Results opens (or mark the results step done) so the portfolio shows the scores. 05 §7 uses `L = likelihood / 100`.
+  - Task 29 underwriting: rescore with the speller if `needsScore(letter.score)` before using a likelihood.
+  - Spelling suggestions come straight from nspell and can be odd ("dont" → cont, dent, dint). A small override table in
+    spell.js (dont → don't, im → I'm, alot → a lot) would help; left for task 55 (copy/glossary).

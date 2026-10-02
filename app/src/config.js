@@ -215,12 +215,15 @@ export const SAVE = {
 export const LETTERS = {
   browserSpellcheck: false,
   bands: [
-    { min: 85, key: 'excellent', label: 'Excellent' },
-    { min: 70, key: 'strong', label: 'Strong' },
-    { min: 55, key: 'fair', label: 'Fair' },
-    { min: 40, key: 'weak', label: 'Weak' },
-    { min: 0, key: 'needs-work', label: 'Needs work' },
+    { min: 85, key: 'excellent', label: 'Excellent', status: 'green' },   // 06 §3 step 6; status = the st-* color
+    { min: 70, key: 'strong', label: 'Strong', status: 'green' },
+    { min: 55, key: 'fair', label: 'Fair', status: 'cyan' },
+    { min: 40, key: 'weak', label: 'Weak', status: 'yellow' },
+    { min: 0, key: 'needs-work', label: 'Needs work', status: 'red' },
   ],
+  topContributions: 3,                // 06 §3 step 7: top 3 that helped and top 3 that hurt …
+  minEffect: 0.05,                    // … ignoring contributions smaller than this (|wᵢ·zᵢ|)
+  reportMaxIssues: 12,                // the report lists this many spelling / grammar issues, then "and N more"
 };
 
 /** Paperwork forms (05 §4, task 18). */
