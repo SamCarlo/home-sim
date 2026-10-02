@@ -1082,3 +1082,33 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     is a pending agreement (docType 'credit-card-offer') + pending 'credit-card' application; commit resolves both.
   - The offer is one-time: `priorAnswer(state)` ('open' | 'declined' | 'accepted') makes later attempts show a short
     "Already answered" form; `options.card = {accepted: false, prior}` then.
+
+## Task 31 — End-of-phase results
+- attempt started 2026-10-02T06:29:47-10:00
+- done 2026-10-02T06:36:55-10:00
+- Files: `phases/paperwork/steps/results.js` (real Results step, replaces the placeholder), `phases/paperwork/resultsModel.js`
+  (pure: `resultsSummary`, `loanPreview`, `letterStepsFor`, `factorLine`), `steps/placeholder.js` ("Mark done" only with
+  `?dev=1`), `finance/underwriting.js` (draw reason says "decision draw", not "lender's draw", since landlords use it too),
+  `styles/paperwork.css` (`.pw-res-*`), `dev/seeds.js` (`results-approved-house`, `results-denied-apartment`),
+  `tools/smoke.txt` (+2), `tests/unit/results.test.js` (8 tests), `tests/e2e/paperwork-apartment-full.json`,
+  `tests/e2e/results-denied.json`.
+- Verified: `node --test tests/unit/results.test.js` (for all five ready seeds the pay-now total = cash commit actually
+  charges, the monthly rows = commit's recurring items, loan principal/payment match); `bash tools/check.sh` OK (139 files,
+  tests, 48/48 smoke); e2e `paperwork-apartment-full.json` on `?seed=paperwork-apartment-start` (real forms + typed cover
+  letter + card accept → Results approved → Continue → phase design, $3,100 charged) and `results-denied.json` on
+  `?seed=results-denied-apartment` (Back to planning → plan with "Denied last time" on Hilo apartment, card opened, no dev button).
+  - t31/1-approved-house.png: green verdict, Mortgage card (48%, factor list, letter report collapsed), card; receive $337,500 +
+    $1,000 limit; pay now $37,500 + $11,250 = $48,750, $78,900 → $30,150; 9 monthly rows sum to $4,808.18, $1,191.82 left of
+    $6,000; loan $337,500 + $460,673 interest = $798,173; insurance, card terms, "If you don't pay…" ($111 late fee, $37,500 down).
+  - t31/2-denied-apartment.png: red verdict, Lease denied (82% chance, draw 98), card opens, three next-step tips, $50 fees spent.
+  - t31/3-apartment-full-results.png: approved Hilo lease 80%, $1,550 + $1,550 = $3,100, $19,950 → $16,850.
+  - t31/5-denied-back-to-plan.png: plan table with the "Denied last time" badge on Hilo apartment.
+- Deviations: none in game rules. The full e2e sets `meta.seed = 5` at its start (the default dev save's lease draw is 0.98, a
+  denial whatever the student writes); seed 5's lease draw is 0.21.
+- Notes for later tasks:
+  - Results computes `decide(s, {speller})` once after `loadSpeller()` (rescorePending first), stores it in
+    `paperwork.decisions` + `lettersRevealed` (checkpoint 'paperwork-results'); a reload reuses it. Continue → commitPaperwork.
+  - `resultsSummary` reuses commit's `recurringFor` with `loanPreview(home)`, so if commit changes, the screen follows.
+  - Task 32+: the design phase starts with `home.label 'To be chosen'`; the e2e ends on the design placeholder.
+  - Loose end: `tests/e2e/renter-apartment.json` and `paperwork-flow.json` click `.pw-dev-done` on steps that are real now
+    (they aren't in check.sh); run them with `?dev=1` or retire them in task 56.

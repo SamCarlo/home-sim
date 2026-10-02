@@ -63,7 +63,7 @@ function record(state, kind, { required, factors, hardFails = [], reasons = [], 
   const probability = hardFails.length ? 0 : round4(Math.min(1, factors.reduce((p, f) => p * f.value, 1)));
   const approved = !hardFails.length && draw < probability;
   const why = hardFails.length ? hardFails : approved ? reasons : [...reasons,
-    `The lender's draw came up ${Math.round(draw * 100)} out of 100, above your ${pct(probability)} chance.`];
+    `The decision draw came up ${Math.round(draw * 100)} out of 100, above your ${pct(probability)} chance.`];
   return { id: `${kind}-${attemptIndex(state)}`, kind, label: DECISION_LABELS[kind], required, approved, probability, draw,
     hardFail: hardFails.length > 0, factors, reasons: why, terms };
 }

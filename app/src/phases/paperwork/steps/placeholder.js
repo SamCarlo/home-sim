@@ -1,7 +1,7 @@
-// Placeholder step (task 19): a title, "Coming in task NN", and a dev-only "Mark done" button so the flow can be
+// Placeholder step (task 19): a title, "Coming in task NN", and a "Mark done" button shown only with ?dev=1 so the flow can be
 // exercised before the real step exists. Tasks 20–31 replace each placeholder module with the real step.
 import { h } from '../../../ui/dom.js';
-import { devAllowed } from '../../../dev/flags.js';
+import { getFlag } from '../../../dev/flags.js';
 
 /**
  * Build a placeholder step module (05 §2 contract): {id, title, kind, upfrontKey?, placeholder, task, mount}.
@@ -11,7 +11,7 @@ export function placeholderStep({ id, title, kind = 'form', task, upfrontKey = n
   return {
     id, title, kind, upfrontKey, task, placeholder: true,
     mount(container, ctx) {
-      const done = devDone && devAllowed()
+      const done = devDone && getFlag('dev') === '1'
         ? h('button', { type: 'button', class: 'btn btn-secondary pw-dev-done', onClick: () => ctx.onDone({}) },
           'Mark done (dev)')
         : null;

@@ -1,0 +1,29 @@
+[
+ {
+  "waitFor": ".pw-res-continue"
+ },
+ {
+  "assert": "document.querySelector('.pw-res-continue').textContent === 'Back to planning' && document.querySelector('.pw-res-decision[data-kind=lease]').dataset.approved === 'false'"
+ },
+ {
+  "assert": "!document.querySelector('.pw-dev-done')"
+ },
+ {
+  "click": ".pw-res-continue"
+ },
+ {
+  "waitFor": ".plan-badge:not([hidden])"
+ },
+ {
+  "waitReady": true
+ },
+ {
+  "assert": "(s => s.phase === 'plan' && s.choice === null && s.plan.attempts.at(-1).outcome === 'denied' && s.finances.creditCard && s.finances.applications.find(a => a.kind === 'rental').status === 'denied')(window.__homesim.getState())"
+ },
+ {
+  "assert": "[...document.querySelectorAll('.plan-badge')].some(b => !b.hidden && b.textContent === 'Denied last time')"
+ },
+ {
+  "shot": "tools/shots/t31/5-denied-back-to-plan.png"
+ }
+]

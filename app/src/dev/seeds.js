@@ -10,6 +10,7 @@ import { buildGrid, gridCells } from '../finance/grid.js';
 import { applyChoice } from '../phases/plan/detailModel.js';
 import { completeStep } from '../phases/paperwork/flow.js';
 import { step as paperworkStep } from '../phases/paperwork/steps/index.js';
+import { decide } from '../finance/underwriting.js';
 import { hireInspector } from '../phases/paperwork/steps/home-inspection.js';
 import { orderAppraisal, payGap } from '../phases/paperwork/steps/appraisal.js';
 import { appraisalResult } from '../finance/buying.js';
@@ -405,3 +406,17 @@ seeds['paperwork-card-offer'] = { phase: 'paperwork',
   description: 'Hilo apartment: lease and move-in done; the credit card offer is next (regular card).', build: cardOfferSeed(null) };
 seeds['paperwork-card-offer-secured'] = { phase: 'paperwork',
   description: 'Hilo apartment with a 620 credit score: the card offer is a secured card.', build: cardOfferSeed(620) };
+
+// Task 31 seeds (05 §11): Results with the decisions already made (as Results stores them), so a reload shows the same cards.
+const withResults = (from) => (now) => {
+  const s = seeds[from].build(now);
+  s.paperwork.decisions = decide(s);
+  s.paperwork.lettersRevealed = true;
+  return s;
+};
+seeds['results-approved-house'] = { phase: 'paperwork',
+  description: 'Katy house: the mortgage and card are approved; Results show the money and Continue goes to design.',
+  build: withResults('paperwork-ready-house') };
+seeds['results-denied-apartment'] = { phase: 'paperwork',
+  description: 'Hilo apartment: the lease is denied by the draw (82% chance); the card still opens; Back to planning.',
+  build: withResults('paperwork-ready-apartment') };

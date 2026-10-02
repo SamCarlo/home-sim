@@ -267,7 +267,7 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   upfront line (`payFee` → `charge('savings')` month −1 + `markUpfrontPaid`, all or nothing) then marks done.
   `withdraw(s, now)` = attempt `withdrawn`, pending records voided/denied, choice null, phase plan (fees stay spent).
 - `steps/index.js` `STEPS`/`step(id)`; each `steps/<id>.js` default-exports `{id, title, kind, upfrontKey?, schema?, mount?,
-  complete?}`. Placeholders come from `steps/placeholder.js` (dev-only "Mark done" via `devAllowed()`). The screen renders
+  complete?}`. Placeholders come from `steps/placeholder.js` ("Mark done" only with `?dev=1`). The screen renders
   'form' + `schema` with `renderForm` (drafts on change, read-only when done), otherwise `mount(container, {store, config,
   state, status, values, onDone, onDraft})`. e2e `tests/e2e/paperwork-flow.json`.
 - A step's `complete(s, values, now)` pays its own fees (`payFee`/`completeStep`), calls `setStep(s, id, 'done', …)` and
@@ -361,6 +361,13 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   'design'; denied → agreements void, applications denied, earnest refunded if `options.land.contingency`, attempt
   'denied', choice null, `freshPaperwork()` (letters and fee transactions stay), phase 'plan'. The card opens either way.
   Seeds `paperwork-ready-{apartment,shared,condo,house,build}` (Results next; apartment draws a denial, the rest approve).
+- Results (task 31, 05 §8): `steps/results.js` (mount) decides once after `loadSpeller()` → `paperwork.decisions` +
+  `lettersRevealed` (checkpoint 'paperwork-results'), shows decision cards (chance, factors, reasons, letter reports in
+  `<details>`), then the money; Continue/Back to planning runs `commitPaperwork`. Pure numbers in `resultsModel.js`
+  `resultsSummary(state, decisions, {letters})` → `{approved, receive, payNow, monthly, loan, lease, insurance, cardTerms,
+  ifYouDontPay, nextSteps}` (reuses commit's `recurringFor`; `tests/unit/results.test.js` checks it against commit). Seeds
+  `results-approved-house`, `results-denied-apartment` (decisions pre-stored). e2e `tests/e2e/paperwork-apartment-full.json`
+  (on paperwork-apartment-start; sets `meta.seed = 5` for an approving draw), `results-denied.json`.
 - Credit card (task 30, 05 §6, 09 §6): pure `finance/creditCard.js` `offerFor(state, {score?})` (tiers in `CREDIT.card`; secured
   under 640 or 600), `minimumPayment(balance, interest)`, `cycle(card, {chargesCents, payFrom, autopay?})` → `{statementCents,
   interestCents, minimumCents, paidCents, carried, lateFeeCents, missed, balanceCents}` (interest only when

@@ -46,3 +46,5 @@ paperwork-ready-house /index.html?seed=paperwork-ready-house
 paperwork-ready-build /index.html?seed=paperwork-ready-build
 paperwork-card-offer /index.html?seed=paperwork-card-offer
 paperwork-card-offer-secured /index.html?seed=paperwork-card-offer-secured
+results-approved-house /index.html?seed=results-approved-house
+results-denied-apartment /index.html?seed=results-denied-apartment
