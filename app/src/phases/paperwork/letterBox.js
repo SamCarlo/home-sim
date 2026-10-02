@@ -7,6 +7,7 @@ import { LETTERS } from '../../config.js';
 import { letterType } from '../../letters/types.js';
 import { wordCount, lengthStatus, recipientFor, sendLetter } from '../../letters/send.js';
 import { setStep } from './flow.js';
+import { loadSpeller, loadedSpeller } from '../../letters/loadSpeller.js';
 
 const DRAFT_DEBOUNCE_MS = 400; // the store save policy throttles the actual writes (SAVE.draftIntervalMs)
 
@@ -50,6 +51,7 @@ export function mountLetterBox(container, typeId, ctx) {
   const type = letterType(typeId);
   const { store } = ctx;
   if (ctx.status === 'done') return sentView(container, store.getState(), type, ctx);
+  loadSpeller().catch((err) => console.warn('Spelling dictionary not loaded; letters are scored without it.', err));
 
   const t = type.targetWords;
   const area = h('textarea', {
@@ -130,7 +132,7 @@ export function letterStep(id) {
     id, title: type.title, kind: 'letter', stayOnDone: true,
     mount: (container, ctx) => mountLetterBox(container, id, ctx),
     complete(state, values, now = 0) {
-      const letter = sendLetter(state, { type: id, text: values.text }, now);
+      const letter = sendLetter(state, { type: id, text: values.text }, now, { speller: loadedSpeller() });
       setStep(state, id, 'done', { letterId: letter.id }, now);
       return { ok: true, shortfallCents: 0 };
     },

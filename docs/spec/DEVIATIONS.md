@@ -86,3 +86,10 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   Step modules opt in with `stayOnDone: true`; `paperworkScreen.js` passes `onNext` in the mount context. The confirm
   dialog also mentions the word count when it's outside the target. The spelling dictionary is not preloaded yet,
   since the score is a stub; task 26 adds the lazy load when the box mounts. Where: `phases/paperwork/letterBox.js`.
+- 2026-10-02, task 26, letter text helpers: normalization and splitting live in a separate `letters/text.js` (06 §3 puts
+  them in features.js) so spell.js and grammar.js can share them without importing features.js. Sentences split on
+  `.!?` and also at line breaks, since a textarea newline is deliberate (greeting, closing and signature lines). Short
+  lines (≤ 4 words) with no end punctuation are treated as greeting/closing/signature lines: capitalized words there are
+  names (not spell-checked) and the missing-end-punctuation rule ignores them. The `paragraphs` feature counts lines of
+  8+ words, so students who separate paragraphs with a single Enter still get credit. `extractFeatures` returns
+  `issues`, `sentiment`, `wordCount` and `groupsHit` alongside `{vector, named}` for task 28. Where: `app/src/letters/`.

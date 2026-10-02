@@ -1,0 +1,12 @@
+[
+  {"waitFor": ".pw-letter-text"},
+  {"assert": "import('/src/letters/loadSpeller.js').then((m) => m.loadSpeller()).then((s) => typeof s.check === 'function')"},
+  {"eval": "Promise.all([import('/src/letters/loadSpeller.js'), import('/src/letters/features.js')]).then(([l, f]) => { const r = f.extractFeatures('Dear Ms. Kahale,\\n\\nI want to recieve the keys becuase I love Pāhoa. Mahalo!\\n\\nSincerely,\\nKai', 'rental-cover', { speller: l.loadedSpeller() }); return { misspelled: r.issues.spelling.map((m) => m.word + ' > ' + m.suggestions.join('/')), sentiment: r.sentiment.label, named: r.named }; })"},
+  {"assert": "Promise.all([import('/src/letters/loadSpeller.js'), import('/src/letters/features.js')]).then(([l, f]) => f.extractFeatures('I want to recieve it.', 'rental-cover', { speller: l.loadedSpeller() }).issues.spelling[0].word === 'recieve')"},
+  {"type": [".pw-letter-text", "Dear Ms. Kahale,\n\nI am a dental assistant and I would love to rent this apartment. I will pay rent on time.\n\nSincerely,\nKai Mana"]},
+  {"click": ".pw-letter-send"},
+  {"waitFor": ".modal-confirm"},
+  {"click": ".modal-confirm"},
+  {"waitFor": ".pw-letter-sent"},
+  {"assert": "window.__homesim.getState().paperwork.steps['rental-cover'].status === 'done'"}
+]

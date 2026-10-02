@@ -881,3 +881,43 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     band when `score.band` exists. Results can rescore pending letters.
   - Task 29: the step's `values.letterId` points at `state.letters[id]`; `paperwork.letterIds` lists this attempt's letters.
   - e2e: after Send, click `.modal-confirm`, then `.pw-letter-next` to move on (the sent view stays up).
+
+## Task 26 — Spelling, grammar, sentiment and content features
+- attempt started 2026-10-02T01:53:48-10:00
+- done 2026-10-02T02:01:06-10:00
+- Added (all pure except loadSpeller): `app/src/letters/text.js` (normalizeText, foldKey, tokenize, splitLines,
+  splitParagraphs, splitSentences), `allowlist.js` (Hawaiian words/places, the 20 game places, regions, game/finance
+  terms; `isAllowed`, `ALLOW_KEYS`), `spell.js` (`createSpeller({aff, dic, extraWords})` → {correct, suggest, check}),
+  `grammar.js` (19 rules, `GRAMMAR_RULES`, `checkGrammar`), `sentiment.js` (`analyzeSentiment`, `sentimentLabel`),
+  `features.js` (`FEATURE_NAMES`, `FEATURE_RANGES`, `extractFeatures`, `lengthFit`, `sentenceLenFit`, `contentHits`),
+  `loadSpeller.js` (browser; `loadSpeller()` promise, `loadedSpeller()` sync), `tests/unit/letterChecks.test.js` (33 tests),
+  `tests/e2e/letter-checks.json`. Changed: `phases/paperwork/letterBox.js` (preloads the speller on mount, passes
+  `loadedSpeller()` to `sendLetter`), CLAUDE.md, DEVIATIONS.
+- Verified:
+  - `node --test tests/unit/letterChecks.test.js` → 33 pass (every grammar rule positive + negative, spelling skips
+    names/Hawaiian/numbers/URLs/acronyms, sentiment labels, features deterministic + in range for all 6 types, "Mr."/"Dr."/"a.m." splitting).
+  - `bash tools/check.sh` → "check: OK (syntax 131 files · tests · data 10 files · smoke) in 52s", smoke 38/38.
+  - e2e ✓ `letter-checks.json` on paperwork-letter: the dictionary loads in the browser, "recieve > receive/relieve",
+    "becuase > because", Pāhoa/Mahalo/Kahale not flagged, send still works. e2e ✓ `letter.json` (task 25) still passes.
+  - Shot tools/shots/t26/letter-checks.png: sent view ("✓ Sent!", recipient, letter text, Next step), checklist 2 of 7 done.
+  - Feature vectors (FEATURE_NAMES order), sanity-read:
+    - strong (`SAMPLE_LETTERS['rental-cover']`): spellRate 0, grammarPer100w 0, sentiment 0.9823, negSentenceRate 0,
+      politeness 1.80, hasGreeting 1, hasClosing 1, lengthFit 1, sentenceLenFit 1, contentCoverage 1, textSpeak 0,
+      shouting 0, exclaimRate 0, paragraphs 1, lexicalVariety 0.63.
+    - weak ("hey / i want the apartment its really nice and i would of taken it alot sooner … lol. u should give it to me
+      becuase im … PLEASE PICK ME NOW!!!"): spellRate 0.083 (alot, lol, becuase, im), grammarPer100w 20 (capped),
+      sentiment 0.9351, negSentenceRate 0, politeness 2.08, hasGreeting 1 ("hey"), hasClosing 0, lengthFit 0.2,
+      sentenceLenFit 1, contentCoverage 0.33, textSpeak 3, shouting 1, exclaimRate 0.25, paragraphs 0, lexicalVariety 0.83.
+    - Reads right: the weak letter loses on spelling, grammar, closing, length, coverage, text-speak, shouting and
+      paragraphs. VADER alone rates it warm ("nice", "good", "promise", "please"), so sentiment can't carry the model by itself.
+- Deviations: see DEVIATIONS (text.js split out; line-based paragraphs; extra extractFeatures outputs).
+- Notes for later tasks:
+  - Task 27 (corpus/model): `extractFeatures(text, type, {speller})` → `vector` in `FEATURE_NAMES` order; build the
+    Node speller with `createSpeller({aff, dic})` from `fs` (see the test). `FEATURE_RANGES` gives each feature's range.
+    grammarPer100w is the *weighted* count (minor rules 0.5) of rules that don't have their own feature.
+  - Task 28 (score.js): `extractFeatures` also returns `issues {spelling, grammar}`, `sentiment {compound, label,
+    sentences}`, `wordCount`, `groupsHit`, which map straight onto the scoreLetter contract. All indices point into
+    `normalizeText(text)` (same length as the NFC text). The browser speller may still be null if the student sends
+    within a second of opening the box; score.js should treat a null speller as "spelling not checked" (spellRate 0).
+  - VADER (180 KB) is a static import of sentiment.js, so once score.js imports features.js the paperwork screen pulls it
+    in. nspell + the dictionary stay lazy (loadSpeller).

@@ -75,7 +75,8 @@ app/src/phases/<phase>/        one screen per phase (placeholders until their ta
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
                                ui/login.js (welcome screen: Log in / Create account tabs)
 app/src/content/names.js       fictional people/businesses per region (pure, seeded)
-app/src/letters/               types.js send.js score.js (pure; scoring pipeline lands in tasks 26–28)
+app/src/letters/               types.js send.js score.js text.js allowlist.js spell.js grammar.js sentiment.js features.js
+                               (pure; model lands in tasks 27–28) · loadSpeller.js (browser, lazy dictionary)
 app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
                                locations/{hawaii,cities,towns,index}.js (pure)
 app/src/admin/adminMain.js     placeholder (task 52)
@@ -320,6 +321,18 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   step files are one-liners; complete = send + `setStep` done with `{letterId}`). Steps with `stayOnDone: true` stay on
   their done view after `onDone`; mount ctx has `onNext()`. `finishSteps` sends `dev/sampleLetters.js` text for letter
   steps. Seed `paperwork-letter` (Hilo cover letter). e2e `tests/e2e/letter.json`.
+- Letter checks (task 26, 06 §3 steps 1–5, all pure but loadSpeller): `letters/text.js` `normalizeText` (NFC, curly
+  apostrophes, ‘ between letters → ʻokina; length-preserving, every index points into it), `foldKey` (lowercase, no
+  ʻokina/apostrophes/kahakō), `tokenize`, `splitLines`, `splitParagraphs`, `splitSentences` (lines split at `.!?`, keeps
+  Mr./Dr./a.m./initials). `allowlist.js` `isAllowed(word)`. `spell.js` `createSpeller({aff, dic, extraWords})` → `{correct,
+  suggest, check(text) → {misspelled [{word, index, suggestions ≤3}], rate, words}}` (skips numbers, URLs, ≤4-letter
+  acronyms, capitals mid-sentence and on short greeting/signature lines). `grammar.js` `GRAMMAR_RULES` (19, each `{id,
+  message, suggestion, weight, test}`) + `checkGrammar(text, {type})`. `sentiment.js` `analyzeSentiment(text)` →
+  `{compound, label, sentences, negSentenceRate}`. `features.js` `FEATURE_NAMES` (15) / `FEATURE_RANGES` /
+  `extractFeatures(text, type, {speller})` → `{vector, named, issues, sentiment, wordCount, groupsHit}`. Browser:
+  `loadSpeller()` (promise, fetches `vendor/dictionary-en` once) / `loadedSpeller()` (sync, null until loaded); the
+  letter box preloads it on mount. Node: `createSpeller` with `fs` (see `tests/unit/letterChecks.test.js`). e2e
+  `tests/e2e/letter-checks.json` (on paperwork-letter).
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 
