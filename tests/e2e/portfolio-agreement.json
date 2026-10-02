@@ -1,0 +1,13 @@
+[
+  {"waitReady": true},
+  {"click": ".pf-list .pf-row"},
+  {"wait": 300},
+  {"assert": "document.querySelector('.pf-detail .fm-form.is-readonly') && !document.querySelector('.pf-detail .fm-form input')"},
+  {"assert": "document.querySelector('.pf-detail .fm-sig-ink').textContent === 'Kai Mana'"},
+  {"shot": "tools/shots/t18/6-portfolio-agreement.png"},
+  {"goto": "/index.html?seed=portfolio-demo&open=portfolio&tab=agreements&theme=dark"},
+  {"waitReady": true},
+  {"click": ".pf-list li:nth-child(2) .pf-row"},
+  {"wait": 300},
+  {"shot": "tools/shots/t18/7-portfolio-card-dark.png"}
+]

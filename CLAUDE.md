@@ -54,7 +54,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 ## Folder map
 ```
 app/index.html admin.html      entry pages (import map: three → vendor/, firebase/* → gstatic 12.19.0)
-app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css)
+app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css forms.css)
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
@@ -64,9 +64,11 @@ app/src/state/                 schema.js migrate.js summary.js (pure) · store.j
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
                                modal.js (openModal, confirmDialog) · icons.js · drawer.js (openDrawer) ·
-                               portfolio/ (index.js openPortfolio + tabs; portfolioModel.js pure; settings.js applySettings)
+                               portfolio/ (index.js openPortfolio + tabs; portfolioModel.js pure; settings.js applySettings;
+                               agreementDoc.js registerAgreementDoc/agreementSchema)
+app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d)
+                               seeds.js (fixtures) · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
@@ -211,6 +213,42 @@ and returns a result, never a new state. Accounts `'checking' | 'savings' | 'car
 - Style families (08 §4, pure): `data/styleFamilies.js` `STYLE_FAMILY_DATA`/`STYLE_FAMILY_LIST`, `styleFamily(key, variant)`
   (merges `hillside`/`alaska`): palettes {wall, trim, roof, accent}, house traits, apartment + condo floorsBySettlement
   and traits, vegetation, props. Shared by 2D and 3D (task 34 adds 3D params).
+
+## Forms (05 §2/§4, task 18; `app/src/forms/`)
+A paperwork document is a schema. `renderForm(container, schema, {values, state, onChange, onSubmit, readOnly})` →
+`{el, values(), validate(), submit(), destroy()}`. `onChange(values)` fires on every edit (the caller throttles drafts);
+`onSubmit(values)` only fires when `validateForm` is empty (otherwise errors show, a "N fields need fixing" line appears and
+the first bad field gets focus). Errors show on blur and on submit, tied with `aria-describedby` + `aria-invalid`. The header
+shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's Agreements tab uses it).
+```js
+{ id: 'rental-application', title: 'Rental application', intro: '…', submitLabel: 'Sign and submit',
+  sections: [{ id: 'you', title: 'About you', intro?, fields: [
+    { id: 'employer', kind: 'text', label: 'Employer', required: true, width: 'half', maxLength: 40, hint: '…' },
+    { id: 'move-in', kind: 'month', label: 'Move-in month', from: 0, to: 5, required: true },
+    { id: 'rent', kind: 'computed', label: 'Rent', format: 'money', compute: (values, state) => cents },
+    { id: 'landlord', kind: 'text', label: '…', required: true, when: (values, state) => values.history === 'rented' },
+    { id: 'init', kind: 'initials', label: 'Initial each clause', required: true, clauses: [{ id: 'c1', text: '…' }] },
+    { id: 'q1', kind: 'question', label: '…?', answer: 'c', choices: [{ value: 'a', label: '$75', why: 'shown when wrong' }, …],
+      explanation: 'shown when right', required: true },
+    { id: 'signature', kind: 'signature', label: 'Signature', required: true },
+  ] }] }
+```
+- Value kinds: `text textarea number currency(cents) select radio checkbox month(monthIndex) phone signature initials question`.
+  Display kinds: `computed` (`compute`, `format`: 'money' | 'money-cents' | 'percent' | 'month' | fn), `info` (`text` string or
+  array, `tone` note/teach/warn), `clauses` (`items`), `table` (`columns [{key, label, align, format}]`, `rows` array or fn).
+- Rules on any value field: `required`, `requiredMessage`, `pattern` + `patternMessage`, `minLength/maxLength`, `min/max`
+  (cents for currency, monthIndex for month), `validate(value, values, state) → message|null`, `default` (value or fn(state)),
+  `when(values, state)` (hidden fields skip validation). Values: question = `{choice, tries, correct, firstTry, wrong[]}`,
+  initials = `{clauseId: 'KM'}`, unparseable number/currency input = the raw string (fails validation).
+- Signatures check against `state.player.characterName`, forgiving ʻokina/apostrophes, kahakō, case and spacing (students
+  can't always type an ʻokina); dated `FORMS.signDate` ("December 2032"). Initials = `deriveInitials(name)` (every word and
+  hyphen part: "Keʻala Kahananui-Akana" → KKA). Phones must be fictional 555-01xx (`PHONE_RE`).
+- Pure helpers in `validate.js`: `validateField/validateForm/requiredProgress`, `computeField`, `formatValue`, `displayValue`,
+  `deriveInitials`, `initialsMatch`, `sameName`, `visibleFields`, `initialValues`.
+- Agreements: `ui/portfolio/agreementDoc.js` `registerAgreementDoc(type, (agreement, state) → schema)`; the portfolio renders
+  `agreement.docType ?? agreement.type`'s schema read-only with `agreement.docValues`, else a generic Terms / What you filled
+  in document. Paperwork steps (19+) should store `docType: <step id>` and register their schema there (static import).
+- Gallery `?dev=forms` (`&fill=1`, `&mode=readonly`); e2e `tests/e2e/forms.json`, `tests/e2e/portfolio-agreement.json`.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

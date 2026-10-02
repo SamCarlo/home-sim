@@ -13,3 +13,4 @@ plan-after-denial /index.html?seed=plan-after-denial
 gallery2d /index.html?dev=gallery2d
 plan-detail-open /index.html?seed=plan-detail-open
 portfolio-demo /index.html?seed=portfolio-demo&open=portfolio
+forms /index.html?dev=forms

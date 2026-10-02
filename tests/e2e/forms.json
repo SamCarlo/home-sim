@@ -1,0 +1,98 @@
+[
+  {
+    "waitReady": true
+  },
+  {
+    "assert": "(() => { const els = [...document.querySelectorAll('.fm-form input, .fm-form select, .fm-form textarea, .fm-form button')].filter(e => !e.disabled && e.offsetParent && e.tabIndex >= 0 && !(e.type === 'radio' && !e.checked && document.querySelector(`input[name=\"${e.name}\"]:checked`))); const r = els.map(e => e.getBoundingClientRect()); return r.every((b, i) => i === 0 || b.top > r[i-1].top - 4 || (Math.abs(b.top - r[i-1].top) < 4 && b.left > r[i-1].left)); })()"
+  },
+  {
+    "click": ".fm-actions button[type=submit]"
+  },
+  {
+    "assert": "document.querySelectorAll('.fm-field.has-error').length === 10"
+  },
+  {
+    "assert": "document.activeElement.id.endsWith('-employer')"
+  },
+  {
+    "assert": "document.querySelector('[data-field=signature] input').getAttribute('aria-describedby').split(' ').every(id => document.getElementById(id))"
+  },
+  {
+    "assert": "document.querySelector('[data-field=signature] input').getAttribute('aria-invalid') === 'true'"
+  },
+  {
+    "shot": "tools/shots/t18/2-errors.png"
+  },
+  {
+    "type": [
+      "[data-field=employer] input",
+      "Puna Community Medical Center"
+    ]
+  },
+  {
+    "type": [
+      "[data-field=phone] input",
+      "808-555-1234"
+    ]
+  },
+  {
+    "press": "Tab"
+  },
+  {
+    "assert": "/555-01xx/.test(document.querySelector('[data-field=phone] .fm-error').textContent)"
+  },
+  {
+    "type": [
+      "[data-field=signature] input",
+      "Keala Kahananui"
+    ]
+  },
+  {
+    "press": "Tab"
+  },
+  {
+    "assert": "/must match/.test(document.querySelector('[data-field=signature] .fm-error').textContent)"
+  },
+  {
+    "click": "[data-field=q-late] label[for$='-0']"
+  },
+  {
+    "click": "[data-field=q-late] .fm-q-check"
+  },
+  {
+    "assert": "/Not quite/.test(document.querySelector('.fm-q-feedback').textContent)"
+  },
+  {
+    "shot": "tools/shots/t18/3-partial.png"
+  },
+  {
+    "goto": "/index.html?dev=forms&fill=1&theme=light"
+  },
+  {
+    "waitReady": true
+  },
+  {
+    "assert": "document.querySelector('.fm-progress').textContent === '11 of 11 required done'"
+  },
+  {
+    "click": ".fm-actions button[type=submit]"
+  },
+  {
+    "assert": "document.querySelector('.dev-forms-out').textContent.startsWith('Submitted')"
+  },
+  {
+    "shot": "tools/shots/t18/4-completed.png"
+  },
+  {
+    "goto": "/index.html?dev=forms&mode=readonly&theme=light"
+  },
+  {
+    "waitReady": true
+  },
+  {
+    "assert": "!document.querySelector('.fm-form input, .fm-form select, .fm-form textarea, .fm-form button')"
+  },
+  {
+    "shot": "tools/shots/t18/5-readonly.png"
+  }
+]

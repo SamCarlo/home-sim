@@ -4,38 +4,25 @@ import { h } from '../dom.js';
 import { formatMoney } from '../../util/format.js';
 import { byId } from '../../data/locations/index.js';
 import { HOME_TYPES_BY_ID } from '../../data/homeTypes.js';
-import { block, kv, empty, chip, rowButton, detail } from './parts.js';
+import { kv, empty, chip, rowButton, detail, humanKey } from './parts.js';
+import { agreementSchema } from './agreementDoc.js';
+import { renderForm } from '../../forms/engine.js';
 import { AGREEMENT_STATUS, APPLICATION_STATUS, letterList } from './portfolioModel.js';
 
 const AG_CHIP = { pending: 'yellow', active: 'green', void: 'na' };
 const APP_CHIP = { pending: 'yellow', approved: 'green', denied: 'red' };
 const dateText = (ms) => (ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '');
-const ACRONYMS = { pmi: 'PMI', apr: 'APR', hoa: 'HOA', fha: 'FHA' };
-const humanKey = (k) => String(k).replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[-_]/g, ' ').toLowerCase()
-  .replace(/\b[a-z]+\b/g, (w) => ACRONYMS[w] ?? w).replace(/^./, (c) => c.toUpperCase());
-
-/** Show a stored value (cents fields as money, booleans as Yes/No). Always text, never HTML. */
-function valueText(key, v) {
-  if (v == null || v === '') return '—';
-  if (typeof v === 'boolean') return v ? 'Yes' : 'No';
-  if (typeof v === 'number' && /cents$/i.test(key)) return formatMoney(v, { showCents: true });
-  if (typeof v === 'number' && /(rate|apr|pct)$/i.test(key)) return `${Number((v * 100).toFixed(3))}%`;
-  if (typeof v === 'object') return JSON.stringify(v);
-  return String(v);
-}
-const kvOf = (obj) => Object.entries(obj || {}).map(([k, v]) => [humanKey(k.replace(/Cents$/, '')), valueText(k, v)]);
-
-/** Agreements list; opening one shows the signed values read-only (task 18's form render replaces the summary). */
+/** Agreements list; opening one shows the signed document read-only (forms/engine.js, task 18). */
 export function renderAgreements(state, nav) {
   const list = state.finances.agreements;
   const open = list.find((a) => a.id === nav.openId);
   if (open) {
+    const doc = h('div', { class: 'pf-doc' });
+    renderForm(doc, agreementSchema(open, state), { values: open.docValues || {}, state, readOnly: true });
     return detail({ title: open.title || humanKey(open.type), onBack: nav.back },
-      h('p', null, chip(AG_CHIP[open.status] ?? 'na', AGREEMENT_STATUS[open.status] ?? open.status)),
-      open.summary ? h('p', { class: 'pf-summary' }, open.summary) : null,
-      block('Details', kv([['With', open.counterparty || '—'], ['Signed', dateText(open.signedAt) || '—'], ...kvOf(open.terms)])),
-      Object.keys(open.docValues || {}).length ? block('What you filled in', kv(kvOf(open.docValues))) : null,
-      h('p', { class: 'pf-note muted' }, 'Read-only. This is a copy of what you signed.'));
+      h('p', null, chip(AG_CHIP[open.status] ?? 'na', AGREEMENT_STATUS[open.status] ?? open.status),
+        open.counterparty ? ` with ${open.counterparty}` : null, open.signedAt ? ` · signed ${dateText(open.signedAt)}` : null),
+      doc);
   }
   if (!list.length) return empty('No agreements yet. Leases, loans and policies you sign appear here.');
   return h('ul', { class: 'pf-list' }, list.map((a) => rowButton({

@@ -27,3 +27,7 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   and `creditBand(score)` in `finance/creditScore.js`. Restart (Settings) keeps the player's settings as well as the
   account, so a dark-mode or reduced-motion choice survives. A dev `?theme=` override lasts until the player picks a
   theme in Settings. The drawer is built on `ui/modal.js` (shared stack) rather than separate drawer code.
+- **2026-10-01, task 18**: 05 §4 says a signature is "the character name typed exactly". The check forgives ʻokina/apostrophe
+  variants, kahakō, case and extra spaces (students often can't type an ʻokina), but not spelling or missing words
+  (`forms/validate.js` `sameName`). Agreements may carry an optional `docType` (the paperwork step id) so the portfolio can
+  re-render the signed document with its real schema (`ui/portfolio/agreementDoc.js`); no state version bump.

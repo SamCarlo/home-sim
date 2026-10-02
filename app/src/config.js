@@ -232,6 +232,13 @@ export const LETTERS = {
   ],
 };
 
+/** Paperwork forms (05 §4, task 18). */
+export const FORMS = {
+  signDate: 'December 2032',          // every paperwork signature is dated this (game time before January 2033)
+  phoneHint: '(808) 555-01xx',        // fictional 555-01xx range only
+  initialsMax: 4,                     // longest initials box
+};
+
 /** Student accounts (11 §2). */
 export const ACCOUNTS = {
   usernamePattern: /^[a-z0-9][a-z0-9_-]{2,19}$/,

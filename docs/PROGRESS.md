@@ -587,3 +587,32 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Tasks 42–46: read `settings.reducedMotion` (also mirrored as `html[data-reduced-motion]`), `longCareWindow`, `animationSpeed`.
   - The drawer re-renders its open tab on every store change; tab renderers must stay cheap and side-effect free.
   - Automatic expenses filter to the current month only in phase 'life'; elsewhere they list everything.
+## Task 18 — Declarative form engine
+- attempt started 2026-10-01T18:59:46-10:00
+- done 2026-10-01T19:08:20-10:00
+- Added: `app/src/forms/` (engine.js renderForm, fields.js 12 value kinds + 4 display kinds, validate.js pure rules and
+  helpers), `app/styles/forms.css` (incl. print CSS), `app/src/dev/formsGallery.js` (`?dev=forms`, `&fill=1`, `&mode=readonly`),
+  `app/src/ui/portfolio/agreementDoc.js` (registry + generic schema), `tests/unit/forms.test.js` (8 tests),
+  `tests/e2e/forms.json`, `tests/e2e/portfolio-agreement.json`. Changed: `config.js` (`FORMS`), `index.html` (forms.css),
+  `dev/galleries.js`, `ui/portfolio/records.js` (agreement detail = read-only form), `ui/portfolio/parts.js` (humanKey,
+  valueText, kvOf moved here), `tools/smoke.txt`, CLAUDE.md (Forms section, folder map), DEVIATIONS.
+- Verified:
+  - `node --test tests/unit/forms.test.js` → 8 pass (every rule, kind messages, phone range, initials with ʻokina/hyphens/
+    kahakō, signature matching, computed/format/table helpers, when() visibility, sample values valid).
+  - `bash tools/check.sh` → "check: OK (syntax 81 files · tests · data 10 files · smoke) in 23s", smoke 14/14.
+  - `tests/e2e/forms.json` ✓ (tab order follows visual order; submit marks 10 fields, focuses Employer, aria-describedby ids
+    exist, aria-invalid set; bad phone and wrong signature messages; wrong answer shows explanation; filled form shows
+    11 of 11 and submits; read-only has no inputs). `tests/e2e/portfolio.json` (task 17) still ✓. Shots in tools/shots/t18/:
+    - 1-empty: all kinds in a two-column card, "0 of 10 required done", initials hint "Your initials: KKA".
+    - 2-errors: red borders and ⚠ messages under each of the 10 required fields, focus ring on Employer.
+    - 3-partial: phone "555-01xx range" message, signature "must match your name", 5 struck out with "Not quite" feedback.
+    - 4-completed / 8-filled-dark: "✓ 11 of 11 required done", landlord field revealed, 05 highlighted green with "Correct".
+    - 5-readonly: values as text, initials boxes, "Answer: $105 · Right after 2 tries", signature in script with date.
+    - 6-portfolio-agreement / 7-portfolio-card-dark: Agreements detail as a read-only document (Terms tiles, What you filled
+      in, signature "Kai Mana"), light and dark.
+- Deviations: forgiving signature match; optional agreement `docType` (DEVIATIONS).
+- Notes for later tasks:
+  - Tasks 19–31: a step's `schema(state)` goes straight into `renderForm`; store values as the agreement's `docValues`, set
+    `docType: <step id>` and `registerAgreementDoc(stepId, …)` in `ui/portfolio/agreementDoc.js` so the portfolio shows the
+    real document. Question values carry `firstTry` for the lease "find the trap" score.
+  - The "Sam Hand" font is NOT used for signatures (missing glyphs render invisible on this machine); script fallbacks only.
