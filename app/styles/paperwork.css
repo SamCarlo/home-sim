@@ -43,3 +43,38 @@
   .pw-screen { grid-template-columns: 1fr; }
   .pw-side { position: static; }
 }
+
+/* Loan options (task 21, 05 §4): facts, teach box, the comparison table and the chosen option's breakdown. */
+.pw-lo { padding: var(--sp-5) var(--sp-5); }
+.pw-lo-intro { margin: 0 0 var(--sp-3); color: var(--ink-2); max-width: 70ch; }
+.pw-lo-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sp-2) var(--sp-4);
+  margin: 0 0 var(--sp-4); }
+.pw-lo-facts dt { font-size: .78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.pw-lo-facts dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pw-lo-teach ul { margin: 0; padding-left: 1.2em; }
+.pw-lo-teach li + li { margin-top: 2px; }
+.pw-lo-wrap { overflow-x: auto; margin: 0 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-md); }
+.pw-lo-table { width: 100%; border-collapse: collapse; font-size: .86rem; font-variant-numeric: tabular-nums; }
+.pw-lo-table th, .pw-lo-table td { padding: var(--sp-2); border-bottom: 1px solid var(--line); text-align: right; vertical-align: top; }
+.pw-lo-table thead th { background: var(--surface-2); font-size: .76rem; color: var(--ink-2); vertical-align: bottom; }
+.pw-lo-table thead th:first-child, .pw-lo-table tbody th { text-align: left; }
+.pw-lo-table tbody tr:last-child > * { border-bottom: 0; }
+.pw-lo-table tbody th { font-weight: 400; min-width: 15em; }
+.pw-lo-row.is-selected { background: var(--accent-wash); box-shadow: inset 4px 0 0 var(--accent); }
+.pw-lo-row.is-disabled { color: var(--muted); background: var(--tint); }
+.pw-lo-row.is-disabled td { text-decoration: line-through; text-decoration-color: var(--line-2); }
+.pw-lo-pick { display: flex; gap: var(--sp-2); align-items: flex-start; cursor: pointer; }
+.pw-lo-row.is-disabled .pw-lo-pick { cursor: not-allowed; }
+.pw-lo-pick input { margin-top: 3px; accent-color: var(--accent); }
+.pw-lo-pick strong { display: block; }
+.pw-lo-rate, .pw-lo-sub { display: block; font-size: .78rem; color: var(--muted); }
+.pw-lo-why { display: block; margin: 4px 0 0 1.6em; font-size: .8rem; color: var(--danger-ink); }
+.pw-lo-strong { font-weight: 600; }
+.pw-lo-badge { display: inline-block; margin: 3px 4px 0 0; padding: 1px 8px; border-radius: var(--r-pill); font-size: .72rem;
+  font-weight: 600; }
+.pw-lo-badge.is-monthly { background: var(--st-cyan-bg); color: var(--st-cyan-ink); }
+.pw-lo-badge.is-interest { background: var(--st-green-bg); color: var(--st-green-ink); }
+.pw-lo-detail { margin: 0 0 var(--sp-3); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); background: var(--surface-2); }
+.pw-lo-detail h3 { margin: 0 0 var(--sp-1); font-size: 1rem; }
+.pw-lo-detail ul { margin: 0; padding-left: 1.2em; }
+.pw-lo-done { font-weight: 600; color: var(--accent-ink); }

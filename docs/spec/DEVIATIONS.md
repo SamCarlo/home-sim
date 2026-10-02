@@ -44,3 +44,10 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   scales it to the ± bonus. `addAgreement` now keeps an optional `docType`. Step `complete(state, values, now)` gets the
   time as a third argument from the paperwork screen. Signed documents register in `phases/paperwork/docs.js`, which the
   portfolio imports. Code: `phases/paperwork/steps/{rental-application,room-application,lease,roommate-agreement,move-in-payment,renterTerms}.js`.
+- **2026-10-01, task 21**: loan options. The 05 §7 credit tiers' rate adjustments are applied to every option's rate on
+  the comparison table (a fresh player's 680 drops to 675 after the hard inquiry, so 6.5% shows as 6.875%), so the numbers
+  the student picks from match what underwriting will use. FHA uses the same base rates as conventional. Cash to close
+  includes the 2 months' reserves, so an option whose total exceeds checking + savings is disabled ("You need $X more…").
+  Monthly housing on the table = P&I + PMI/MIP + tax + insurance + required hazard + HOA (no utilities). The mortgage
+  application adds a bankruptcy declaration that must be "No" (the character has none). Code: `finance/loanOptions.js`,
+  `phases/paperwork/steps/{mortgage-application,loan-options}.js`.

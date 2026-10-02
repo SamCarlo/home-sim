@@ -15,3 +15,6 @@ mark it ✅ with the date and who resolved it.
 - [ ] **ʻokina spacing (task 20)**: in the UI sans font the ʻokina renders with visible space around it ("Hawai ʻ i",
   "ʻ Āina") in computed fields and intros (see tools/shots/t20/*). Likely a font fallback for U+02BB. Fix by loading a
   font subset that includes U+02BB or adding a fallback family with the glyph in `tokens.css`; check 12 §6.
+- [ ] **Kahakō in the display font (task 21)**: the paperwork title "House in Pāhoa" (Fraunces, `.pw-title`) appears to
+  render without the macron in tools/shots/t21/4-pahoa-loan-options.png although the string is "Pāhoa". Probably the same
+  font-subset problem as the ʻokina item above; check the Fraunces subset includes U+0100–U+017F.

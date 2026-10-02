@@ -699,3 +699,42 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     should call `setStep(…'done')` itself and return {ok, shortfallCents}. `dev/seeds.js` `finishSteps(s, ids, values)`
     builds "later step" seeds.
   - The UI font draws the ʻokina with extra space ("Hawai ʻ i") in some weights; see OPEN_ITEMS.
+
+## Task 21 — Mortgage application and loan options
+- attempt started 2026-10-01T21:17:48-10:00
+- done 2026-10-01T21:23:35-10:00
+- Added: `app/src/finance/loanOptions.js` (pure: `LOAN_CHOICES`, `LOAN_TERMS`, `loanOptions(state)`, `loanOption`,
+  `creditTier`, `programBlock`, `strictLavaZone`, `findOption`, `optionKey`, `optionLabel`),
+  `tests/unit/loanOptions.test.js` (6 tests), `tests/e2e/mortgage-house.json`. Rewrote steps `mortgage-application.js`
+  (`mortgageSchema`, `estimatedGross`) and `loan-options.js` (mount + complete). Changed: `styles/paperwork.css`
+  (pw-lo-*), `dev/seeds.js` (`SAMPLE_MORTGAGE_APPLICATION`, seeds `paperwork-house-options`,
+  `paperwork-pahoa-house-options`), `tools/smoke.txt` (+2), CLAUDE.md, DEVIATIONS, OPEN_ITEMS.
+- Verified:
+  - `node --test tests/unit/loanOptions.test.js` → 6 pass (Lava Zone 1: FHA + under-20% disabled with reasons, Katy not;
+    FHA 579 vs 580, conventional < 620, tier rate +0.5%; cash-to-close identity, FHA upfront MIP financed, short cash reason
+    with the amount, paid fees not double-counted; 15-yr < 30-yr interest for Katy, Pāhoa and Miami condo; best keys
+    always usable; application: −5 score, pending 'mortgage' app, no money moved, occupy "no" fails; complete stores
+    options and refuses a disabled option; states valid).
+  - `bash tools/check.sh` → "check: OK (syntax 115 files · tests · data 10 files · smoke) in 35s", smoke 24/24.
+  - e2e ✓ `mortgage-house.json` on paperwork-house-start (fill + submit application, score 675, pending app, 8 rows,
+    2 badges, choose disabled until a pick, choose 10%/15 yr → options stored, read-only view shows the choice);
+    `paperwork-flow.json` and `choose-home.json` (plan-comfortable) still ✓.
+  - Shots in tools/shots/t21/:
+    - 1-mortgage-application: all 7 sections filled, gross $7,895 with the "Lenders use gross income" teach box, assets
+      table, debts "None so far", Katy property $375,000, declarations, hard-check warning, signature.
+    - 2-katy-loan-options: facts row (price, $80,000 cash, 675 "adds 0.375%", fixed $1,032/mo), teach box, 8 rows;
+      "Lowest monthly" on conventional 10%/30, "Least interest" on 10%/15 (selected, green bar); both 20% rows struck through
+      with "You need $13,356 more…"; breakdown under the table (housing 52% of gross).
+    - 3-katy-chosen: read-only view after choosing, "You chose: Conventional · 10% down · 15 years."
+    - 4-pahoa-loan-options: yellow "Lava zone rules" box; FHA rows "FHA won’t insure homes in Lava Zones 1–2", 5%/10% rows
+      "lenders want at least 20% down"; only the two 20% rows usable with their badges.
+- Deviations: credit-tier rate adjustments shown in the options; 2 months' reserves inside cash to close disable options;
+  bankruptcy declaration must be "No" (DEVIATIONS).
+- Notes for later tasks:
+  - Task 29 (underwriting): reuse `loanOptions(state)` + `findOption(r, paperwork.options)` for the chosen loan's
+    `rate` (tier already applied), `loanCents`, `housingCents`, `cashToCloseCents`, and `programBlock` for the hard fails.
+    `grossCents` is on the result. Application kind is 'mortgage' (target `loc|type`).
+  - Task 22 (closing disclosure) / 31 (commit): the down payment and closing costs at the chosen percentage come from the
+    option, not the snapshot's 10% lines. `FIXED_KEYS` already includes 'special-assessment' if hoa-review adds one.
+  - The paperwork screen's error text after a refused complete() says "to pay this fee"; loan-options never hits it
+    because disabled rows can't be picked.

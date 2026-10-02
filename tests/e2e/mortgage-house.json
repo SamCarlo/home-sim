@@ -1,0 +1,80 @@
+[
+ {
+  "waitReady": true
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'mortgage-application'"
+ },
+ {
+  "assert": "document.querySelector('.fm-form').textContent.includes('Lenders use gross income, before taxes')"
+ },
+ {
+  "eval": "(e=>{e.value=\"renting\";e.dispatchEvent(new Event('change',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=living] select'))"
+ },
+ {
+  "eval": "document.querySelector('[data-field=first-home] input[value=\"yes\"]').click()"
+ },
+ {
+  "eval": "(e=>{e.value=\"Katy ISD\";e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=employer] input'))"
+ },
+ {
+  "eval": "(e=>{e.value=\"2+\";e.dispatchEvent(new Event('change',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=years] select'))"
+ },
+ {
+  "eval": "document.querySelector('[data-field=occupy] input[value=\"yes\"]').click()"
+ },
+ {
+  "eval": "document.querySelector('[data-field=bankruptcy] input[value=\"no\"]').click()"
+ },
+ {
+  "eval": "document.querySelector('[data-field=auth] input').click()"
+ },
+ {
+  "eval": "(e=>{e.value=\"Kai Mana\";e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('blur'));return e.value})(document.querySelector('[data-field=signature] input'))"
+ },
+ {
+  "shot": "tools/shots/t21/1-mortgage-application.png"
+ },
+ {
+  "click": ".fm-form button[type=submit]"
+ },
+ {
+  "waitFor": ".pw-lo-table"
+ },
+ {
+  "assert": "window.__homesim.getState().finances.credit.score === 675 && window.__homesim.getState().finances.applications.at(-1).kind === 'mortgage' && window.__homesim.getState().finances.applications.at(-1).status === 'pending'"
+ },
+ {
+  "assert": "document.querySelectorAll('.pw-lo-row').length === 8 && document.querySelectorAll('.pw-lo-badge').length === 2"
+ },
+ {
+  "assert": "document.querySelector('.pw-lo-choose').disabled"
+ },
+ {
+  "eval": "document.querySelector('#lo-conventional-10-15').click()"
+ },
+ {
+  "assert": "!document.querySelector('.pw-lo-choose').disabled && document.querySelector('.pw-lo-detail h3').textContent.includes('10% down \u00b7 15 years')"
+ },
+ {
+  "shot": "tools/shots/t21/2-katy-loan-options.png"
+ },
+ {
+  "click": ".pw-lo-choose"
+ },
+ {
+  "wait": 300
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.options.program === 'conventional' && window.__homesim.getState().paperwork.options.downPaymentPct === 0.1 && window.__homesim.getState().paperwork.options.termYears === 15 && window.__homesim.getState().paperwork.steps['loan-options'].status === 'done'"
+ },
+ {
+  "eval": "document.querySelector('[data-step=\"loan-options\"]').click()"
+ },
+ {
+  "waitFor": ".pw-lo-done"
+ },
+ {
+  "assert": "document.querySelector('.pw-lo-done').textContent.includes('Conventional \u00b7 10% down \u00b7 15 years') && document.querySelector('.pw-lo-row.is-selected').dataset.key === 'conventional-10-15'"
+ }
+]

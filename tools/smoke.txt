@@ -22,3 +22,5 @@ paperwork-house-start /index.html?seed=paperwork-house-start
 paperwork-build-start /index.html?seed=paperwork-build-start
 paperwork-apartment-lease /index.html?seed=paperwork-apartment-lease
 paperwork-shared-agreement /index.html?seed=paperwork-shared-agreement&theme=light
+paperwork-house-options /index.html?seed=paperwork-house-options
+paperwork-pahoa-house-options /index.html?seed=paperwork-pahoa-house-options&theme=light

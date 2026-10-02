@@ -226,6 +226,24 @@ seeds['paperwork-shared-agreement'] = { phase: 'paperwork',
     startingSavingsCents: 2000000, jobTitle: 'Barista' }), ['room-application', 'roommate-intro', 'renters-insurance'],
   { 'room-application': SAMPLE_APPLICATION }, now) };
 
+/** Valid mortgage application answers for "Kai Mana" (task 21 seeds and tests). */
+export const SAMPLE_MORTGAGE_APPLICATION = {
+  living: 'family', 'first-home': 'yes', employer: 'Katy ISD', 'job-title': 'Teacher', years: '2+', occupy: 'yes',
+  bankruptcy: 'no', auth: true, signature: 'Kai Mana',
+};
+
+// Task 21 seeds: the mortgage application is done (hard inquiry, pending application); loan options are next.
+seeds['paperwork-house-options'] = { phase: 'paperwork',
+  description: 'Katy house: mortgage application done (score 675); compare loan options.',
+  build: (now) => finishSteps(paperworkStart(now, { locationId: 'katy', homeTypeId: 'house', netMonthlyIncomeCents: 600000,
+    startingSavingsCents: 8000000, jobTitle: 'Teacher' }), ['mortgage-application'],
+  { 'mortgage-application': SAMPLE_MORTGAGE_APPLICATION }, now) };
+seeds['paperwork-pahoa-house-options'] = { phase: 'paperwork',
+  description: 'Pāhoa house in Lava Zone 1: mortgage application done; FHA and under-20%-down loans are disabled.',
+  build: (now) => finishSteps(paperworkStart(now, { locationId: 'pahoa', homeTypeId: 'house', netMonthlyIncomeCents: 700000,
+    startingSavingsCents: 11000000, jobTitle: 'Nurse' }), ['mortgage-application'],
+  { 'mortgage-application': { ...SAMPLE_MORTGAGE_APPLICATION, employer: 'Puna Community Clinic', 'job-title': 'Nurse' } }, now) };
+
 /** Register a seed (later tasks): addSeed('paperwork-apartment-start', { phase, description, build }). */
 export function addSeed(name, def) {
   seeds[name] = def;

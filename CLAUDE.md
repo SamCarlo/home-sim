@@ -59,7 +59,7 @@ app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
 app/src/finance/               money.js loans.js costs.js affordability.js grid.js · ledger.js (+ ledgerRecords.js
-                               ledgerTotals.js) creditScore.js (pure; see Finance helpers, Plan numbers, Ledger)
+                               ledgerTotals.js) creditScore.js loanOptions.js (pure; see Finance helpers, Plan numbers, Ledger)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
@@ -181,7 +181,7 @@ and returns a result, never a new state. Accounts `'checking' | 'savings' | 'car
   apartment panel open), `portfolio-demo` (phase life, April 2033: Hilo house, mortgage with PMI, card, 11 bills,
   4 agreements, 2 scored letters, 3 applications, credit history), `paperwork-{apartment,shared,condo,house,build}-start`
   and `paperwork-apartment-cosigner` (built with `paperworkStart(now, {locationId, homeTypeId, income, savings})`),
-  `paperwork-apartment-lease`, `paperwork-shared-agreement` (earlier steps done via `finishSteps(s, ids, values)`;
+  `paperwork-apartment-lease`, `paperwork-shared-agreement`, `paperwork-house-options`, `paperwork-pahoa-house-options` (earlier steps done via `finishSteps(s, ids, values)`;
   `SAMPLE_APPLICATION` = valid application answers for "Kai Mana").
 - Calendar: `util/dates.js` `monthLabel/monthName/daysInMonth/weekday (0 = Sunday)/dayLabel`. Jan 1, 2033 is a Saturday.
 - Save indicator: `renderSaveStatus(persistence.status)` from `ui/saveStatus.js`; the header shows it.
@@ -275,6 +275,14 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `roommateComfort(values)` → `options.roommateComfort` (−1…1). `move-in-payment.js` → `options.moveIn` (no charge).
   Applications: kinds 'rental' / 'room'. e2e `tests/e2e/renter-apartment.json` (on paperwork-apartment-start),
   `renter-shared.json` (on paperwork-shared-agreement).
+- Buyer steps (task 21): `mortgage-application.js` (`mortgageSchema`, `estimatedGross`; complete = `recordInquiry` −5 +
+  pending application kind 'mortgage', no money). `finance/loanOptions.js` (pure) `loanOptions(state)` → `{priceCents, score,
+  tier, cashCents, grossCents, lavaZone, strictLava, fixedLines, fixedCents, feesCents, options[8], cheapestMonthlyKey,
+  leastInterestKey}`; each option has rate (credit tier applied), down/loan/upfront MIP, P&I, PMI/MIP, housing, total
+  interest, closing, fees, reserves, cash to close, `disabledReason`. `findOption(r, paperwork.options)`, `optionKey`,
+  `programBlock` (lava/FHA/credit rules). `loan-options.js` (kind 'choice', mount) stores `paperwork.options.{program,
+  downPaymentPct, termYears}`. Seeds `paperwork-house-options` (Katy), `paperwork-pahoa-house-options` (Lava Zone 1);
+  `SAMPLE_MORTGAGE_APPLICATION`. e2e `tests/e2e/mortgage-house.json` (on paperwork-house-start).
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 
