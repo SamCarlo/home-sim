@@ -52,3 +52,5 @@ scene /index.html?dev=scene
 props /index.html?dev=props
 styles /index.html?dev=styles
 buildings /index.html?dev=buildings&loc=hilo
+design-apartment-hilo /index.html?seed=design-apartment-hilo&theme=light
+design-condo-miami /index.html?seed=design-condo-miami

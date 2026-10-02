@@ -173,3 +173,12 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
 - 2026-10-02, task 35, buildings gallery: `?dev=buildings&all=1` shows 20 buildings at once (~510 draw calls, ~270k
   triangles), over the whole-scene budget; the three-building view per location stays within it (≤ 135 calls, ≤ 82k
   triangles). The gallery also takes `kind=apartment|condo`, `hl=<floor>[,<unit>]` and `seed=`. Where: `dev/buildingsGallery.js`.
+- 2026-10-02, task 36, extra home fields: besides 02 §2's `building {seed, index, name, floor, unit, traits}`, Move in stores
+  `building.form/unitName/amenities`, `traits.lotsOfStairs` and `home.address` ("Unit 4B · Kaiko Terrace · Hilo", the 07 §1
+  summary label). `home.lifestyle` has `stairs` and `gym` (07 §2 "stairs" and "+1 gym access") besides noise/view/nature/
+  social. Potted plants are charged at month −1 (`PAPERWORK_MONTH`, checking then savings, category 'lifestyle') because
+  life hasn't started. Where: `phases/design/apartmentModel.js` `moveIn`.
+- 2026-10-02, task 36, picker camera: the scene clamps pan to ±60 ft and the look-at height to 40 ft, but three buildings
+  span ~600 ft and towers reach 300 ft. The picker slides the building row so the chosen one sits at the lot center, and
+  `three/scene.js` gained `setPanLimits({half, yMax})` (defaults unchanged) so it can look up at a tall tower's chosen floor.
+  On buildings over 80 ft, choosing a floor frames that floor and a few around it. Where: `phases/design/pickerView.js`.

@@ -17,7 +17,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 
 ## Key rules (01 §3–§4)
 - **Pure modules** (`util/ data/ finance/ letters/ life/`, `state/{schema,migrate,summary}.js`, `phases/plan/preview2d/`,
-  `phases/design/blueprint/{model,validate,cost,templates}.js`, `phases/design/buildingPlan.js`): no DOM, `window`, `localStorage`, `three` or network;
+  `phases/design/blueprint/{model,validate,cost,templates}.js`, `phases/design/{buildingPlan,apartmentModel}.js`): no DOM, `window`, `localStorage`, `three` or network;
   relative imports only; importable from Node tests.
 - three.js, the spelling dictionary and Firebase load lazily with `import()`; login, intake and the plan table never pull them in.
 - Money is integer cents (format only at the UI edge with `util/format.js`); rates are decimals.
@@ -55,7 +55,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 ## Folder map
 ```
 app/index.html admin.html      entry pages (import map: three → vendor/, firebase/* → gstatic 12.19.0)
-app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css forms.css paperwork.css letters.css)
+app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css forms.css paperwork.css letters.css design.css)
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
@@ -69,7 +69,7 @@ app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScre
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles) · buildingsGallery.js (?dev=buildings)
+                               seeds.js (fixtures) · designSeeds.js (design-* seeds, addDesignSeeds) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles) · buildingsGallery.js (?dev=buildings)
 app/src/three/                 scene.js sky.js terrain.js landmarks.js materials.js · props.js propKit.js animals.js yard.js
                                character.js · styles.js styleParts.js styleSwatch.js · buildingGen.js buildingParts.js
                                (browser only, import() lazily; see 3D scene)
@@ -369,7 +369,7 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `<details>`), then the money; Continue/Back to planning runs `commitPaperwork`. Pure numbers in `resultsModel.js`
   `resultsSummary(state, decisions, {letters})` → `{approved, receive, payNow, monthly, loan, lease, insurance, cardTerms,
   ifYouDontPay, nextSteps}` (reuses commit's `recurringFor`; `tests/unit/results.test.js` checks it against commit). Seeds
-  `results-approved-house`, `results-denied-apartment` (decisions pre-stored). e2e `tests/e2e/paperwork-apartment-full.json`
+  `results-approved-house`, `results-denied-apartment` (decisions pre-stored). Design seeds: see Phase 3 below. e2e `tests/e2e/paperwork-apartment-full.json`
   (on paperwork-apartment-start; sets `meta.seed = 5` for an approving draw), `results-denied.json`.
 - Credit card (task 30, 05 §6, 09 §6): pure `finance/creditCard.js` `offerFor(state, {score?})` (tiers in `CREDIT.card`; secured
   under 640 or 600), `minimumPayment(balance, interest)`, `cycle(card, {chargesCents, payFrom, autopay?})` → `{statementCents,
@@ -430,6 +430,21 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   season})` → 08 §5 contract + `plan floorBands units setUnit(floor, unit)`; floors 1-based, units 0-based (row 0 = street).
   Form builders in `buildingParts.js`. Gallery `?dev=buildings&loc=&kind=apartment|condo&all=1&hl=<floor>[,<unit>]&seed=`
   (`window.__buildings` stats, `window.__pick(px, py)`); e2e `tests/e2e/buildings-pick.json`. Three buildings ≤ 135 calls.
+
+## Phase 3: Design (07, `app/src/phases/design/`)
+- `designScreen.js` routes by `home.kind`: apartment/condo → `apartmentPicker.js`; shared/house/build show placeholders
+  (tasks 38/41 add theirs to `PICKERS`).
+- Apartment/condo picker (task 36, 07 §2): pure `apartmentModel.js` `buildingOptions(state)` → 3 × `{index, seed
+  (seedFor(meta.seed, 'building', i)), name, plan, form, formLabel, amenities, floors}`; `unitTraits(locId, option, floor,
+  unit)` → `{view, noise −1…1, sun, stairs (flights), lotsOfStairs}`; `lifestyleFor`, `traitNotes`, `unitLabel` ("Unit 4B" /
+  "Townhome 3"), `addressLabel`, `plantsCost`; `moveIn(s, {index, floor, unit, plants})` charges plants (month −1, all or
+  nothing) → writes `home` (building, label, address, plants, lifestyle), life month 0 stage 'welcome', phase 'life';
+  the screen calls it with checkpoint 'design-finalized'. Tunables `config.DESIGN`. 3D in `pickerView.js`
+  `createPickerView(stage, {location, kind, options, onPick})` → `{focus(index|null, floor?), highlight, pickAt, clickAt,
+  screenOf, dispose}` (focusing slides the row; tall buildings zoom to the floor). `window.__design = {clickAt, screenOf,
+  info(), sel}` for e2e. CSS `styles/design.css` (`dz-`). Seeds `design-apartment-hilo`, `design-condo-miami`; e2e
+  `tests/e2e/design-apartment.json`.
+- `scene.setPanLimits({half, yMax})` widens the pan clamp (default ±`SCENE3D.lotHalf`, look-at y ≤ 40).
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

@@ -379,6 +379,28 @@ export const SCENE3D = {
   coastal: ['honolulu', 'kailua-kona', 'miami', 'halifax', 'homer'], // 08 §3 water plane
 };
 
+/** Phase 3 design (07 §1–§2, task 36). */
+export const DESIGN = {
+  plantCents: 2000,             // 07 §2: optional potted plants, $20 each, paid from savings/checking
+  maxPlants: 3,
+  plantKind: 'potted',          // three/props.js PLANT_KINDS
+  highFloorShare: 0.6,          // floors at or above this share of the home floors count as "high" (views, quiet)
+  lowFloors: 2,                 // floors 1–2 are "low" (louder)
+  stairsFloor: 3,               // no elevator above this floor → "lots of stairs"
+  // Which places can see what from a high floor (07 §2 "depending on the location").
+  oceanViews: ['hilo', 'kailua-kona', 'honolulu', 'miami', 'halifax', 'homer'],
+  mountainViews: ['pahoa', 'hilo', 'kailua-kona', 'waimea', 'honolulu', 'seattle', 'las-vegas', 'chattanooga', 'elkins',
+    'bisbee', 'homer', 'yellow-pine'],
+  // Amenity chances per building form (07 §2 tags). Towers/glass always have an elevator; walk-ups never do.
+  amenityOdds: {
+    walkup: { laundry: 0.7, parking: 0.5, elevator: 0, pool: 0.1, gym: 0, rooftop: 0.15 },
+    lowrise: { laundry: 0.9, parking: 0.8, elevator: 0.6, pool: 0.4, gym: 0.3, rooftop: 0.2 },
+    tower: { laundry: 0.9, parking: 0.7, elevator: 1, pool: 0.4, gym: 0.6, rooftop: 0.4 },
+    glass: { laundry: 1, parking: 0.8, elevator: 1, pool: 0.7, gym: 0.8, rooftop: 0.5 },
+    townhomes: { laundry: 1, parking: 1, elevator: 0, pool: 0.3, gym: 0, rooftop: 0 },
+  },
+};
+
 /** 08 §6–§7: props and the character. */
 export const CHARACTER3D = {
   walkSpeed: 4.5,               // ft/s when walkTo gets no duration (an easy walking pace)

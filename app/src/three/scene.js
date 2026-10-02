@@ -88,9 +88,10 @@ export function createScene(container, opts = {}) {
   });
 
   let disposed = false, pending = 0, loopId = 0, loopFn = null, lastT = 0, season = null;
+  const limits = { half: SCENE3D.lotHalf, yMax: 40 };
   const clampTarget = () => { // pan limited to the lot
-    const t = controls.target, L = SCENE3D.lotHalf;
-    const cx = THREE.MathUtils.clamp(t.x, -L, L), cy = THREE.MathUtils.clamp(t.y, 0, 40), cz = THREE.MathUtils.clamp(t.z, -L, L);
+    const t = controls.target, L = limits.half;
+    const cx = THREE.MathUtils.clamp(t.x, -L, L), cy = THREE.MathUtils.clamp(t.y, 0, limits.yMax), cz = THREE.MathUtils.clamp(t.z, -L, L);
     if (cx !== t.x || cy !== t.y || cz !== t.z) {
       camera.position.add(new THREE.Vector3(cx - t.x, cy - t.y, cz - t.z));
       t.set(cx, cy, cz);
@@ -166,6 +167,8 @@ export function createScene(container, opts = {}) {
       return dist;
     },
     requestRender,
+    /** Widen/narrow the pan clamp: half = ± ft around the lot center, yMax = highest look-at point (tall buildings). */
+    setPanLimits({ half = limits.half, yMax = limits.yMax } = {}) { limits.half = half; limits.yMax = yMax; return api; },
     /** Run loopFn(dt, seconds) every frame until stop(); pauses while the tab is hidden. */
     start(fn) { loopFn = fn; if (pending) { cancelAnimationFrame(pending); pending = 0; } if (!loopId && !document.hidden) loopId = requestAnimationFrame(tick); },
     stop() { loopFn = null; cancelAnimationFrame(loopId); loopId = 0; lastT = 0; requestRender(); },

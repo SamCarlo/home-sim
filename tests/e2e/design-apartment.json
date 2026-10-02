@@ -1,0 +1,23 @@
+[
+ {"waitReady": true},
+ {"assert": "document.querySelectorAll('.dz-bcard').length === 3 && document.querySelector('.dz-movein').disabled"},
+ {"shot": "tools/shots/t36/1-buildings.png"},
+ {"click": ".dz-bcard[data-index=\"1\"]"},
+ {"wait": 300},
+ {"eval": "(d => { const p = d.screenOf(1, 2); return d.clickAt(p.x, p.y); })(window.__design)"},
+ {"assert": "window.__design.sel.index === 1 && window.__design.sel.floor === 2 && document.querySelector('.dz-floor[data-floor=\"2\"]').classList.contains('is-on')"},
+ {"wait": 300},
+ {"shot": "tools/shots/t36/2-floor.png"},
+ {"click": ".dz-unit[data-unit=\"1\"]"},
+ {"click": ".dz-plant-add"},
+ {"click": ".dz-plant-add"},
+ {"assert": "document.querySelector('.dz-address').textContent === 'Unit 2B · ' + document.querySelectorAll('.dz-bname')[1].textContent + ' · Hilo' && document.querySelector('.dz-plant-count').textContent === '2' && !document.querySelector('.dz-movein').disabled"},
+ {"wait": 300},
+ {"shot": "tools/shots/t36/3-unit.png"},
+ {"eval": "(s => s.finances.checkingCents + s.finances.savingsCents)(window.__homesim.getState())"},
+ {"click": ".dz-movein"},
+ {"waitFor": ".placeholder .phase-tag"},
+ {"waitReady": true},
+ {"assert": "(s => s.phase === 'life' && s.home.building && s.home.building.index === 1 && s.home.building.floor === 2 && s.home.building.unit === 1 && s.home.label.startsWith('Unit 2B, ') && s.home.plants.length === 2 && s.home.lifestyle && typeof s.home.lifestyle.noise === 'number' && s.life.monthIndex === 0 && s.life.current.stage === 'welcome' && s.finances.transactions.some(t => t.label === 'Potted plants (2)' && t.month === -1))(window.__homesim.getState())"},
+ {"eval": "(s => ({cash: s.finances.checkingCents + s.finances.savingsCents, home: s.home}))(window.__homesim.getState())"}
+]

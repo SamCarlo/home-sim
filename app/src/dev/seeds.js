@@ -420,3 +420,7 @@ seeds['results-approved-house'] = { phase: 'paperwork',
 seeds['results-denied-apartment'] = { phase: 'paperwork',
   description: 'Hilo apartment: the lease is denied by the draw (82% chance); the card still opens; Back to planning.',
   build: withResults('paperwork-ready-apartment') };
+
+// Task 36+ design seeds (07 §6) live in designSeeds.js.
+import { addDesignSeeds } from './designSeeds.js';
+addDesignSeeds(seeds);

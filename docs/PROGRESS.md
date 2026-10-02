@@ -1261,3 +1261,39 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Buildings are 70–220 ft wide; three side by side need ~600 ft, beyond `SCENE3D.lotHalf` pan clamp (60); the picker
     should frame them with `sc.frame(box)` or show one at a time on small screens.
   - Loose ends: no lit/unlit window variation at night (all glow together); glass towers' balconies are subtle.
+## Task 36 — Phase 3: pick a building, floor and unit
+- attempt started 2026-10-02T11:51:58-10:00
+- done 2026-10-02T12:02:32-10:00
+- Files: `app/src/phases/design/apartmentModel.js` (new, pure: buildingOptions, amenitiesFor, unitTraits, lifestyleFor,
+  traitNotes, unitLabel/unitName, addressLabel, plantsCost, moveIn, BUILDING_NAMES), `phases/design/pickerView.js` (new,
+  3D half: three buildings in a row, focus/highlight/pick, e2e hooks), `phases/design/apartmentPicker.js` (new, screen),
+  `phases/design/designScreen.js` (routes by home kind; shared/house/build placeholders name tasks 38/41),
+  `three/scene.js` (+ `setPanLimits({half, yMax})`), `config.js` (+ `DESIGN`), `styles/design.css` (new, linked in
+  index.html), `dev/designSeeds.js` (new; `design-apartment-hilo`, `design-condo-miami`, registered from the end of
+  seeds.js), `tools/smoke.txt` (+2), `tests/unit/apartmentModel.test.js`, `tests/e2e/design-apartment.json`.
+- Verified: `bash tools/check.sh` OK (163 files, tests, data 11, smoke 54/54); `node tools/shoot.mjs --path
+  '/index.html?seed=design-apartment-hilo&theme=light' --steps tests/e2e/design-apartment.json` OK (card → building 1,
+  a 3D click on floor 2 selects it, unit 2B, 2 plants, Move in → phase life, home.building {index 1, floor 2, unit 1},
+  2 plants, $40 "Potted plants (2)" at month −1, life.current.stage 'welcome'). Re-ran paperwork-apartment-full.json and
+  buildings-pick.json: OK. Shots in tools/shots/t36/ (all read):
+  - 1-buildings.png: Hilo overview, three plantation walk-ups side by side with name tags (Hale Moana, Kilohana Place,
+    Waiākea Gardens), building cards with amenity chips, Move in disabled. 85 calls / 99k tris.
+  - 2-floor.png: Kilohana Place slid to the middle and framed, floor 2 glows sky blue; floor buttons 1–4, unit cards below.
+  - 3-unit.png: one unit (2B) glows; panel scrolled to the plants stepper (2), "Your home" card "Unit 2B · Kilohana Place
+    · Hilo · Street view · Noisy · Morning sun · 1 flight of stairs", Plants $40, Move in enabled.
+  - 4-condo-overview.png (dark): three Miami glass towers (20–29 floors) by the bay, chips incl. Elevator/Pool/Gym.
+  - 5-condo-unit.png: camera frames floor 26 of The Alder (tall-building floor zoom); unit 26A glows. 25 calls.
+  - 6-narrow.png (600×900): single-column layout, floor 3 selected, unit cards in two columns.
+  - Fixed after looking: right building clipped in the overview (padding), floor 26 out of view (pan y clamp 40 → new
+    setPanLimits + floor framing), tags overlapping the hint when focused (tags only in the overview).
+- Deviations: home extra fields; scene setPanLimits; row slides instead of the camera; plants paid month −1 (DEVIATIONS.md).
+- Notes for later tasks:
+  - `home.building = {seed, index, name, form, floor, unit, unitName, amenities, traits {view, noise, sun, stairs,
+    lotsOfStairs}}`; `home.address` = "Unit 4B · Kaiko Terrace · Hilo"; `home.lifestyle = {noise, view, nature, social,
+    stairs, gym}`. Task 42's homeRender: `generate({style, variant, settlement, kind, seed: home.building.seed, unit:
+    {floor, unit}})` puts plantSpots on the chosen balcony. Task 43: `lifestyle.stairs` → `LIFE.chores.walkUp`; `gym` = +1 gym access.
+  - `buildingOptions(state)` is deterministic from `meta.seed`, so the picker and any later re-render agree.
+  - Design seeds commit a ready paperwork seed through `commitPaperwork` (designSeeds.js `designFrom`; it tries save
+    seeds until the draw approves). Tasks 38/41 add their seeds the same way in `addDesignSeeds`.
+  - Loose ends: no 3D potted plants on the balcony yet (task 42); long tower floor lists are a button grid; on phones the
+    auto-scroll to the next step moves the 3D view off screen.
