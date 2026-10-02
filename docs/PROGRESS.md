@@ -1144,3 +1144,43 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - The default camera looks from front-right (`SCENE3D.viewDir`); terrain keeps that foreground clear and turns the
     landmark backdrop to sit behind the lot. Water is on the −X edge.
   - three/*.js import `three` statically, so they can't load in Node tests; keep pure logic elsewhere if it needs tests.
+
+## Task 33 — 3D props, animals and the character
+- attempt started 2026-10-02T08:01:46-10:00
+
+## Task 33 — 3D props, animals and the character
+- attempt started 2026-10-02T09:33:48-10:00
+- done 2026-10-02T09:43:00-10:00 (2nd attempt; the 1st left props.js + propKit.js uncommitted, kept and finished)
+- Files: `app/src/three/propKit.js` (PAL, m, geo, merged, pivot, triangleCount, instanceProp, seasonKey), `three/props.js`
+  (createPlant/setPlantHealth, createTree/setTreeSeason, TREE_KINDS, PLANT_KINDS; re-exports animals + yard),
+  `three/animals.js` (createAnimal, ANIMAL_KINDS), `three/yard.js` (garden bed, coop, catchment tank, solar array, fence,
+  car, bus stop, mailbox, woodpile, windmill, street lamp, slippers), `three/character.js` (createCharacter,
+  characterColors), `dev/propsGallery.js` + `dev/galleries.js` (props), `config.js` (`CHARACTER3D`, `PROPS3D`),
+  `tools/smoke.txt` (+props).
+- Verified: `bash tools/check.sh` OK (151 files, tests, data 11, smoke 50/50). Shots in tools/shots/t33/:
+  - all.png (`?dev=props`, June): three rows of 15 trees, two rows of yard items, the small row of animals/plants/character.
+  - animals.png (`&focus=animals`): white chicken with red comb, orange cat with raised tail, brown dog with floppy ears,
+    white goat with horns and beard; potted/vegetable/flower plants green and upright, the wilted row brown and drooping;
+    blue slippers.
+  - character-walk.png (`&focus=character&walk=1`, after 1.7 s): the figure mid-stride, legs apart, arms swinging, facing its
+    direction of travel (leg-l rotation 0.30 rad at the shot).
+  - trees-fall.png (`&month=9`): red maple, yellow birch, orange oak, gold apple; evergreens/tropicals unchanged.
+  - trees-winter.png (`&month=0`): snow ground, maple/oak/birch/apple bare (trunk + limbs), apple fruit hidden.
+- Triangles per prop (budget: tree 300, animal 400; all within): palm 224, banana 112, ohia 268, monkeypod 224, pine 72,
+  spruce 88, maple 224, birch 172, oak 272, mango 232, citrus 168, apple 248, fig 268, cactus 188, agave 108 ·
+  chicken 184, cat 176, dog 196, goat 252 · potted 128, vegetable 84, flower 124 (wilted 144) · garden bed 564 (with 6
+  instanced vegetable plants), coop 128, catchment 10k gal 312, solar 4 kW 420, fence 96, car ~268, bus stop 144, mailbox 88,
+  woodpile 576, windmill 432, street lamp 120, slippers 128 · character 292.
+- Deviations (DEVIATIONS.md): the character is 5.6 units tall (08 §7's "1.7 units" is metres; 1 unit = 1 ft); the gallery
+  scene itself is over the draw-call budget (~200–290 calls) because it shows ~40 props at once.
+- Notes for later tasks:
+  - Every prop: base on y = 0, front +Z, feet. `merged(build)` → one mesh per material; parts that move are `pivot()` groups.
+  - Animals: `createAnimal(kind, {color})`; call `obj.userData.idle(seconds)` from the scene loop. Windmill has `idle` too;
+    the street lamp has `userData.setNight(f)` (pass `sc.nightFactor`).
+  - Trees: `createTree(kind, {season: sc.season})`, later `setTreeSeason(tree, sc.season)` on month change.
+  - Repeated vegetation: `instanceProp(proto, [{x, y, z, ry, s}])` (one InstancedMesh per visible proto mesh; shares
+    materials). Use it for hedges/orchards in task 37/42 to stay under 150 calls.
+  - Character: `ch = createCharacter(characterColors(seedFor(meta.seed, 'character')))`; `sc.start((dt) => ch.update(dt))`;
+    `await ch.walkTo(home.path, ms)` resolves true on arrival, false if interrupted (new walkTo or setVisible(false)).
+  - `Box3.setFromObject` before the first render needs `scene.updateMatrixWorld(true)` first (merged meshes have
+    matrixAutoUpdate off and parents' matrixWorld is stale) or the box comes out empty / at the origin.

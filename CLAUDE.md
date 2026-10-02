@@ -69,8 +69,9 @@ app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScre
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene)
-app/src/three/                 scene.js sky.js terrain.js landmarks.js materials.js (browser only, import() lazily; see 3D scene)
+                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props)
+app/src/three/                 scene.js sky.js terrain.js landmarks.js materials.js · props.js propKit.js animals.js yard.js
+                               character.js (browser only, import() lazily; see 3D scene)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
                                paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
@@ -398,6 +399,19 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   receiveShadow})` (one merged mesh per material), `disposeMaterials()` (called by `dispose`).
 - Gallery `?dev=scene&biome=&t=&month=&landmark=&loc=` shows calls/triangles vs the budget; `window.__scene` is the handle.
   Current scenes: 9–18 draw calls, ≤ 13.5k triangles.
+- Props (task 33, 08 §6): `props.js` is the one import: `createPlant(kind, {healthy})` / `setPlantHealth`, `createTree(kind,
+  {season})` / `setTreeSeason` (`TREE_KINDS` 15; season = 'spring'|'summer'|'fall'|'winter' or `sc.season`; deciduous go
+  bare in snow), `createAnimal(kind, {color})` (`ANIMAL_KINDS`; `userData.idle(seconds)`), yard items `createGardenBed
+  createCoop createCatchmentTank(gal) createSolarArray(kw) createFence(points) createCar(color) createBusStop createMailbox
+  createWoodpile createWindmill (idle) createStreetLamp (userData.setNight) createSlippers`, `triangleCount(obj)`,
+  `instanceProp(proto, [{x,y,z,ry,s}])`. Base on y = 0, front +Z, feet. Build new props with `propKit.js` `merged((add) =>
+  add(geoKey, material, {x,y,z,yaw,pitch,roll,s|sx,sy,sz}))` (keys ball0 ball1 dodec oct box (base at 0) cbox (centered)
+  leaf prism cyl<n>[:top] cone<n>), `m(paletteKey | css)` and `pivot(name, [x,y,z], ...children)` for moving parts.
+  Budgets in `config.PROPS3D` (tree 300, animal 400 triangles).
+- Character (08 §7): `character.js` `createCharacter({shirt, pants, skin, hair})` → `{object, colors, walking, walkTo(points,
+  ms?) → Promise<bool>, setVisible, update(dt)}`; 5.6 ft tall; `characterColors(seed)` for seeded defaults; speeds in
+  `config.CHARACTER3D`. Gallery `?dev=props&focus=all|trees|yard|animals|plants|character&month=&walk=1&anim=1&decor=1`
+  (`window.__props` = triangle counts).
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
@@ -412,6 +426,7 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 - `store.replace(state)` swaps the whole state (seed load, reset) as a checkpoint. Listeners get `(state, {checkpoint, prev})`.
 - `shoot.mjs` uses a top-level `await`: module-level `const`s it needs must be declared *above* that block (TDZ).
 - three r186 has no `PCFSoftShadowMap` (warns and falls back); use `PCFShadowMap`.
+- `Box3.setFromObject` before the first render: call `scene.updateMatrixWorld(true)` first, or the box is empty/at the origin.
 - The OS on this machine prefers dark, so plain headless shots come out dark; pass `?theme=light` for light.
 
 ## Current status

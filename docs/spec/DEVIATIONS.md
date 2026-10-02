@@ -150,3 +150,12 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
 - 2026-10-02, task 32, terrain size: decorations fill the 400 × 400 ft area of 08 §3, but the plain ground plane is
   1,800 ft so the horizon never shows an edge; landmarks are merged backdrops scaled by `SCENE3D.backdrop` and turned to
   sit behind the lot in the default view. Landmark builders live in their own `three/landmarks.js`. Where: `three/terrain.js`.
+- 2026-10-02, task 33, character height: 08 §7 says "~1.7 units = 5.6 ft", but 08 §1 sets 1 unit = 1 ft, so the
+  figure is 5.6 units tall (1.7 is the height in metres). Where: `three/character.js`.
+- 2026-10-02, task 33, props gallery draw calls: `?dev=props` shows ~40 props at once (one mesh per material each), so the
+  gallery scene runs ~200–290 draw calls, over the 150 whole-scene budget. Each prop is 1–6 calls; a home scene uses a few
+  props and should instance repeats with `instanceProp`. The gallery hides the terrain's own trees (`&decor=1` keeps them).
+  Where: `dev/propsGallery.js`.
+- 2026-10-02, task 33, prop extras: besides 08 §6, `createAnimal(kind, {color})` takes a coat color, `setTreeSeason(tree,
+  season)` recolors/bares a tree after creation, and the windmill (`idle`) and street lamp (`setNight`) have hooks.
+  Where: `three/animals.js`, `three/props.js`, `three/yard.js`.

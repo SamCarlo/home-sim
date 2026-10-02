@@ -378,3 +378,14 @@ export const SCENE3D = {
   budget: { drawCalls: 150, triangles: 120000 },
   coastal: ['honolulu', 'kailua-kona', 'miami', 'halifax', 'homer'], // 08 §3 water plane
 };
+
+/** 08 §6–§7: props and the character. */
+export const CHARACTER3D = {
+  walkSpeed: 4.5,               // ft/s when walkTo gets no duration (an easy walking pace)
+  stride: 2.2,                  // ft per step; sets the leg-swing rate
+  swing: 0.55,                  // max leg swing in radians (arms swing 80% of it)
+};
+
+export const PROPS3D = {
+  budget: { tree: 300, animal: 400 }, // 08 §5 triangles per prop
+};
