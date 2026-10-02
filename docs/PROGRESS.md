@@ -521,3 +521,36 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     handles Esc/Tab/focus), restores focus to the opener. Reuse for the portfolio (17) and paperwork dialogs.
   - `ui/icons.js` `icon(key)` has the metric keys plus 'water' and 'hazard'; add more there.
   - `data/metrics.js` still carries emoji `icon` fields; the panel ignores them in favor of the SVGs.
+
+## Task 16 — Ledger and credit-score model
+- attempt started 2026-10-01T17:27:53-10:00
+- done 2026-10-01T17:32:43-10:00
+- Added: `app/src/finance/ledger.js` (post, charge, transfer, available, accountValue, recurring add/update/remove/
+  recurringFor, openLoan, payLoan, closeLoan, pmiSource; re-exports the two below), `finance/ledgerRecords.js`
+  (agreements, applications, markUpfrontPaid, unpaidUpfront), `finance/ledgerTotals.js` (cash, netWorth, ledgerSums,
+  monthTotalsOf, compactHistory), `finance/creditScore.js` (initialCredit, utilization, adjustScore, recordInquiry,
+  monthlyUpdate), `tests/unit/ledger.test.js` (13 tests), `tests/unit/creditScore.test.js` (6 tests).
+  Changed: `state/summary.js` now re-exports cash/net worth from ledgerTotals (one definition); CLAUDE.md (Ledger section,
+  folder map); DEVIATIONS.
+- Verified:
+  - `npm test` → "ℹ tests 115 · ℹ pass 115 · ℹ fail 0" (19 new: balances vs transactions invariant through mixed ops and
+    compaction, checking→savings spill, all-or-nothing refusal, card limits, transfers, a full 360-month payoff matching
+    `amortizationSchedule` row by row, PMI dropping at the first month ≤ 78% of price and removing its recurring line,
+    compaction keeping month −1 + last 24 months, credit +3/+1/−10/−25/−60, inquiry recovery after 12 months, clamping
+    at 300 and 850).
+  - `bash tools/check.sh` → "check: OK (syntax 68 files · tests · data 10 files · smoke) in 21s" (smoke 12/12).
+  - No screenshots: no UI in this task.
+- Deviations: optional shape additions (paidUpfront, monthTotals.byAccount, extra loan fields), see DEVIATIONS.
+  Judgment calls: functions mutate the draft and return results (store.update convention), not new states; charge is
+  all-or-nothing (a partial payment would blur "missed payment"); payLoan only amortizes and doesn't move cash (the month
+  sim charges the housing recurring item, then calls payLoan when it was paid); an inquiry is recovered when it's strictly
+  more than 12 months old; the on-time bonus also resets lateHousingStreak.
+- Notes for later tasks:
+  - Task 19/31 (paperwork/commit): charge fees with `charge(s, 'savings', cents, {month: PAPERWORK_MONTH, …})` then
+    `markUpfrontPaid(s, lineKey, cents)`; at commit charge `unpaidUpfront(s)`. Tag the PMI recurring item with
+    `source: pmiSource(loan.id)` so payLoan removes it. Pass `priceCents` to openLoan (net worth falls back on it); better
+    still, set `home.purchasePriceCents`.
+  - Task 44 (month sim): `charge(s, ['checking','savings','card'], …)` for living/lifestyle/events, plain 'checking' for
+    housing (never the card); a {ok:false} is a missed payment. Then `monthlyUpdate` with `utilization(s)` and
+    `housingMissed`, and `compactHistory(s, {currentMonth})` at month end.
+  - Task 17 (portfolio): `monthTotals` has income/expense/byCategory for months older than 24.

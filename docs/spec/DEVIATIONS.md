@@ -16,3 +16,9 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   also needs ≥ 720 px of window height (`WIDE` media query in `phases/plan/planScreen.js`). Under that, the table frame is
   only ~350 px tall and the inline panel is cramped, so shorter windows get the sheet. 1366×768 and 1024×768 stay inline;
   the task's 900×700 check shows the sheet.
+- **2026-10-01, task 16**: small additions to the 02 §2 shape, no version bump (all optional, created lazily):
+  `paperwork.paidUpfront {lineKey: cents}` (which upfront lines were paid during paperwork, for `unpaidUpfront`);
+  `monthTotals[].byAccount` (so compacted months still reconcile with balances); loans also carry `priceCents`,
+  `paymentsMade`, `interestPaidCents`, `lastPaidMonth`, `paidOffMonth`, `pmiDroppedMonth`, `closedMonth/closedReason`;
+  credit `inquiries[]` are `{kind, month, recovered}`. Code: `finance/ledger.js`, `ledgerRecords.js`, `ledgerTotals.js`,
+  `creditScore.js`.

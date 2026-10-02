@@ -1,24 +1,11 @@
-// Admin-table summary of a save (02 §5). Pure, defensive: works on partial states. The ledger comes later.
+// Admin-table summary of a save (02 §5). Pure, defensive: works on partial states.
 import { monthLabel } from '../util/dates.js';
+import { cash as cashCents, netWorth as netWorthCents } from '../finance/ledgerTotals.js';
 
 const num = (v) => (Number.isFinite(v) ? v : 0);
 
-/** Cash = checking + savings (02 §2). */
-export function cashCents(state) {
-  const f = state?.finances || {};
-  return num(f.checkingCents) + num(f.savingsCents);
-}
-
-/** Net worth = cash + investments + home equity (price − loan balances) − card balance (02 §2). */
-export function netWorthCents(state) {
-  const f = state?.finances || {};
-  const inv = Object.values(f.investments || {}).reduce((s, p) => s + num(p?.valueCents), 0);
-  const loans = (f.loans || []).reduce((s, l) => s + num(l?.balanceCents), 0);
-  const owns = ['house', 'build', 'condo'].includes(state?.choice?.homeTypeId);
-  const price = owns ? num(state?.home?.purchasePriceCents ?? state?.choice?.snapshot?.priceCents) : 0;
-  const equity = owns ? price - loans : -loans;
-  return cashCents(state) + inv + equity - num(f.creditCard?.balanceCents);
-}
+/** Cash and net worth (02 §2) are defined once, in the ledger. */
+export { cash as cashCents, netWorth as netWorthCents } from '../finance/ledgerTotals.js';
 
 /** The one-row summary written next to a save for the admin table. */
 export function summarize(state) {

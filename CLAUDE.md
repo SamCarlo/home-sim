@@ -58,7 +58,8 @@ app/styles/                    tokens.css base.css components.css (+ one file pe
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
-app/src/finance/               money.js loans.js costs.js affordability.js grid.js (pure; see Finance helpers, Plan numbers)
+app/src/finance/               money.js loans.js costs.js affordability.js grid.js · ledger.js (+ ledgerRecords.js
+                               ledgerTotals.js) creditScore.js (pure; see Finance helpers, Plan numbers, Ledger)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
@@ -106,6 +107,40 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
   `fhaLoan({priceCents, downPct?, annualRate?, months?})` (`config.FINANCE.fha`) · `constructionInterestReserve({loanCents,
   rate?, months, avgDrawnPct?})` · `cardPayoff({balanceCents, apr, minRule?})` → `{months, interestCents}`
   (`DEFAULT_MIN_RULE` = max($25, 1% + interest); Infinity if the minimum never covers interest).
+
+## Ledger and credit (02 §2–§3, §6; 09 §6; `app/src/finance/`, pure)
+**Money moves only through `finance/ledger.js`.** Every function mutates the state it's given (a `store.update` draft)
+and returns a result, never a new state. Accounts `'checking' | 'savings' | 'card'`; a transaction's `amountCents` is +in /
+−out, and on the card −amount = a purchase (balance owed up), +amount = a payment. Paperwork money uses month −1
+(`PAPERWORK_MONTH`). Ids: transactions `t<n>`, recurring `r<n>`, loans `loan<n>`, agreements `ag<n>`, applications `app<n>`.
+- Money: `post(s, {month, day?, label, amountCents, account, category})` → txn (never refuses; balances may go negative) ·
+  `charge(s, account | [accounts], cents, {month, day?, label, category})` → `{ok, shortfallCents, txns}`; 'checking' draws
+  checking → savings, 'savings' savings → checking, 'card' only the unused limit, or pass an order like
+  `['checking', 'savings', 'card']`; **all or nothing** (short → nothing changes) · `transfer(s, from, to, cents, meta)` →
+  `{ok, shortfallCents}` (category 'transfer'; to 'card' = card payment; from 'card' throws) · `available(s, account)` ·
+  `accountValue(s, account)`.
+- Recurring: `addRecurring(s, {label, amountCents, category, source, startsMonth, endsMonth?})` → item ·
+  `updateRecurring(s, id, patch)` · `removeRecurring(s, id)` · `recurringFor(s, month)`.
+- Loans: `openLoan(s, {kind, label, lender, principalCents, rate, termMonths, startMonth, priceCents, pmiCents?, escrow?})`
+  (payment = `pmt`, `pmiUntilBalanceCents` = 78% of priceCents) · `payLoan(s, loanId, month)` → `{paymentCents,
+  interestCents, principalCents, balanceCents, pmiDropped, paidOff}` or null; it only amortizes, **the cash is charged by
+  the caller** (the housing recurring item). PMI drops at ≤ 78% and removes recurring items with `source: pmiSource(loanId)`
+  (= `pmi:<loanId>`), so commit should tag the PMI line that way. The last scheduled payment clears rounding (matches
+  `amortizationSchedule`). `closeLoan(s, id, month, reason)` (foreclosure).
+- Records (`ledgerRecords.js`, re-exported): `addAgreement` (status 'pending') · `setAgreementStatus(s, id, status)` ·
+  `addApplication(s, {kind, target, feeCents, at})` (pending; charge the fee separately) · `resolveApplication(s, id,
+  {approved, reasons})` · `markUpfrontPaid(s, lineKey, cents)` (cellCost line keys: 'application', 'inspection',
+  'appraisal', 'permit'…; stored in `paperwork.paidUpfront`) · `unpaidUpfront(s)` → snapshot upfront lines minus paid.
+- Totals (`ledgerTotals.js`, re-exported; `state/summary.js` uses them): `cash(s)`, `netWorth(s)` (equity uses
+  `home.purchasePriceCents`, else `choice.snapshot.priceCents`, else the open loans' `priceCents`) ·
+  `ledgerSums(s)` (per-account sum of raw + compacted txns; `accountValue − ledgerSums` never changes) ·
+  `compactHistory(s, {currentMonth?, keep = 24})` folds older lived months into `monthTotals` `{month, incomeCents,
+  expenseCents, byCategory, byAccount}` (transfers excluded from income/expense); month −1 is always kept.
+- `creditScore.js` (mutates `finances.credit`; each change logs `{month, delta, score, reasons}` in `history`, clamped
+  300–850): `initialCredit()` · `recordInquiry(s, kind, month)` (−5; +5 back once it's > 12 months old) ·
+  `monthlyUpdate(s, {allOnTime, missedCount, utilization, month, housingMissed?})` (+3 / +1 above 750, −10 / −25
+  utilization, −60 per miss, streaks incl. `lateHousingStreak`) · `adjustScore(s, delta, reasons, month)` (e.g. foreclosure
+  −150) · `utilization(s)`.
 
 ## Location data (03, `app/src/data/`, pure)
 - `locations/index.js`: `LOCATIONS` (03 §1 order), `byId`, `REGION_LABELS`. Records follow 03 §2 exactly; money is cents
