@@ -22,3 +22,8 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   `paymentsMade`, `interestPaidCents`, `lastPaidMonth`, `paidOffMonth`, `pmiDroppedMonth`, `closedMonth/closedReason`;
   credit `inquiries[]` are `{kind, month, recovered}`. Code: `finance/ledger.js`, `ledgerRecords.js`, `ledgerTotals.js`,
   `creditScore.js`.
+- **2026-10-01, task 17**: the spec asks for a credit gauge "with a band label" but names no bands. Added
+  `CREDIT.bands` in `config.js` (FICO-style: Poor < 580, Fair 580–669, Good 670–739, Very good 740–799, Excellent 800+)
+  and `creditBand(score)` in `finance/creditScore.js`. Restart (Settings) keeps the player's settings as well as the
+  account, so a dark-mode or reduced-motion choice survives. A dev `?theme=` override lasts until the player picks a
+  theme in Settings. The drawer is built on `ui/modal.js` (shared stack) rather than separate drawer code.

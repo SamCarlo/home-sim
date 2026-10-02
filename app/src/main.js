@@ -13,6 +13,7 @@ import { createStore } from './state/store.js';
 import { attach } from './state/persistence.js';
 import { createLocalAdapter } from './persistence/local.js';
 import { selectProvider } from './accounts/provider.js';
+import { applySettings } from './ui/portfolio/settings.js';
 
 registerScreen('login', () => import('./accounts/ui/login.js'));
 registerScreen('intake', () => import('./phases/intake/intakeScreen.js'));
@@ -26,7 +27,9 @@ const devAllowed = isDevAllowed();
 const firebaseMode = FIREBASE_ENABLED && !params.has('adapter') && !params.has('seed');
 const dev = { allowed: devAllowed, params, firebaseMode };
 
-applyTheme(devAllowed ? params.get('theme') : null);
+// ?theme=light|dark (dev) wins over settings.theme until the player picks a theme in Settings.
+let themeOverride = devAllowed && ['light', 'dark'].includes(params.get('theme')) ? params.get('theme') : null;
+applySettings(null, { themeOverride });
 installErrorBoundary();
 boot().catch(showError);
 
@@ -62,6 +65,7 @@ async function boot() {
       g.devPanel?.();
     }
     unmountCurrent(main);
+    applySettings(null, { themeOverride });
     await accounts.logout();
     await showLogin();
   };
@@ -76,23 +80,42 @@ async function boot() {
     const ctx = { store, accounts, persistence, config, user, dev };
     let shownPhase = null;
     let header = null;
+    let portfolio = null;
+    /** Open the portfolio drawer (task 17); a second press while it's open does nothing. */
+    const openPortfolioDrawer = async (tab) => {
+      if (portfolio) return;
+      const { openPortfolio } = await import('./ui/portfolio/index.js');
+      portfolio = openPortfolio({ store, user, tab, onClose: () => { portfolio = null; } });
+    };
     const render = async (force = false) => {
       if (game?.store !== store) return;
       const { phase } = store.getState();
       if (phase === shownPhase && !force) return;
       shownPhase = phase;
       header?.destroy();
-      header = renderHeader(phase, { user, persistence, onLogout: () => logout().catch(showError) });
+      portfolio?.close();
+      header = renderHeader(phase, { user, persistence, onLogout: () => logout().catch(showError),
+        onPortfolio: phase === 'intake' ? null : () => openPortfolioDrawer().catch(showError) });
       clear(root);
       root.append(header, main);
       await renderPhase(main, ctx);
     };
-    const unsub = store.subscribe(() => render().catch(showError));
+    applySettings(state.settings, { themeOverride });
+    const unsub = store.subscribe((s, { prev }) => {
+      if (s.settings?.theme !== prev?.settings?.theme) themeOverride = null;
+      applySettings(s.settings, { themeOverride });
+      render().catch(showError);
+    });
     game = { store, persistence, user, unsubscribe: () => { unsub(); header?.destroy(); } };
     if (devAllowed) {
       window.__homesim = { store, getState: store.getState, update: store.update, seeds, version: STATE_VERSION, persistence, accounts, user };
     }
     await render();
+    // ?open=portfolio (dev, task 17) opens the drawer on load; &tab=<id> picks the tab.
+    if (devAllowed && params.get('open') === 'portfolio' && store.getState().phase !== 'intake') {
+      root.querySelector('.header-portfolio')?.focus(); // so closing returns focus there, as after a click
+      await openPortfolioDrawer(params.get('tab') || undefined);
+    }
     if (devAllowed && params.get('dev') === '1') {
       const { mountDevPanel } = await import('./dev/devPanel.js');
       game.devPanel = mountDevPanel({ store, persistence, user, rerender: () => render(true).catch(showError) });
@@ -107,11 +130,6 @@ async function boot() {
   const user = accounts.current();
   if (user) return startGame(user);
   return showLogin();
-}
-
-/** ?theme=light|dark (dev) overrides the OS setting; settings.theme takes over in a later task. */
-function applyTheme(theme) {
-  if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
 }
 
 function installErrorBoundary() {

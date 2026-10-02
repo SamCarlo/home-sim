@@ -73,6 +73,13 @@ export const CREDIT = {
   utilizationHighPct: 0.60,  utilizationHighCost: 25,
   missedPaymentCost: 60,
   foreclosureCost: 150,
+  bands: [                       // portfolio gauge label (task 17), FICO-style ranges; first minScore ≤ score wins
+    { minScore: 800, key: 'excellent', label: 'Excellent', status: 'green' },
+    { minScore: 740, key: 'very-good', label: 'Very good', status: 'green' },
+    { minScore: 670, key: 'good', label: 'Good', status: 'cyan' },
+    { minScore: 580, key: 'fair', label: 'Fair', status: 'yellow' },
+    { minScore: 0, key: 'poor', label: 'Poor', status: 'red' },
+  ],
   card: {
     tiers: [                     // first match by minimum score wins
       { minScore: 700, kind: 'regular', limitCents: 150000, apr: 0.2299 },

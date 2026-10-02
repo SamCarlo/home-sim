@@ -554,3 +554,36 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     housing (never the card); a {ok:false} is a missed payment. Then `monthlyUpdate` with `utilization(s)` and
     `housingMissed`, and `compactHistory(s, {currentMonth})` at month end.
   - Task 17 (portfolio): `monthTotals` has income/expense/byCategory for months older than 24.
+
+## Task 17 — Portfolio drawer and settings
+- attempt started 2026-10-01T18:13:45-10:00
+- done 2026-10-01T18:20:13-10:00
+- Added: `app/src/ui/drawer.js` (openDrawer, left slide-over on the modal stack), `app/src/ui/portfolio/` (index.js
+  tabs shell + `openPortfolio`, portfolioModel.js pure view model, accounts.js, records.js, credit.js, settings.js
+  incl. `applySettings`, parts.js), `app/styles/portfolio.css`, `tests/unit/portfolio.test.js` (5 tests),
+  `tests/e2e/portfolio.json`, `tests/e2e/portfolio-restart.json`. Changed: `main.js` (Portfolio button enabled after
+  intake, settings → data-theme/data-reduced-motion, `?open=portfolio&tab=<id>`), `config.js` (`CREDIT.bands`),
+  `creditScore.js` (`creditBand`), `dev/seeds.js` (`portfolio-demo`), `components.css` (old unused right-drawer CSS
+  replaced), `index.html` (portfolio.css), `tools/smoke.txt`, CLAUDE.md, DEVIATIONS.
+- Verified:
+  - `npm test` → 120 pass, 0 fail. `bash tools/check.sh` → "check: OK (syntax 76 files · tests · data 10 files · smoke) in 22s", smoke 13/13.
+  - `node tools/shoot.mjs --path '/index.html?seed=portfolio-demo&open=portfolio&theme=light' --steps tests/e2e/portfolio.json` ✓
+    (asserts: picking Dark sets data-theme + settings.theme and keeps focus on the radio; Esc closes and focus returns to
+    the Portfolio button; arrow keys move between tabs). Shots in tools/shots/t17/:
+    - 1-accounts: cash $18,720.33 / net worth $61,831.38 tiles, bank, card with "⚠ 38% of the limit" chip, mortgage card.
+    - 2-expenses: Housing / Utilities / Food / Transportation tables with per-category totals.
+    - 3b-agreement-open: mortgage agreement, "✓ Active" chip, summary, terms and filled-in values, read-only note.
+    - 4-letter-open: cover letter with To/Sent/score rows and the text on a plumeria card.
+    - 5-applications: three cards with ✕ Denied / ✓ Approved chips, fee, date and reasons.
+    - 6-credit / 8-credit-dark: 300–850 gauge in band colors, needle at 669, "Fair (580–669)", history newest first.
+    - 7-settings: theme pills, two toggles, speed 1×/2×/4×, red Restart button.
+    - smoke-portfolio-demo: the accounts tab in dark mode, readable.
+  - `tests/e2e/portfolio-restart.json` ✓: Esc on the first confirm keeps the game; two confirms → phase intake, drawer
+    closed, account kept, Portfolio disabled (shots 10-restart-confirm2, 11-after-restart show the confirm over the drawer and the intake screen).
+- Deviations: `CREDIT.bands` (FICO-style ranges, not in the spec); restart keeps settings as well as the account. See DEVIATIONS.
+- Notes for later tasks:
+  - Task 18: replace the agreement detail key/value block in `ui/portfolio/records.js` `renderAgreements` with the read-only form render.
+  - Task 28: the letter detail (`renderLetters`) is where the score report goes.
+  - Tasks 42–46: read `settings.reducedMotion` (also mirrored as `html[data-reduced-motion]`), `longCareWindow`, `animationSpeed`.
+  - The drawer re-renders its open tab on every store change; tab renderers must stay cheap and side-effect free.
+  - Automatic expenses filter to the current month only in phase 'life'; elsewhere they list everything.

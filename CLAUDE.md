@@ -54,7 +54,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 ## Folder map
 ```
 app/index.html admin.html      entry pages (import map: three → vendor/, firebase/* → gstatic 12.19.0)
-app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css)
+app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css)
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
@@ -63,7 +63,8 @@ app/src/finance/               money.js loans.js costs.js affordability.js grid.
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
-                               modal.js (openModal, confirmDialog) · icons.js
+                               modal.js (openModal, confirmDialog) · icons.js · drawer.js (openDrawer) ·
+                               portfolio/ (index.js openPortfolio + tabs; portfolioModel.js pure; settings.js applySettings)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
                                seeds.js (fixtures) · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
@@ -173,13 +174,22 @@ and returns a result, never a new state. Accounts `'checking' | 'savings' | 'car
   `baseState(now)`; `afterIntake(s, {netMonthlyIncomeCents, startingSavingsCents})` gives a plan-phase player.
   `tests/unit/state.test.js` validates every registered seed automatically. Current: `fresh`, `plan-comfortable`,
   `plan-tight`, `plan-rich`, `plan-after-denial` (denied Hilo apartment, $50 fee spent), `plan-detail-open` (same, Hilo
-  apartment panel open).
+  apartment panel open), `portfolio-demo` (phase life, April 2033: Hilo house, mortgage with PMI, card, 11 bills,
+  4 agreements, 2 scored letters, 3 applications, credit history).
 - Calendar: `util/dates.js` `monthLabel/monthName/daysInMonth/weekday (0 = Sunday)/dayLabel`. Jan 1, 2033 is a Saturday.
 - Save indicator: `renderSaveStatus(persistence.status)` from `ui/saveStatus.js`; the header shows it.
 - Intake (04 §1): rules in `phases/intake/intakeModel.js` (pure, DOM-free; limits in `config.INTAKE`); `applyIntake(s, player)`
   writes player.*, savings (only while phase is 'intake') and phase 'plan'. e2e: `tests/e2e/intake.json` with `?seed=fresh`.
-- Header: `renderHeader(phase, {user, onLogout, persistence, onPortfolio})`; Portfolio stays disabled until `onPortfolio`
-  is passed (task 17). main.js calls `header.destroy()` before re-rendering it.
+- Header: `renderHeader(phase, {user, onLogout, persistence, onPortfolio})`; main.js passes `onPortfolio` in every phase
+  except intake. main.js calls `header.destroy()` before re-rendering it.
+- Portfolio (task 17): `ui/portfolio/index.js` `openPortfolio({store, user, tab?, onClose?})` opens `ui/drawer.js`
+  `openDrawer({label, title, content})` (left slide-over on the modal stack: focus trap, Esc, opener refocused).
+  Tabs `accounts expenses agreements letters applications credit settings`; the open tab re-renders on every store
+  change. Pure helpers in `portfolioModel.js` (`groupRecurring`, `loanProgress`, `letterList`, `creditGauge`,
+  `creditHistory`, `whenLabel`); bands are `CREDIT.bands` / `creditBand(score)`. Settings write `state.settings` and
+  `applySettings` mirrors them as `html[data-theme]` (absent = OS) and `html[data-reduced-motion]`; a dev `?theme=` wins
+  until the player picks a theme. Restart = two `confirmDialog`s → `store.replace(createInitialState(user))` keeping settings.
+  Dev: `?seed=portfolio-demo&open=portfolio&tab=<id>`; e2e `tests/e2e/portfolio.json`, `portfolio-restart.json`.
 
 - Plan table (04 §5): `phases/plan/table.js` `createTable(grid, {onOpen, onClose})` → `{el, update(grid, {hideUnaffordable,
   denied, expanded, detail}), focusCell(key)}`; builds DOM once, recolors via `st-<status>` classes (plan.css sets

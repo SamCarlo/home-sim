@@ -10,6 +10,14 @@ export function initialCredit(config = CREDIT) {
   return { score: config.startingScore, history: [], inquiries: [], onTimeStreak: 0, missedPayments: 0, lateHousingStreak: 0 };
 }
 
+/** The band for a score (CREDIT.bands): {minScore, maxScore, key, label, status}. */
+export function creditBand(score, config = CREDIT) {
+  const bands = config.bands;
+  const i = bands.findIndex((b) => score >= b.minScore);
+  const band = bands[i < 0 ? bands.length - 1 : i];
+  return { ...band, minScore: Math.max(band.minScore, config.minScore), maxScore: i > 0 ? bands[i - 1].minScore - 1 : config.maxScore };
+}
+
 /** Card utilization: balance ÷ limit (0 with no card or a 0 limit). */
 export function utilization(state) {
   const c = state.finances.creditCard;

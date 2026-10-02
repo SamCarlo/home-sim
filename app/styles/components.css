@@ -73,16 +73,24 @@
 }
 .modal-actions { display: flex; justify-content: flex-end; gap: var(--sp-2); margin-top: var(--sp-5); }
 
-/* Drawer (portfolio etc.) */
-.drawer-backdrop { position: fixed; inset: 0; z-index: 30; background: var(--overlay); }
-.drawer {
-  position: fixed; top: 0; right: 0; bottom: 0; z-index: 31;
-  width: min(480px, 92vw); overflow: auto;
-  background: var(--surface); border-left: 1px solid var(--line); box-shadow: var(--shadow-lg);
-  padding: var(--sp-5);
-  transform: translateX(0); transition: transform var(--dur) var(--ease);
+/* Drawer (ui/drawer.js): a left slide-over on the modal stack, so it never covers the Phase 4 right panel. */
+.modal-backdrop.drawer-backdrop { justify-content: flex-start; align-items: stretch; padding: 0; }
+.modal.drawer {
+  width: min(620px, 94vw); height: 100dvh; max-height: none; border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  border-left: 0; padding: 0; display: flex; flex-direction: column; overflow: hidden;
+  transform: translateX(-100%); transition: transform var(--dur) var(--ease);
 }
-.drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
+.drawer-backdrop.is-open .modal.drawer { transform: translateX(0); }
+:root[data-reduced-motion] .modal.drawer { transition: none; }
+@media (prefers-reduced-motion: reduce) { .modal.drawer { transition: none; } }
+.drawer-inner { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.drawer-head {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4) var(--sp-3) var(--sp-5); border-bottom: 1px solid var(--line);
+}
+.drawer-title { margin: 0; font-family: var(--font-display); font-size: 1.35rem; }
+.drawer-close { min-width: 44px; min-height: 44px; font-size: 1.1rem; }
+.drawer-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
 /* Error boundary */
 .error-boundary { max-width: 520px; margin: var(--sp-7) auto; text-align: center; }

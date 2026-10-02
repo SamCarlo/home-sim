@@ -1,0 +1,13 @@
+[
+  {"waitFor": ".pf-panel"},
+  {"click": "#pf-tab-settings"},
+  {"click": ".pf-restart"}, {"waitFor": ".modal-confirm-dialog"},
+  {"press": "Escape"}, {"wait": 150},
+  {"assert": "!document.querySelector('.modal-confirm-dialog') && !!document.querySelector('.drawer') && window.__homesim.getState().phase === 'life'"},
+  {"click": ".pf-restart"}, {"waitFor": ".modal-confirm"}, {"click": ".modal-confirm"}, {"wait": 150},
+  {"waitFor": ".modal-confirm"}, {"shot": "tools/shots/t17/10-restart-confirm2.png"}, {"click": ".modal-confirm"},
+  {"wait": 500}, {"waitReady": true},
+  {"assert": "window.__homesim.getState().phase === 'intake' && !document.querySelector('.drawer') && window.__homesim.getState().account.username === 'dev'"},
+  {"assert": "document.querySelector('.header-portfolio').disabled"},
+  {"shot": "tools/shots/t17/11-after-restart.png"}
+]
