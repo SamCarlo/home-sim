@@ -6,6 +6,8 @@ import { FINANCE, CREDIT } from '../config.js';
 import { post, addRecurring, openLoan, payLoan, addAgreement, addApplication, resolveApplication, pmiSource,
   PAPERWORK_MONTH } from '../finance/ledger.js';
 import { recordInquiry, monthlyUpdate } from '../finance/creditScore.js';
+import { buildGrid, gridCells } from '../finance/grid.js';
+import { applyChoice } from '../phases/plan/detailModel.js';
 
 /** The dev account every seed runs as (01 §7). */
 export const DEV_USER = { uid: 'local-dev', username: 'dev', classCode: 'DEMO' };
@@ -165,6 +167,32 @@ seeds['portfolio-demo'] = {
     return s;
   },
 };
+
+/**
+ * A player who just chose `locationId|homeTypeId` on the plan table: phase 'paperwork', fresh attempt (05 §11).
+ * Throws if that cell can't be chosen with these numbers.
+ */
+export function paperworkStart(now, { locationId, homeTypeId, netMonthlyIncomeCents, startingSavingsCents, jobTitle = '' }) {
+  const s = afterIntake(baseState(now), { netMonthlyIncomeCents, startingSavingsCents, jobTitle });
+  const cell = gridCells(buildGrid(s)).find((c) => c.locationId === locationId && c.homeTypeId === homeTypeId);
+  return applyChoice(s, cell, now);
+}
+
+// Paperwork seeds (05 §11, task 19): each lands on the first step of a fresh attempt.
+for (const [name, description, opts] of [
+  ['paperwork-apartment-start', 'Paperwork for a Hilo apartment; $4,200/mo covers 2.5× rent, so no co-signer.',
+    { locationId: 'hilo', homeTypeId: 'apartment', netMonthlyIncomeCents: 420000, startingSavingsCents: 2000000, jobTitle: 'Dental assistant' }],
+  ['paperwork-apartment-cosigner', 'Paperwork for a Hilo apartment on $3,000/mo, under 2.5× the $1,550 rent: the co-signer letter appears.',
+    { locationId: 'hilo', homeTypeId: 'apartment', netMonthlyIncomeCents: 300000, startingSavingsCents: 700000, jobTitle: 'Cashier' }],
+  ['paperwork-shared-start', 'Paperwork for a room in a shared Honolulu house.',
+    { locationId: 'honolulu', homeTypeId: 'shared', netMonthlyIncomeCents: 420000, startingSavingsCents: 2000000, jobTitle: 'Barista' }],
+  ['paperwork-condo-start', 'Paperwork for a Miami condo (mortgage, HOA, closing).',
+    { locationId: 'miami', homeTypeId: 'condo', netMonthlyIncomeCents: 700000, startingSavingsCents: 8000000, jobTitle: 'Engineer' }],
+  ['paperwork-house-start', 'Paperwork for a house in Katy (mortgage, inspection, appraisal, closing).',
+    { locationId: 'katy', homeTypeId: 'house', netMonthlyIncomeCents: 600000, startingSavingsCents: 8000000, jobTitle: 'Teacher' }],
+  ['paperwork-build-start', 'Paperwork to build in Pāhoa (land, construction loan, bids, permit, utilities).',
+    { locationId: 'pahoa', homeTypeId: 'build', netMonthlyIncomeCents: 900000, startingSavingsCents: 15000000, jobTitle: 'Architect' }],
+]) seeds[name] = { phase: 'paperwork', description, build: (now) => paperworkStart(now, opts) };
 
 /** Register a seed (later tasks): addSeed('paperwork-apartment-start', { phase, description, build }). */
 export function addSeed(name, def) {

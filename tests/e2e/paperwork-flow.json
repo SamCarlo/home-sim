@@ -1,0 +1,167 @@
+[
+ {
+  "waitReady": true
+ },
+ {
+  "assert": "document.querySelectorAll('.pw-item').length === 7 && document.querySelector('.pw-item.is-active').dataset.step === 'rental-application'"
+ },
+ {
+  "assert": "document.querySelector('.pw-item[data-step=results]').disabled && document.querySelector('.pw-item[data-step=lease]').dataset.status === 'locked'"
+ },
+ {
+  "eval": "window.__cash0 = window.__homesim.getState().finances.savingsCents + window.__homesim.getState().finances.checkingCents"
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'rental-application' && document.querySelector('.pw-step-title').textContent.length > 0"
+ },
+ {
+  "assert": "document.querySelector('.pw-placeholder').textContent.includes('Coming in task 20')"
+ },
+ {
+  "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
+ },
+ {
+  "click": ".pw-dev-done"
+ },
+ {
+  "wait": 150
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.steps['rental-application'].status === 'done' && document.querySelector('.pw-item[data-step=\"rental-application\"]').dataset.status === 'done'"
+ },
+ {
+  "assert": "window.__cash0 - (window.__homesim.getState().finances.savingsCents + window.__homesim.getState().finances.checkingCents) === 5000 && window.__homesim.getState().paperwork.paidUpfront.application === 5000"
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'rental-cover' && document.querySelector('.pw-step-title').textContent.length > 0"
+ },
+ {
+  "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
+ },
+ {
+  "click": ".pw-dev-done"
+ },
+ {
+  "wait": 150
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.steps['rental-cover'].status === 'done' && document.querySelector('.pw-item[data-step=\"rental-cover\"]').dataset.status === 'done'"
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'renters-insurance' && document.querySelector('.pw-step-title').textContent.length > 0"
+ },
+ {
+  "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
+ },
+ {
+  "click": ".pw-dev-done"
+ },
+ {
+  "wait": 150
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.steps['renters-insurance'].status === 'done' && document.querySelector('.pw-item[data-step=\"renters-insurance\"]').dataset.status === 'done'"
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'lease' && document.querySelector('.pw-step-title').textContent.length > 0"
+ },
+ {
+  "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
+ },
+ {
+  "click": ".pw-dev-done"
+ },
+ {
+  "wait": 150
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.steps['lease'].status === 'done' && document.querySelector('.pw-item[data-step=\"lease\"]').dataset.status === 'done'"
+ },
+ {
+  "shot": "tools/shots/t19/e2e-midway.png"
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'move-in-payment' && document.querySelector('.pw-step-title').textContent.length > 0"
+ },
+ {
+  "assert": "document.querySelector('.pw-item[data-step=results]').disabled"
+ },
+ {
+  "click": ".pw-dev-done"
+ },
+ {
+  "wait": 150
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.steps['move-in-payment'].status === 'done' && document.querySelector('.pw-item[data-step=\"move-in-payment\"]').dataset.status === 'done'"
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'credit-card-offer' && document.querySelector('.pw-step-title').textContent.length > 0"
+ },
+ {
+  "click": ".pw-dev-done"
+ },
+ {
+  "wait": 150
+ },
+ {
+  "assert": "window.__homesim.getState().paperwork.steps['credit-card-offer'].status === 'done' && document.querySelector('.pw-item[data-step=\"credit-card-offer\"]').dataset.status === 'done'"
+ },
+ {
+  "assert": "!document.querySelector('.pw-item[data-step=results]').disabled && document.querySelector('.pw-item.is-active').dataset.step === 'results' && document.activeElement.classList.contains('pw-step-title')"
+ },
+ {
+  "assert": "document.querySelector('.pw-count').textContent === '6 of 7 done' && !document.querySelector('.pw-dev-done')"
+ },
+ {
+  "shot": "tools/shots/t19/e2e-results-unlocked.png"
+ },
+ {
+  "click": ".pw-item[data-step=lease]"
+ },
+ {
+  "assert": "document.querySelector('.pw-item.is-active').dataset.step === 'lease'"
+ },
+ {
+  "click": ".pw-withdraw"
+ },
+ {
+  "waitFor": ".modal-confirm-dialog"
+ },
+ {
+  "assert": "document.querySelector('.modal-message').textContent.includes('$50')"
+ },
+ {
+  "shot": "tools/shots/t19/e2e-withdraw-confirm.png"
+ },
+ {
+  "press": "Escape"
+ },
+ {
+  "assert": "window.__homesim.getState().phase === 'paperwork'"
+ },
+ {
+  "click": ".pw-withdraw"
+ },
+ {
+  "waitFor": ".modal-confirm"
+ },
+ {
+  "click": ".modal-confirm"
+ },
+ {
+  "wait": 500
+ },
+ {
+  "waitReady": true
+ },
+ {
+  "assert": "(s => s.phase === 'plan' && s.choice === null && Object.keys(s.paperwork.steps).length === 0 && s.plan.attempts.length === 1 && s.plan.attempts[0].outcome === 'withdrawn' && s.plan.attempts[0].locationId === 'hilo' && s.plan.attempts[0].homeTypeId === 'apartment')(window.__homesim.getState())"
+ },
+ {
+  "assert": "window.__cash0 - (window.__homesim.getState().finances.savingsCents + window.__homesim.getState().finances.checkingCents) === 5000"
+ },
+ {
+  "assert": "!!document.querySelector('.plan-screen')"
+ }
+]

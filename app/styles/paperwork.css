@@ -1,0 +1,45 @@
+/* Phase 2: Paperwork (task 19, 05 §1). Classes prefixed pw-. Checklist on the left, active step on the right. */
+.pw-screen { display: grid; grid-template-columns: minmax(250px, 300px) minmax(0, 1fr); gap: var(--sp-5);
+  max-width: 1280px; margin: 0 auto; padding: var(--sp-4) var(--sp-4) var(--sp-6); align-items: start; }
+.pw-side { position: sticky; top: var(--sp-4); padding: var(--sp-4); }
+.pw-eyebrow { margin: 0; font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-ink); }
+.pw-title { margin: var(--sp-1) 0 var(--sp-2); font-size: 1.35rem; line-height: 1.2; }
+.pw-sub { margin: 0 0 var(--sp-3); color: var(--ink-2); font-size: .88rem; line-height: 1.45; }
+.pw-count { margin: 0 0 var(--sp-2); font-weight: 600; font-size: .9rem; color: var(--ink-2); }
+.pw-list { list-style: none; margin: 0 0 var(--sp-4); padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.pw-item { width: 100%; display: grid; grid-template-columns: 1.5em auto minmax(0, 1fr) auto; align-items: center;
+  gap: var(--sp-2); padding: var(--sp-2); border: 1px solid transparent; border-radius: var(--r-md);
+  background: none; color: var(--ink); font: inherit; font-size: .9rem; text-align: left; cursor: pointer; }
+.pw-item:hover:not(:disabled) { background: var(--surface-2); }
+.pw-item:focus-visible { outline: 3px solid var(--sky); outline-offset: 1px; }
+.pw-item.is-active { background: var(--accent-wash); border-color: var(--accent-line); font-weight: 600; }
+.pw-item:disabled { cursor: not-allowed; color: var(--muted); }
+.pw-item-icon { display: inline-grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 50%;
+  font-size: .85rem; line-height: 1; border: 1.5px solid var(--line-2); color: var(--ink-2); }
+.pw-item.is-locked .pw-item-icon { border-style: dashed; font-size: .7rem; }
+.pw-item.is-draft .pw-item-icon { border-color: var(--sunset); color: var(--sunset-ink); background: var(--sunset-wash); }
+.pw-item.is-done .pw-item-icon { border-color: var(--accent); background: var(--accent); color: var(--accent-on); font-weight: 700; }
+.pw-item.is-skipped .pw-item-icon { border-color: var(--line-2); background: var(--surface-2); }
+.pw-item-num { color: var(--muted); font-variant-numeric: tabular-nums; }
+.pw-item-title { min-width: 0; overflow-wrap: anywhere; }
+.pw-item-status { font-size: .75rem; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.pw-item.is-done .pw-item-status { color: var(--accent-ink); }
+.pw-item.is-draft .pw-item-status { color: var(--sunset-ink); }
+.pw-withdraw { background: none; border: 0; padding: 0; font: inherit; font-size: .9rem; color: var(--danger-ink);
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.pw-withdraw:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+.pw-main { min-width: 0; }
+.pw-position { margin: 0 0 var(--sp-2); color: var(--muted); font-size: .85rem; font-weight: 600; }
+.pw-error { margin: 0 0 var(--sp-3); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md);
+  background: var(--danger-wash); color: var(--danger-ink); font-weight: 600; }
+.pw-error[hidden] { display: none; }
+.pw-placeholder { max-width: 760px; padding: var(--sp-5) var(--sp-6); }
+.pw-kind { margin: 0; font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.pw-step-title { margin: var(--sp-1) 0 var(--sp-3); font-size: 1.5rem; }
+.pw-step-title:focus { outline: none; }
+.pw-dev-done { margin-top: var(--sp-3); border-style: dashed; }
+
+@media (max-width: 820px) {
+  .pw-screen { grid-template-columns: 1fr; }
+  .pw-side { position: static; }
+}

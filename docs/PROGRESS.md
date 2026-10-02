@@ -616,3 +616,41 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     `docType: <step id>` and `registerAgreementDoc(stepId, …)` in `ui/portfolio/agreementDoc.js` so the portfolio shows the
     real document. Question values carry `firstTry` for the lease "find the trap" score.
   - The "Sam Hand" font is NOT used for signatures (missing glyphs render invisible on this machine); script fallbacks only.
+
+## Task 19 — Paperwork screen and step orchestrator
+- attempt started 2026-10-01T19:45:49-10:00
+- done 2026-10-01T19:51:31-10:00
+- Added: `app/src/phases/paperwork/flow.js` (STEP_ORDER, LETTER_STEPS, STATUS_INFO, appliesTo, stepsFor, prerequisites,
+  stepStatus, checklist, nextStep, allDone, upfrontLine, payFee, setStep, completeStep, withdraw), `steps/index.js`
+  (registry, `step(id)`), `steps/placeholder.js` + 27 step modules (26 placeholders naming their task 20–30, plus
+  `results` for task 31), `app/styles/paperwork.css`, `tests/unit/paperworkFlow.test.js` (5 tests),
+  `tests/e2e/paperwork-flow.json`. Changed: `paperworkScreen.js` (the real screen), `dev/seeds.js` (`paperworkStart`
+  + 6 seeds), `index.html` (paperwork.css), `tools/smoke.txt` (+6), CLAUDE.md, DEVIATIONS.
+- Verified:
+  - `node --test tests/unit/paperworkFlow.test.js` → 5 pass (orders per type match 05 §3, co-signer only in the cosigner
+    seed, credit letter only below 660, registry covers every id, unlock rules, fee charged once and all-or-nothing,
+    withdraw keeps fees spent and validates).
+  - `bash tools/check.sh` → "check: OK (syntax 111 files · tests · data 10 files · smoke) in 31s", smoke 20/20.
+  - `tests/e2e/paperwork-flow.json` on `paperwork-apartment-start` ✓ (Mark done ×6 in order, Results stays disabled until
+    the last, then unlocks and gets focus; $50 application fee charged and marked paid; Esc on the confirm keeps
+    paperwork; confirming → phase plan, choice null, one `withdrawn` attempt, fee still spent). `choose-home.json` still ✓.
+  - Shots in tools/shots/t19/:
+    - apartment-start: Apartment in Hilo, 7 steps (application, cover letter, renters insurance, lease, move-in, card, results), step 1 active.
+    - apartment-cosigner: same plus "Letter: ask a co-signer" as step 3, 8 steps.
+    - shared-start: Honolulu shared, 8 steps incl. roommate intro, roommate agreement, lease.
+    - condo-start: Miami, 10 steps incl. HOA review, appraisal, condo insurance, closing disclosure; list fits at 1366×768.
+    - house-start: Katy, 9 steps (no HOA, home insurance).
+    - build-start (+ dark smoke shot): Pāhoa "New house", 9 steps land → loan → letter → bids → permit → utilities → insurance → card → results.
+    - e2e-results-unlocked: 6 of 7 done, green check icons, Results active with the task 31 note.
+    - e2e-withdraw-confirm: "Choose a different home?" dialog naming the $50 fee.
+- Deviations: 'withdrawn' attempt outcome; appliesTo/prerequisites live in flow.js; withdraw denies pending applications (DEVIATIONS).
+- Notes for later tasks:
+  - Tasks 20–31: replace the placeholder by rewriting `steps/<id>.js` with a default export `{id, title, kind,
+    upfrontKey?, schema?, mount?, complete?}`. A 'form' with `schema` is rendered by the screen (drafts saved on change,
+    read-only once done); any other kind gets `mount(container, {store, config, state, status, values, onDone(values),
+    onDraft(values)})`. Without `complete` the screen calls `completeStep` (pays the upfrontKey fee from the snapshot,
+    marks done); with `complete(s, values)` you do the fee yourself (`payFee`) and may return `{ok:false, shortfallCents}`.
+  - Fee keys used: application (rental/room), inspection, appraisal, permits (the build line is 'permits', not 'permit').
+  - The screen only remounts a step when the active id or its finished/locked state changes; draft saves don't remount.
+  - Task 31: results.js is the 'results' step; set it done (or commit) from there. Seeds `paperwork-ready-<type>` can use
+    `completeStep` for every id in `stepsFor(s)` except results.

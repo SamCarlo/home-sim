@@ -54,7 +54,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 ## Folder map
 ```
 app/index.html admin.html      entry pages (import map: three → vendor/, firebase/* → gstatic 12.19.0)
-app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css forms.css)
+app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css forms.css paperwork.css)
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
@@ -71,6 +71,7 @@ app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?
                                seeds.js (fixtures) · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
+                               paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
                                ui/login.js (welcome screen: Log in / Create account tabs)
 app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
@@ -78,7 +79,7 @@ app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js hom
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
-tests/e2e/                     shoot.mjs step scripts (example, persist, register, intake, plan-keys, choose-home .json)
+tests/e2e/                     shoot.mjs step scripts (example, persist, register, intake, plan-keys, choose-home, paperwork-flow …)
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
@@ -177,7 +178,8 @@ and returns a result, never a new state. Accounts `'checking' | 'savings' | 'car
   `tests/unit/state.test.js` validates every registered seed automatically. Current: `fresh`, `plan-comfortable`,
   `plan-tight`, `plan-rich`, `plan-after-denial` (denied Hilo apartment, $50 fee spent), `plan-detail-open` (same, Hilo
   apartment panel open), `portfolio-demo` (phase life, April 2033: Hilo house, mortgage with PMI, card, 11 bills,
-  4 agreements, 2 scored letters, 3 applications, credit history).
+  4 agreements, 2 scored letters, 3 applications, credit history), `paperwork-{apartment,shared,condo,house,build}-start`
+  and `paperwork-apartment-cosigner` (built with `paperworkStart(now, {locationId, homeTypeId, income, savings})`).
 - Calendar: `util/dates.js` `monthLabel/monthName/daysInMonth/weekday (0 = Sunday)/dayLabel`. Jan 1, 2033 is a Saturday.
 - Save indicator: `renderSaveStatus(persistence.status)` from `ui/saveStatus.js`; the header shows it.
 - Intake (04 §1): rules in `phases/intake/intakeModel.js` (pure, DOM-free; limits in `config.INTAKE`); `applyIntake(s, player)`
@@ -249,6 +251,18 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `agreement.docType ?? agreement.type`'s schema read-only with `agreement.docValues`, else a generic Terms / What you filled
   in document. Paperwork steps (19+) should store `docType: <step id>` and register their schema there (static import).
 - Gallery `?dev=forms` (`&fill=1`, `&mode=readonly`); e2e `tests/e2e/forms.json`, `tests/e2e/portfolio-agreement.json`.
+
+## Paperwork (05 §1–§3, task 19; `app/src/phases/paperwork/`)
+- `flow.js` (pure): `STEP_ORDER[type]` (05 §3 table), `appliesTo(s, id)` (co-signer letter when income < 2.5 × rent,
+  credit letter when score < 660; `UNDERWRITING` in config), `stepsFor(s)`, `stepStatus(s, id)` (stored done/skipped/draft,
+  else locked/todo), `checklist(s)`, `nextStep(s)`, `allDone(s)`. Non-letter steps unlock in order; `LETTER_STEPS` only
+  need their prerequisite; results needs everything. `completeStep(s, id, {values, upfrontKey})` pays the snapshot's
+  upfront line (`payFee` → `charge('savings')` month −1 + `markUpfrontPaid`, all or nothing) then marks done.
+  `withdraw(s, now)` = attempt `withdrawn`, pending records voided/denied, choice null, phase plan (fees stay spent).
+- `steps/index.js` `STEPS`/`step(id)`; each `steps/<id>.js` default-exports `{id, title, kind, upfrontKey?, schema?, mount?,
+  complete?}`. Placeholders come from `steps/placeholder.js` (dev-only "Mark done" via `devAllowed()`). The screen renders
+  'form' + `schema` with `renderForm` (drafts on change, read-only when done), otherwise `mount(container, {store, config,
+  state, status, values, onDone, onDraft})`. e2e `tests/e2e/paperwork-flow.json`.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

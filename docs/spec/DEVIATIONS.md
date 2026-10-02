@@ -31,3 +31,9 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   variants, kahakō, case and extra spaces (students often can't type an ʻokina), but not spelling or missing words
   (`forms/validate.js` `sameName`). Agreements may carry an optional `docType` (the paperwork step id) so the portfolio can
   re-render the signed document with its real schema (`ui/portfolio/agreementDoc.js`); no state version bump.
+- **2026-10-01, task 19**: `plan.attempts[].outcome` gains `'withdrawn'` ("Choose a different home", as the task asks;
+  the plan table only flags `'denied'`). Withdrawing also voids pending agreements and resolves pending applications as
+  denied ("You withdrew this application.") so nothing stays pending forever. The 05 §2 contract puts `appliesTo` and
+  `requires` on each step module; they live in `phases/paperwork/flow.js` instead (`appliesTo`, `LETTER_STEPS`,
+  `prerequisites`) so the flow stays pure and testable in one place. Non-letter steps unlock in order; letters need only
+  their own prerequisite and never block form steps; Results needs everything.
