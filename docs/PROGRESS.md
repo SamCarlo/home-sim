@@ -777,3 +777,39 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     recurring item for `months`; `repairCreditCents` and `purchase.gapCents` are already in the option's cash to close.
   - Polish: after the seller refuses a repair credit the "Your choices" box still lists the credit option; after the seller
     lowers the price the "came in low" warning still shows the old gap.
+
+## Task 23 — Builder paperwork and the design budget
+- attempt started 2026-10-01T23:35:47-10:00
+- done 2026-10-01T23:44:39-10:00
+- Added: `app/src/finance/build.js` (pure), `tests/unit/builderPaperwork.test.js` (9 tests), `tests/e2e/builder-pahoa.json`.
+  Rewrote placeholder steps `land-purchase.js` (`landTerms`, `landSchema`), `construction-loan-application.js`
+  (`constructionSchema`, `cashNeeded`), `contractor-bids.js` (`bidsFor`), `building-permit.js` (`permitSchema`),
+  `site-utilities.js` (`utilitiesSchema`, `baseBudget`). Changed: `config.js` (`BUILD`), `docs.js` (land-purchase doc),
+  `dev/seeds.js` (4 seeds + `SAMPLE_BUILD_VALUES`), `styles/paperwork.css` (bid cards), `tools/smoke.txt` (+4), CLAUDE.md, DEVIATIONS, OPEN_ITEMS.
+- Verified:
+  - `node --test tests/unit/builderPaperwork.test.js` → 9 pass (design budget math per tier; Cozy project = costs.js; bid
+    price/months, delay adds temp housing; seeded lot; earnest money paid + counted toward down payment, all or nothing;
+    hard inquiry + tier + design budget + snapshot; bids A/B/C + seeded risk; Hawaiʻi permit checklist + fee once;
+    utility options by location, upgrades out of design budget, solar bill cut; whole Pāhoa path).
+  - `bash tools/check.sh` → "check: OK (syntax 117 files · tests · data 10 files · smoke) in 43s", smoke 33/33.
+  - e2e ✓ `builder-pahoa.json` on paperwork-build-start (light): earnest −$1,000; Tiny shows $247,500 budget, Cozy $412,500;
+    letter (dev done); Bid B; permit −$5,000 and permits line paid; rooftop solar leaves $397,500; final snapshot upfront
+    $134,863, monthly $3,503, cash $144,000, score 675.
+  - Shots in tools/shots/t23/:
+    - 1-land-purchase: lot table ($45,000, 0.81 acres, Lava Zone 1, flood X, catchment, pole 390 ft, septic required, gravel road), teach box, offer + $1,000 earnest, contingency checked, signature.
+    - 2-construction-loan: borrower + gross $11,842, 3-tier comparison table, Cozy picked: project $502,500, down $100,500, loan $402,000, P&I $2,675, monthly $3,590, cash $139,630, budget $412,500, credit warning box.
+    - 3-contractor-bids (+3b dark, after adding the facts-grid CSS): three named builders, $345,000 / $375,000 / $412,500, facts grid, risk flags on A and C, teach box.
+    - 4-building-permit: 5 checklist items incl. solar water heater + catchment, "Why a solar water heater?" box, fee $5,000, "Pay $5,000 and apply".
+    - 5-site-utilities: catchment/well, grid/solar/off-grid, septic; budget $412,500 − $15,000 = $397,500, −$87/mo.
+- Deviations: see DEVIATIONS (earnest money, bid pricing vs design budget, bid months scaled, utility options).
+- Notes for later tasks:
+  - Task 29: construction hard-fails credit < 680, but a fresh player is 680 and drops to 675 after this step's hard
+    inquiry, so every build would be denied (OPEN_ITEMS). Bid A → `options.contractorId === 'a'` (× `BUILD.risk.lenderFactor`);
+    permit → `options.permit.approved`; housing for DTI = `choice.snapshot` monthly lines (refreshed for tier/bid/utilities).
+  - Task 31: `choice.snapshot` is rewritten by `refreshBuildSnapshot`; the $1,000 earnest is already in
+    `paidUpfront['down-payment']`. On denial refund it only if `options.land.contingency`.
+  - Task 39: budget = `options.designBudgetCents` (already minus utility upgrades; base in `designBudgetBaseCents`);
+    defaults from `options.siteUtilities` (solarKw, catchmentGallons, water, power, sewer); setbacks `BUILD.setbacksFt`.
+  - Task 44: `options.contractorRisk` = extraMonths + defect (month 0–5, label, cents), Bid A only;
+    `options.siteUtilities.monthlyDeltaCents` is already folded into the snapshot utilities line.
+  - Form display fields (computed/info) have no `data-field`, so e2e asserts on `.fm-form` text.

@@ -300,3 +300,22 @@ seeds['paperwork-house-closing'] = { phase: 'paperwork',
     if (!s.paperwork.options.purchase) payGap(s);
     return finishSteps(s, ['appraisal', 'home-insurance'], {}, now);
   } };
+
+// Task 23 seeds: the Pāhoa build path (Cozy tier, Bid B, catchment + grid). Each lands on the next builder document.
+const pahoaBuild = (now) => paperworkStart(now, { locationId: 'pahoa', homeTypeId: 'build', netMonthlyIncomeCents: 900000,
+  startingSavingsCents: 15000000, jobTitle: 'Architect' });
+/** Valid land-purchase and construction-loan answers for "Kai Mana" (task 23 seeds and tests). */
+export const SAMPLE_BUILD_VALUES = {
+  'land-purchase': { contingency: true, signature: 'Kai Mana' },
+  'construction-loan-application': { employer: 'Puna Design Studio', 'job-title': 'Architect', tier: 'cozy', auth: true,
+    signature: 'Kai Mana' },
+  'contractor-bids': { contractorId: 'b' },
+};
+const BUILD_STEPS = ['land-purchase', 'construction-loan-application', 'construction-purpose', 'contractor-bids',
+  'building-permit', 'site-utilities'];
+for (const [name, upTo, description] of [
+  ['paperwork-build-loan', 1, 'Pāhoa build: the lot offer is signed ($1,000 earnest money); the construction loan application is next.'],
+  ['paperwork-build-bids', 3, 'Pāhoa build: lot, Cozy-tier loan application and purpose letter done; compare contractor bids.'],
+  ['paperwork-build-permit', 4, 'Pāhoa build: Bid B chosen; the building permit checklist is next.'],
+  ['paperwork-build-utilities', 5, 'Pāhoa build: permit paid; choose water, power and sewer.'],
+]) seeds[name] = { phase: 'paperwork', description, build: (now) => finishSteps(pahoaBuild(now), BUILD_STEPS.slice(0, upTo), SAMPLE_BUILD_VALUES, now) };

@@ -60,3 +60,14 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   closing disclosure's escrow row is property tax + insurance + required hazard (HOA dues aren't escrowed); each row has its
   own "Flag an error" button and wrong flags are counted (`options.closing.wrongFlags`). Code: `finance/buying.js`,
   `finance/loanOptions.js`, `phases/paperwork/steps/{hoa-review,home-inspection,appraisal,closing-disclosure}.js`.
+- **2026-10-01, task 23**: builder paperwork. Earnest money ($1,000, `BUILD.earnestMoneyCents`) is charged when the land
+  offer is signed and recorded as paid toward the 'down-payment' upfront line (commit charges only the rest); the
+  contingency refund on denial is left to task 31. A contractor bid changes the price per sq ft (A −8%, C +10%) and the
+  months to build (14/9/8 scaled by the location's monthsToBuild ÷ 12), so it changes project cost, loan and cash; the
+  design budget stays tier sq ft × local cost per sq ft × 1.10 because the blueprint is priced at local cost. Bid A's seeded
+  delay adds 1–4 months of temporary housing and construction interest. The loan application blocks a tier whose cash
+  needed exceeds the player's cash. Site utilities offers only what the location supports; the base option is in site
+  work, upgrades (well $25,000, 5 kW rooftop solar $15,000, off-grid $40,000) come out of `options.designBudgetCents`, and
+  the monthly effect is folded into the snapshot's utilities line. Tier, bid and utilities rewrite `choice.snapshot`
+  (`finance/build.js refreshBuildSnapshot`). Code: `finance/build.js`,
+  `phases/paperwork/steps/{land-purchase,construction-loan-application,contractor-bids,building-permit,site-utilities}.js`.

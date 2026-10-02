@@ -283,6 +283,52 @@ export const BUYING = {
   closing: { rateErrorPts: 0.0025 },    // the deliberate closing-disclosure error: rate 0.25 points too high
 };
 
+/** Builder paperwork and the design budget (05 §4 land-purchase … site-utilities, 07 §5; task 23). */
+export const BUILD = {
+  tiers: [                              // construction-loan-application budget tiers (05 §4)
+    { id: 'tiny', label: 'Tiny', sqft: 600, blurb: 'One bedroom, one bath. Simple and cheap to run.' },
+    { id: 'cozy', label: 'Cozy', sqft: 1000, blurb: 'Two bedrooms, one bath. The plan the table assumed.' },
+    { id: 'family', label: 'Family', sqft: 1600, blurb: 'Three bedrooms, two baths, room to grow.' },
+  ],
+  defaultTier: 'cozy',
+  designBudgetFactor: 1.10,             // design budget = tier sq ft × local cost per sq ft × 1.10 (05 §4)
+  earnestMoneyCents: 100000,            // $1,000 with the land offer, applied to the down payment at closing
+  minCreditScore: 680,                  // construction lenders' floor (05 §7), shown as a warning on the application
+  lot: {
+    acresScale: [0.8, 1.3],             // seeded variation on the location's lotAcres
+    floodChance: 0.15,                  // chance the lot sits in a flood zone (AE) instead of X
+    powerFt: [80, 900],                 // distance to the nearest power pole
+    gravelChance: 0.4,                  // rural lots: gravel road instead of paved
+  },
+  bids: [                               // contractor-bids (05 §4); months are for a 12-month location, scaled
+    { id: 'a', label: 'Bid A', adjPct: -0.08, months: 14, stars: 3.1, warrantyYears: 0, risky: true },
+    { id: 'b', label: 'Bid B', adjPct: 0, months: 9, stars: 4.5, warrantyYears: 1, risky: false },
+    { id: 'c', label: 'Bid C', adjPct: 0.10, months: 8, stars: 4.9, warrantyYears: 2, risky: false },
+  ],
+  risk: {                               // what choosing Bid A can cost (05 §4)
+    extraMonths: [1, 4],                // extra months of temporary housing
+    defectMonths: [0, 5],               // monthIndex of the defect event (life months 1–6)
+    defectCents: [150000, 600000],
+    lenderFactor: 0.9,                  // 05 §7: "The bank is nervous about your contractor's reviews"
+  },
+  setbacksFt: { front: 15, side: 5, rear: 10 }, // 07 §5 (the blueprint editor reuses these)
+  utilities: {                          // site-utilities (05 §4): upgrade costs come out of the design budget
+    electricShare: 0.6,                 // part of the utilities bill that is electricity
+    waterShare: 0.15,                   // part that is the county water bill
+    catchmentMonthlyCents: 2000,        // filters and UV bulb
+    wellMonthlyCents: 1500,             // pump electricity and testing
+    wellUpgradeCents: 2500000,
+    catchmentUpgradeCents: 800000,      // a 10,000 gal tank where it isn't already the plan
+    rooftopSolarKw: 5,
+    solarPerKwCents: 300000,            // 07 §5 blueprint price
+    solarCutPct: 0.6,                   // rooftop solar cuts the electric bill ~60%
+    offGridUpgradeCents: 4000000,       // 8 kW + batteries
+    offGridKw: 8,
+    batteryMonthlyCents: 3000,          // battery upkeep off the grid
+    catchmentGallons: 10000,
+  },
+};
+
 /** Student accounts (11 §2). */
 export const ACCOUNTS = {
   usernamePattern: /^[a-z0-9][a-z0-9_-]{2,19}$/,

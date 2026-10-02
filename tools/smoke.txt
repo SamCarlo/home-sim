@@ -29,3 +29,7 @@ paperwork-house-inspection /index.html?seed=paperwork-house-inspection
 paperwork-house-appraisal /index.html?seed=paperwork-house-appraisal
 paperwork-house-appraisal-low /index.html?seed=paperwork-house-appraisal-low&theme=light
 paperwork-house-closing /index.html?seed=paperwork-house-closing&theme=light
+paperwork-build-loan /index.html?seed=paperwork-build-loan&theme=light
+paperwork-build-bids /index.html?seed=paperwork-build-bids&theme=light
+paperwork-build-permit /index.html?seed=paperwork-build-permit
+paperwork-build-utilities /index.html?seed=paperwork-build-utilities&theme=light

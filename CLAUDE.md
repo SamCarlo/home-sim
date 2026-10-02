@@ -59,7 +59,7 @@ app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
 app/src/finance/               money.js loans.js costs.js affordability.js grid.js · ledger.js (+ ledgerRecords.js
-                               ledgerTotals.js) creditScore.js loanOptions.js buying.js (pure; see Finance helpers, Plan numbers, Ledger)
+                               ledgerTotals.js) creditScore.js loanOptions.js buying.js build.js (pure; see Finance helpers, Plan numbers, Ledger)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
@@ -294,6 +294,15 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   credit), `closing {agreedRate, finalRate, errorFlagged, wrongFlags, extraMonthlyCents}`. Walking away calls
   `withdraw(s, now, reason)`. Seeds `paperwork-condo-hoa` (Miami), `paperwork-house-{inspection,appraisal,appraisal-low,closing}`
   (Katy). e2e `tests/e2e/buyer-house.json` (on paperwork-house-inspection).
+- Builder steps (task 23): pure `finance/build.js` (`config.BUILD`): `tierOf`, `designBudgetCents(loc, tier)` (sq ft × cost/sq ft
+  × 1.10), `projectCost(loc, {tierId, bidId, extraMonths})` (= cellCost with the tier's sq ft and the bid's price/months),
+  `tierTable`, `projectFor(state)`, `refreshBuildSnapshot(state)` (rewrites `choice.snapshot` for tier/bid/utilities),
+  `lotListing`, `contractorBids`/`contractorRisk`/`bidMonths`, `permitChecklist`, `utilityOptions`/`siteUtilityPlan`/
+  `defaultUtilities`. Stored in `paperwork.options`: `land` (listing, seller, earnestCents, contingency; earnest paid →
+  `paidUpfront['down-payment']`), `buildTier`, `designBudgetCents` (minus utility upgrades) + `designBudgetBaseCents`,
+  `project`, `contractorId`, `bid`, `contractorRisk` (Bid A only), `permit`, `siteUtilities`. Application kind 'construction'.
+  Seeds `paperwork-build-{loan,bids,permit,utilities}` (Pāhoa, Cozy, Bid B), `SAMPLE_BUILD_VALUES`. e2e
+  `tests/e2e/builder-pahoa.json` (on paperwork-build-start). Form display fields have no `data-field`: assert on `.fm-form` text.
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 
