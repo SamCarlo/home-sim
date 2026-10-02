@@ -108,7 +108,7 @@ export const UNDERWRITING = {
     creditTiers: [{ min: 650, f: 1.0 }, { min: 600, f: 0.9 }, { min: 0, f: 0.75 }],
   },
   cosigner: { base: 0.35, slope: 0.6 },
-  roommates: { goodRatio: 2.5, lowRatioF: 0.8, agreementBonus: 0.1 },
+  roommates: { goodRatio: 2.5, lowRatioF: 0.8, agreementBonus: 0.05 },   // ±5% from the roommate agreement (05 §4)
   mortgage: {
     maxBack: 0.50,
     minCredit: 580,

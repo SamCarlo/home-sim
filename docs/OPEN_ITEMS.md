@@ -18,6 +18,6 @@ mark it ✅ with the date and who resolved it.
 - [ ] **Kahakō in the display font (task 21)**: the paperwork title "House in Pāhoa" (Fraunces, `.pw-title`) appears to
   render without the macron in tools/shots/t21/4-pahoa-loan-options.png although the string is "Pāhoa". Probably the same
   font-subset problem as the ʻokina item above; check the Fraunces subset includes U+0100–U+017F.
-- [ ] **Construction credit floor (task 23 → 29)**: 05 §7 hard-fails construction loans under 680, but `CREDIT.startingScore`
+- [x] ✅ 2026-10-02, task 29: the floor now checks `options.pulledScore` (see DEVIATIONS). **Construction credit floor (task 23 → 29)**: 05 §7 hard-fails construction loans under 680, but `CREDIT.startingScore`
   is 680 and the construction loan application's hard inquiry drops it to 675, so every build would be denied. Fix in task
   29: check the score from before the inquiry, lower the floor to 660, or raise the starting score; record it in DEVIATIONS.

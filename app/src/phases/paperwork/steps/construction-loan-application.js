@@ -106,6 +106,7 @@ export default {
     o.designBudgetCents = projectCost(byId[c.locationId], { tierId }).designBudgetCents;
     o.designBudgetBaseCents = o.designBudgetCents;
     refreshBuildSnapshot(state);
+    o.pulledScore = state.finances.credit.score;   // the score the lender sees (05 §7 floor; before this inquiry)
     recordInquiry(state, 'construction', PAPERWORK_MONTH);
     addApplication(state, { kind: 'construction', target: `${c.locationId}|${c.homeTypeId}`, feeCents: 0, at: now });
     setStep(state, 'construction-loan-application', 'done', { ...values, tier: tierId }, now);

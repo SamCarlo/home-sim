@@ -15,6 +15,9 @@ import { orderAppraisal, payGap } from '../phases/paperwork/steps/appraisal.js';
 import { appraisalResult } from '../finance/buying.js';
 import { byId } from '../data/locations/index.js';
 import { SAMPLE_LETTERS } from './sampleLetters.js';
+import { leaseClauses } from '../phases/paperwork/steps/lease.js';
+import { renterTerms } from '../phases/paperwork/steps/renterTerms.js';
+import { ROOMMATE_CHOICES } from '../phases/paperwork/steps/roommate-agreement.js';
 
 /** The dev account every seed runs as (01 §7). */
 export const DEV_USER = { uid: 'local-dev', username: 'dev', classCode: 'DEMO' };
@@ -361,3 +364,30 @@ seeds['paperwork-letter'] = { phase: 'paperwork',
   build: (now) => finishSteps(paperworkStart(now, { locationId: 'hilo', homeTypeId: 'apartment', netMonthlyIncomeCents: 420000,
     startingSavingsCents: 2000000, jobTitle: 'Dental assistant' }), ['rental-application'],
   { 'rental-application': SAMPLE_APPLICATION }, now) };
+
+// Task 29 seeds (05 §11): every step done, Results next; the card offer is accepted with autopay in full.
+const answer = (choice) => ({ choice, tries: 1, correct: true, firstTry: true, wrong: [] });
+/** Signed lease answers for the current renter attempt (all clauses initialed, trap questions right). */
+export const leaseValuesFor = (s) => ({ init: Object.fromEntries(leaseClauses(renterTerms(s)).map((c) => [c.id, 'KM'])),
+  'q-date': answer('renewal'), 'q-allowed': answer('wear-and-tear'), 'q-late': answer('right'), signature: 'Kai Mana' });
+const BEST_ROOMMATE = Object.fromEntries(Object.entries(ROOMMATE_CHOICES)
+  .map(([k, l]) => [k, l.reduce((a, b) => (b.comfort > a.comfort ? b : a)).value]));
+const MOVE_IN = { 'only-if-approved': true, signature: 'Kai Mana' };
+function ready(s, ids, now) {
+  for (const id of ids) {
+    const v = id === 'lease' ? leaseValuesFor(s) : id === 'move-in-payment' ? MOVE_IN : id === 'closing-disclosure'
+      ? { signature: 'Kai Mana', flagged: true } : id === 'roommate-agreement'
+        ? { ...BEST_ROOMMATE, thermostat: 'AC on above 85°F, set to 78°F', signature: 'Kai Mana' } : {};
+    finishSteps(s, [id], { [id]: v }, now);
+  }
+  s.paperwork.options.card = { accepted: true, autopay: 'full' };
+  return s;
+}
+for (const [type, from, ids, description] of [
+  ['apartment', 'paperwork-apartment-lease', ['lease', 'move-in-payment', 'credit-card-offer'], 'Hilo apartment'],
+  ['shared', 'paperwork-shared-agreement', ['roommate-agreement', 'lease', 'move-in-payment', 'credit-card-offer'], 'Honolulu room'],
+  ['condo', 'paperwork-condo-insurance', ['condo-insurance', 'closing-disclosure', 'credit-card-offer'], 'Miami condo'],
+  ['house', 'paperwork-house-closing', ['closing-disclosure', 'credit-card-offer'], 'Katy house'],
+  ['build', 'paperwork-build-insurance', ['home-insurance', 'credit-card-offer'], 'Pāhoa build'],
+]) seeds[`paperwork-ready-${type}`] = { phase: 'paperwork', description: `${description}: every step done; Results are next.`,
+  build: (now) => ready(seeds[from].build(now), ids, now) };

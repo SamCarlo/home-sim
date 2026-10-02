@@ -107,3 +107,26 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   way. Bands carry a `status` (st-* color) in config. The report merges grammar issues at the same spot and shows a
   part-word suggestion as the whole word ("Try: Hi"), and adds one encouraging line for Fair/Weak/Needs work.
   Where: `app/src/letters/score.js`, `app/src/ui/letterReport.js`, `app/src/main.js`.
+- 2026-10-02, task 29, construction credit floor: the 680 floor (05 §7) is checked against the score the lender pulled,
+  stored as `paperwork.options.pulledScore` by the construction loan application just before its own hard inquiry (the
+  application already says "Yours is N before this check"). Otherwise every fresh 680 player would be denied at 675.
+  The credit *factor* and rate use the current score through the mortgage credit tiers, as for mortgages. Resolves the
+  OPEN_ITEMS entry. Where: `finance/underwriting.js` `constructionDecision`, `steps/construction-loan-application.js`.
+- 2026-10-02, task 29, cash hard fails for every home: 05 §7 lists "cash < cash to close" only for mortgages. Leases,
+  rooms and builds also hard-fail when cash can't cover what commit charges (move-in costs, or the build's down payment,
+  closing, temporary housing and interest reserve), so commit never runs short. Mortgage "cash needed to close" is the
+  down payment + closing + unpaid fees + appraisal gap − repair credit (the reserves are checked by the reserves factor,
+  not charged). Where: `finance/underwriting.js`.
+- 2026-10-02, task 29, buyer upfront at commit: condo/house commit charges the chosen loan option's down payment and
+  closing (not the snapshot's 10% lines), plus unpaid inspection/appraisal, the appraisal gap and minus a repair credit.
+  Renters and builders are charged `unpaidUpfront(state)`. Where: `terms.upfront` on each decision; `commit.js`.
+- 2026-10-02, task 29, recurring categories: 05 §8 says the location's living costs use category `living`; the portfolio's
+  categories (task 17) are food/transportation/utilities, so groceries → food, transport → transportation, phone and
+  internet → utilities, all with `source: 'living'` (as in the portfolio-demo seed). Gym and social costs are left to the
+  life phase. Where: `phases/paperwork/commit.js` `recurringFor`.
+- 2026-10-02, task 29, build timing: the construction-to-permanent loan opens with `startMonth` = the build months, and its
+  housing bills (P&I, tax, insurance, utilities) start then; the upfront interest reserve and temporary housing cover the
+  months before. Living costs start at month 0. Where: `commit.js`.
+- 2026-10-02, task 29, roommate bonus: `UNDERWRITING.roommates.agreementBonus` is 0.05 (05 §4's ±5%), not the earlier 0.1.
+  Factor = 1 + comfort (−1…1) × 0.05. A co-signer decision is still drawn for a shared room when the co-signer letter
+  applied, but only the lease uses it (05 §7's roommates formula has no co-signer term).

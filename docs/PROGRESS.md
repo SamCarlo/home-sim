@@ -1005,3 +1005,45 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Task 29 underwriting: rescore with the speller if `needsScore(letter.score)` before using a likelihood.
   - Spelling suggestions come straight from nspell and can be odd ("dont" → cont, dent, dint). A small override table in
     spell.js (dont → don't, im → I'm, alot → a lot) would help; left for task 55 (copy/glossary).
+
+## Task 29 — Underwriting decisions and the paperwork commit
+- attempt started 2026-10-02T04:57:48-10:00
+- done 2026-10-02T05:05:29-10:00
+- First attempt. Files: `app/src/finance/underwriting.js` (new: `decide`, `drawFor`, `letterFactor`, `letterFor`,
+  `attemptIndex`, `cardAccepted`, `homeApproved`, `REQUIRED_KINDS`, `DECISION_LABELS`), `app/src/phases/paperwork/commit.js`
+  (new: `commitPaperwork`, `recurringFor`), `app/src/dev/seeds.js` (`paperwork-ready-{apartment,shared,condo,house,build}`,
+  `leaseValuesFor`), `steps/construction-loan-application.js` (stores `options.pulledScore` before the inquiry),
+  `app/src/config.js` (`UNDERWRITING.roommates.agreementBonus` 0.1 → 0.05), `tests/unit/underwriting.test.js` (13 tests),
+  `tools/smoke.txt` (5 ready seeds).
+- Verified: `node --test tests/unit/underwriting.test.js` 13/13; `bash tools/check.sh` → OK (syntax 137 files · tests ·
+  data 11 · smoke 44/44). `tools/shots/smoke-paperwork-ready-house.png`: Katy house checklist 8 of 9 done, every step ✓,
+  Results card active ("Coming in task 31"), no errors.
+- Decision records for the ready seeds (dev save seed, attempt 0; letters scored without the dictionary in Node):
+  - **apartment** (Hilo, $4,200/mo, rent $1,550): lease **denied**, p 0.8232, draw 0.9779. Finances ×0.85 (2.7× rent) ·
+    Credit ×1 (680) · Letter ×0.9685 (Excellent 93). Card approved: regular $1,000 at 25.99%.
+  - **shared** (Honolulu room $1,100): roommates **approved**, p 0.9923, draw 0.3103. Finances ×1 (3.8×) · Intro letter ×0.945
+    (89) · Roommate agreement ×1.05 (best answers). Card approved.
+  - **condo** (Miami, conventional 10%/30y): mortgage **approved**, p 0.4772, draw 0.3887. Finances ×0.55 (back 46%) ·
+    Reserves ×1 ($15,590 left after closing) · Credit ×0.9 (675, rate +0.375) · Letter ×0.964 (92). Card approved.
+  - **house** (Katy, conventional 10%/30y): mortgage **approved**, p 0.4772, draw 0.3887. Finances ×0.55 (back just over 43%) ·
+    Reserves ×1 ($30,150 left) · Credit ×0.9 (675) · Letter ×0.964 (92). Card approved.
+  - **build** (Pāhoa, Cozy, Bid B): construction **approved**, p 0.8636, draw 0.1727. Finances ×1 (back 29%) · Credit ×0.9
+    (675) · Letter ×0.9595 (91). Terms: $402,000 at 7.375% for 360 months, P&I $2,776.51, housing $3,451.13, upfront
+    $128,862.50 (down payment minus the $1,000 earnest, closing, 9 months temporary housing, construction interest).
+  - Condo and house share a draw because both use the dev save's seed with kind 'mortgage' and attempt 0 (as specified).
+- Deviations: see DEVIATIONS (construction credit floor uses the pulled score; renter/builder cash hard fail; living-cost
+  categories; roommate bonus 5%; buyer upfront from the chosen option; build bills start after construction).
+- Notes for later tasks:
+  - Task 30: `decide` reads the offer from `paperwork.options.card = {accepted, autopay}` (the ready seeds set it). Commit
+    resolves pending applications of kind 'credit-card' and agreements of type 'card'/'credit-card' by the card decision, so
+    the card step should create those as pending. Secured deposit is charged at commit.
+  - Task 31: compute `decide(state, {speller: loadedSpeller()})` once when Results opens, store it in
+    `paperwork.decisions` (so a reload shows the same cards), then on Continue run
+    `store.update((s) => commitPaperwork(s, s.paperwork.decisions, now), {checkpoint: approved ? 'paperwork-committed' :
+    'paperwork-denied'})`. Each decision has `label`, `factors[{label, value, note}]`, `reasons`, `hardFail`, and
+    `terms.upfront` (what commit charges) + `upfrontCents`, `paymentCents`, `totalInterestCents`, `rate`, `lender`.
+    `paperwork-ready-apartment` is naturally denied and `paperwork-ready-house` approved, good bases for
+    `results-denied-apartment` / `results-approved-house`. Commit sets `paperwork.lettersRevealed` on approval.
+  - Commit throws if the cash isn't there; underwriting hard-fails that case first, so only a bug can hit it.
+  - Insurance's `options.insurance.recurring.amountCents` is negative; recurring items are positive expenses, so commit uses
+    the absolute value.

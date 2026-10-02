@@ -349,6 +349,18 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `renderLetterReport({text, score})` (text nodes only). Portfolio Letters tab shows it, hidden by
   `portfolioModel.letterRevealed` for the paperwork attempt in progress until `paperwork.lettersRevealed` or Results done.
   Gallery `?dev=letters` (strong/middling/weak `REPORT_SAMPLES`).
+- Underwriting (task 29, 05 §7, pure): `finance/underwriting.js` `decide(state, {speller})` → decision records `{id
+  (<kind>-<attempt>), kind lease|cosigner|roommates|mortgage|construction|credit-card, label, required, approved, probability,
+  draw, hardFail, factors[{label, value, note}], reasons, terms}`; `terms.upfront`/`upfrontCents` is exactly what commit
+  charges. Draw = `drawFor(state, kind)` (seedFor(meta.seed, 'decision', kind, plan.attempts.length)). Mortgages reuse
+  `loanOptions`/`findOption` + `options.closing.finalRate`; construction's 680 floor uses `options.pulledScore`. The card
+  offer is read from `paperwork.options.card = {accepted, autopay}`. `homeApproved(decisions)`, `letterFor(state, stepId)`.
+- Commit (task 29, 05 §8, pure): `phases/paperwork/commit.js` `commitPaperwork(state, decisions, now)` → `{approved,
+  chargedCents, loan, recurring, card}`; approved → upfront charged (month −1), loan opened, bills added (`recurringFor`,
+  living costs with source 'living'), agreements active, applications approved, attempt 'approved', `home` set, phase
+  'design'; denied → agreements void, applications denied, earnest refunded if `options.land.contingency`, attempt
+  'denied', choice null, `freshPaperwork()` (letters and fee transactions stay), phase 'plan'. The card opens either way.
+  Seeds `paperwork-ready-{apartment,shared,condo,house,build}` (Results next; apartment draws a denial, the rest approve).
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 

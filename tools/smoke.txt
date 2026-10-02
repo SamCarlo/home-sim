@@ -39,3 +39,8 @@ paperwork-condo-insurance /index.html?seed=paperwork-condo-insurance&theme=light
 paperwork-house-insurance /index.html?seed=paperwork-house-insurance&theme=light
 paperwork-build-insurance /index.html?seed=paperwork-build-insurance&theme=light
 paperwork-letter /index.html?seed=paperwork-letter&theme=light
+paperwork-ready-apartment /index.html?seed=paperwork-ready-apartment
+paperwork-ready-shared /index.html?seed=paperwork-ready-shared
+paperwork-ready-condo /index.html?seed=paperwork-ready-condo
+paperwork-ready-house /index.html?seed=paperwork-ready-house
+paperwork-ready-build /index.html?seed=paperwork-ready-build
