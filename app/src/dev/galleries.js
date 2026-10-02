@@ -11,6 +11,7 @@ export const galleries = {
   scene: () => import('./sceneGallery.js'),
   props: () => import('./propsGallery.js'),
   styles: () => import('./stylesGallery.js'),
+  buildings: () => import('./buildingsGallery.js'),
 };
 
 /** Mount gallery `name` into root. Returns false when no such gallery exists. */

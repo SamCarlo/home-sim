@@ -1,0 +1,7 @@
+[
+  {"goto": "/index.html?dev=buildings&loc=brooklyn&theme=light"},
+  {"waitReady": true},
+  {"eval": "[window.__pick(790,520), window.__pick(790,600), window.__pick(780,430), window.__pick(100,900)]"},
+  {"assert": "(() => { const a = window.__pick(790,520); return a && a.floor >= 1 && a.unit >= 0; })()"},
+  {"assert": "window.__pick(100,900) === null"}
+]

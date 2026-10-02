@@ -17,7 +17,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 
 ## Key rules (01 §3–§4)
 - **Pure modules** (`util/ data/ finance/ letters/ life/`, `state/{schema,migrate,summary}.js`, `phases/plan/preview2d/`,
-  `phases/design/blueprint/{model,validate,cost,templates}.js`): no DOM, `window`, `localStorage`, `three` or network;
+  `phases/design/blueprint/{model,validate,cost,templates}.js`, `phases/design/buildingPlan.js`): no DOM, `window`, `localStorage`, `three` or network;
   relative imports only; importable from Node tests.
 - three.js, the spelling dictionary and Firebase load lazily with `import()`; login, intake and the plan table never pull them in.
 - Money is integer cents (format only at the UI edge with `util/format.js`); rates are decimals.
@@ -69,9 +69,10 @@ app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScre
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles)
+                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles) · buildingsGallery.js (?dev=buildings)
 app/src/three/                 scene.js sky.js terrain.js landmarks.js materials.js · props.js propKit.js animals.js yard.js
-                               character.js · styles.js styleParts.js styleSwatch.js (browser only, import() lazily; see 3D scene)
+                               character.js · styles.js styleParts.js styleSwatch.js · buildingGen.js buildingParts.js
+                               (browser only, import() lazily; see 3D scene)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
                                paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
@@ -422,6 +423,13 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   (`BASE_HEIGHT`), `addPorch`/`makePorch`, `addRail`, `addSteps`, `addFireEscape`, `addChimney`, `addRooftop('water-tank'|
   'ac'|'solar')`. `styleSwatch.js` `createSwatchHouse(key, {variant, palette, season})` (a template for task 37). Gallery
   `?dev=styles&family=&variant=&palette=&loc=&month=&t=` (`window.__styles` = triangles per swatch).
+- Apartment/condo buildings (08 §5, 07 §2, task 35): pure `phases/design/buildingPlan.js` `planBuilding({style, variant,
+  seed, kind, settlement})` → form (walkup | lowrise | tower | glass | townhomes), floors, floorH/groundH/podium, groundUse,
+  firstFloor, cols × rows units (4–8/floor), unitW, width, depth, wallTex/wallColor, features; helpers `floorBase floorAt
+  bodyHeight unitCell unitAt homeFloors`. `three/buildingGen.js` `generate({style, seed, kind, settlement, variant, unit,
+  season})` → 08 §5 contract + `plan floorBands units setUnit(floor, unit)`; floors 1-based, units 0-based (row 0 = street).
+  Form builders in `buildingParts.js`. Gallery `?dev=buildings&loc=&kind=apartment|condo&all=1&hl=<floor>[,<unit>]&seed=`
+  (`window.__buildings` stats, `window.__pick(px, py)`); e2e `tests/e2e/buildings-pick.json`. Three buildings ≤ 135 calls.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

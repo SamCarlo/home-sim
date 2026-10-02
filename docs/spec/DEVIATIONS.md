@@ -166,3 +166,10 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
 - 2026-10-02, task 34, styles gallery draw calls: `?dev=styles` shows all 16 swatch houses at once (~480 draw calls, ~65k
   triangles), over the 150-call whole-scene budget; one house (`&family=`) is 29–49 calls including terrain. Where:
   `dev/stylesGallery.js`.
+- 2026-10-02, task 35, buildingGen extras: besides 08 §5's contract, `generate()` takes `unit` ({floor, unit}, default the
+  lowest home floor's unit 0) and `season`, and returns `plan` (phases/design/buildingPlan.js), `floorBands`, `units`
+  and `setUnit(floor, unit)` (moves plantSpots/animalSpots to that unit's balcony). Floors are 1-based, units 0-based
+  (row 0 = street side). Townhome condos count as one floor with whole-townhome units. Where: `three/buildingGen.js`.
+- 2026-10-02, task 35, buildings gallery: `?dev=buildings&all=1` shows 20 buildings at once (~510 draw calls, ~270k
+  triangles), over the whole-scene budget; the three-building view per location stays within it (≤ 135 calls, ≤ 82k
+  triangles). The gallery also takes `kind=apartment|condo`, `hl=<floor>[,<unit>]` and `seed=`. Where: `dev/buildingsGallery.js`.

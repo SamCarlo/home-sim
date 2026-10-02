@@ -1219,3 +1219,45 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - `createSwatchHouse(key, opts)` is a working template for houseGen (task 37): base → walls → roof → windows/door →
     porch → rooftop → extras → trees. Apartment parts for task 35: addRail (balconies/lānai), addFireEscape, addRooftop.
   - Loose end: the NYC stoop's slanted handrails are thin and hard to see; no roof snow caps yet.
+
+## Task 35 — Procedural apartment and condo buildings
+- attempt started 2026-10-02T11:05:47-10:00
+- done 2026-10-02T11:16:27-10:00
+- Files: `app/src/phases/design/buildingPlan.js` (pure: planBuilding, buildingForm, floorBase, bodyHeight, floorAt, unitCell,
+  unitAt, homeFloors, BUILDING), `three/buildingParts.js` (addWalkup, addTower, addGlassTower, addTownhomes),
+  `three/buildingGen.js` (generate → home contract + plan/floorBands/units/setUnit), `dev/buildingsGallery.js` +
+  `dev/galleries.js` (buildings), `tools/smoke.txt` (+buildings), `tests/unit/buildingPlan.test.js`,
+  `tests/e2e/buildings-pick.json`.
+- Verified: `bash tools/check.sh` OK (159 files, tests, data 11, smoke 52/52); `node tools/shoot.mjs --steps
+  tests/e2e/buildings-pick.json --size 1600x1000` OK (pick at the highlighted spot → {floor 4, unit 1}; roof/ground → null).
+  Shots in tools/shots/t35/ (all read):
+  - honolulu.png: three 17–20-floor concrete towers on 2–3-level parking podiums, a lānai with glass rail per unit on
+    every floor, mullions, mechanical penthouse, lobby glass + canopy; palms and monkeypod at the base.
+  - brooklyn.png: three 5–6-floor dark-red brick walk-ups, two black fire escapes each, cornice with brackets, belt
+    courses, wooden water tank on the roof.
+  - hilo.png / hilo-hl-floor.png (`&hl=2`): 3–4-floor plantation walk-ups, lānai walkways with white wood rails on every
+    upper floor, switchback outdoor stairs at the +X end, corrugated-metal hip roofs (red/green); floor 2 of the middle
+    building glows sky blue with a white outline.
+  - miami-apt.png: pastel deco 3–4-floor walk-ups (pink/mint/aqua), accent bands, raised center parapet with fins,
+    eyebrow ledges, shutters. miami-condo.png (`&kind=condo`): 17–24-floor glass towers with rounded ends, white slab
+    edges, staggered balconies, crown fin.
+  - brooklyn-hl-unit.png (`&hl=4,1`): one unit on floor 4 of the middle building glows (front row, 2nd column).
+  - all.png (`&all=1`): 5 × 4 labeled grid, one apartment per location (Honolulu 29-floor tower stands out; the back
+    row is softened by fog). katy-condo.png: brick townhome rows with per-unit gables in alternating palettes.
+    kailua-kona-condo.png: resort low-rises with balconies on every floor and a pool in front.
+- Performance (three buildings + terrain, 1600×1000): worst draw calls 135 (Pāhoa condo townhomes), worst triangles 82k
+  (Hilo condo); Honolulu apt 102 calls / 34k, Brooklyn apt 95 / 77k, Seattle apt 86 / 80k, Hilo apt 88 / 73k, Miami apt
+  92 / 34k, Miami condo 74 / 24k, Katy condo 131 / 24k. All 20 checked scenes are within 150 calls / 120k tris.
+  Per building 2.8k–15.8k triangles. `all=1` (20 buildings) is 510 calls / 272k tris (gallery only, see DEVIATIONS).
+- Deviations: `generate` also takes `unit` and `season` and returns `plan`, `floorBands`, `units`, `setUnit`;
+  `all=1` over budget; gallery adds `kind`, `hl`, `seed` params.
+- Notes for later tasks:
+  - Task 36 picker: `b = generate({style: loc.styleFamily, variant: loc.styleVariant, settlement: loc.settlement, kind,
+    seed: seedFor(meta.seed, 'building', i), season: sc.season})`; `b.units.floors` = floors with homes (lobby /
+    podium floors excluded; townhomes = [1], each unit a whole townhome); `b.highlight(floor)` / `b.highlight(floor,
+    unit)` / `b.highlight(null)`; `b.pick(raycaster)` → {floor, unit} | null; `b.setUnit(floor, unit)` moves
+    plantSpots/animalSpots in place. Call `b.setNight(sc.nightFactor)`. The pure plan (`planBuilding`) gives the same
+    floors/units without three, for unit cards and traits.
+  - Buildings are 70–220 ft wide; three side by side need ~600 ft, beyond `SCENE3D.lotHalf` pan clamp (60); the picker
+    should frame them with `sc.frame(box)` or show one at a time on small screens.
+  - Loose ends: no lit/unlit window variation at night (all glow together); glass towers' balconies are subtle.

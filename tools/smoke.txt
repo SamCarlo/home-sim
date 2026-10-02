@@ -51,3 +51,4 @@ results-denied-apartment /index.html?seed=results-denied-apartment
 scene /index.html?dev=scene
 props /index.html?dev=props
 styles /index.html?dev=styles
+buildings /index.html?dev=buildings&loc=hilo
