@@ -9,6 +9,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 ## Commands
 - Serve: `python3 tools/serve.py` → http://127.0.0.1:1270 (`python3 tools/serve.py 8080` for another port)
 - Test: `npm test` (= `node --test "tests/unit/*.test.js"`; Node 25 rejects a bare directory, see DEVIATIONS)
+- Train the letter model: `npm run train:letters` (corpus → `app/src/letters/model.json`; `--dry` reports only)
 - Check: `npm run check` (= `bash tools/check.sh`): syntax → unit tests → data imports → smoke. Run it before every commit.
 - Shoot: `node tools/shoot.mjs --path /index.html --out tools/shots/x.png --wait-ready` (see Verification below)
 - Stop the server with `pkill -f 'python3 tools/serve.py'` from a *separate* command (a pkill pattern that matches your
@@ -76,7 +77,7 @@ app/src/accounts/              provider.js (AccountError, validation, selectProv
                                ui/login.js (welcome screen: Log in / Create account tabs)
 app/src/content/names.js       fictional people/businesses per region (pure, seeded)
 app/src/letters/               types.js send.js score.js text.js allowlist.js spell.js grammar.js sentiment.js features.js
-                               (pure; model lands in tasks 27–28) · loadSpeller.js (browser, lazy dictionary)
+                               (pure) · model.json (task 27) · loadSpeller.js (browser, lazy dictionary)
 app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
                                locations/{hawaii,cities,towns,index}.js (pure)
 app/src/admin/adminMain.js     placeholder (task 52)
@@ -85,6 +86,7 @@ app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of sho
 tests/e2e/                     shoot.mjs step scripts (example, persist, register, intake, plan-keys, choose-home, paperwork-flow …)
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
+tools/letter-model/            corpus/<type>.json · logreg.mjs (pure LR math) · train.mjs (npm run train:letters)
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 ```
 
@@ -333,6 +335,12 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `loadSpeller()` (promise, fetches `vendor/dictionary-en` once) / `loadedSpeller()` (sync, null until loaded); the
   letter box preloads it on mount. Node: `createSpeller` with `fs` (see `tests/unit/letterChecks.test.js`). e2e
   `tests/e2e/letter-checks.json` (on paperwork-letter).
+- Letter model (task 27, 06 §4): `tools/letter-model/corpus/<type>.json` (14 per type, `{id, type, label, note, text,
+  split?}`, one object per line) → `train.mjs` (same `extractFeatures`, fs speller, z-scored, L2 batch GD, stratified
+  5-fold CV) → `app/src/letters/model.json` `{version, trainedAt, features, mean, std, weights, bias, cv, test, corpus,
+  hyper}`. Retraining is deterministic. `tests/unit/letterModel.test.js` retrains and fails if model.json is stale, so
+  rerun `npm run train:letters` after changing features, grammar rules or the corpus. A wrong required sign or CV < 0.80
+  writes nothing (exit 1); fix the corpus, not the math.
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 

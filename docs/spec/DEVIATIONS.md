@@ -93,3 +93,11 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   names (not spell-checked) and the missing-end-punctuation rule ignores them. The `paragraphs` feature counts lines of
   8+ words, so students who separate paragraphs with a single Enter still get credit. `extractFeatures` returns
   `issues`, `sentiment`, `wordCount` and `groupsHit` alongside `{vector, named}` for task 28. Where: `app/src/letters/`.
+- 2026-10-02, task 27, letter corpus size: 14 letters per type (4 strong, 4 middling, 6 weak; 84 total), not ~13. The
+  extra weak letter in each type has grammar mistakes all through but complete content. Without it, grammar errors only
+  appeared alongside spelling and text-speak, and the grammar weight came out with the wrong sign. Where: `tools/letter-model/corpus/`.
+- 2026-10-02, task 27, model training details: cross-validation is **stratified** (positives and negatives dealt
+  round-robin into 5 seeded folds), and each fold standardizes on its own training part. The final model trains on the
+  non-test letters only, so the held-out accuracy is honest. `model.json` adds `cv.k`, `test.logloss`, `test.n`, `corpus`
+  and `hyper` (λ 0.05, rate 0.3, 3000 iterations, seed 27) to the 06 §4 fields. `version` is `letters-lr-<hash>` of the
+  feature names, corpus and hyperparameters, so it changes exactly when the model can. Where: `tools/letter-model/`.

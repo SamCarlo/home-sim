@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test \"tests/unit/*.test.js\"",
-    "check": "bash tools/check.sh"
+    "check": "bash tools/check.sh",
+    "train:letters": "node tools/letter-model/train.mjs"
   }
 }
