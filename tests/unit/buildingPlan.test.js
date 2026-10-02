@@ -48,6 +48,7 @@ test('towns get their signature buildings', () => {
     assert.ok(hilo.floors >= 2 && hilo.floors <= 4);
     assert.ok(planFor('miami', 'apartment', s).features.deco);
     assert.equal(planFor('miami', 'condo', s).form, 'glass');
+    assert.deepEqual(homeFloors(planFor('katy', 'condo', s)), [1]);
   }
 });
 

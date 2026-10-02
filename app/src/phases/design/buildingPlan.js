@@ -118,8 +118,9 @@ export function unitAt(plan, x, z) {
   return row * plan.cols + col;
 }
 
-/** Floors that hold homes, lowest first. */
+/** Floors that hold homes, lowest first. Townhomes are whole units, so they count as one floor. */
 export function homeFloors(plan) {
+  if (plan.form === 'townhomes') return [1];
   const out = [];
   for (let f = plan.firstFloor; f <= plan.floors; f++) out.push(f);
   return out;
