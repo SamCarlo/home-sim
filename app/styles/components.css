@@ -154,3 +154,13 @@ body.has-modal { overflow: hidden; }
 .modal-title { margin: 0 0 var(--sp-2); font-size: 1.3rem; }
 .modal-message { margin: 0 0 var(--sp-4); line-height: 1.5; }
 .modal-actions { display: flex; justify-content: flex-end; gap: var(--sp-2); flex-wrap: wrap; }
+
+/* 3D scene (08 §2) + ?dev=scene gallery */
+.three-fallback { display: grid; gap: var(--sp-3); justify-items: center; padding: var(--sp-4); text-align: center; }
+.three-fallback-art svg { display: block; width: min(480px, 100%); height: auto; border-radius: var(--r-md); }
+.dev-scene { position: fixed; inset: 0; z-index: 5; background: #0b1020; }
+.dev-scene-view { position: absolute; inset: 0; }
+.dev-scene-label { position: absolute; left: var(--sp-3); bottom: var(--sp-3); padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md); background: rgb(0 0 0 / 0.6); color: #fff; font-size: 0.85rem; }
+.dev-scene-label .is-ok { color: #8fe3a0; }
+.dev-scene-label .is-bad { color: #ff9a8a; }

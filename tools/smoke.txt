@@ -48,3 +48,4 @@ paperwork-card-offer /index.html?seed=paperwork-card-offer
 paperwork-card-offer-secured /index.html?seed=paperwork-card-offer-secured
 results-approved-house /index.html?seed=results-approved-house
 results-denied-apartment /index.html?seed=results-denied-apartment
+scene /index.html?dev=scene

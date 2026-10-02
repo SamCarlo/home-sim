@@ -357,3 +357,24 @@ export const STORAGE_PREFIX = 'homesim:v1:';
 
 /** Hosts where dev flags work even in Firebase mode (01 §7). */
 export const DEV_HOSTS = ['localhost', '127.0.0.1'];
+
+/** 3D scene (08 §2–§3) and its performance budget (01 §10). Units are feet. */
+export const SCENE3D = {
+  maxPixelRatio: 1.5,           // 08 §2: antialias only when devicePixelRatio <= this
+  fov: 45,
+  exposure: 1.0,                // ACES filmic
+  shadowMapSize: 1024,          // 01 §10: one shadow-casting light, 1024²
+  polarMinDeg: 15,              // 08 §2 orbit limits
+  polarMaxDeg: 80,
+  zoomMin: 0.5,                 // × the framing distance
+  zoomMax: 2.5,
+  lotHalf: 60,                  // pan stays inside ±lotHalf ft of the lot center
+  groundSize: 400,              // 08 §3: decorated terrain is 400 × 400 ft
+  farGround: 1800,              // the plain ground runs on to the fog line
+  timeOfDay: 0.62,              // default t (0.25 sunrise, 0.5 noon, 0.75 sunset)
+  viewDir: [0.5, 0.27, 0.82],   // default camera direction from the target (front-right, low)
+  backdrop: { xz: 1.25, y: 0.6 }, // landmark/peak scale: pushed back and lowered so they stay a backdrop
+  fog: [500, 2400],
+  budget: { drawCalls: 150, triangles: 120000 },
+  coastal: ['honolulu', 'kailua-kona', 'miami', 'halifax', 'homer'], // 08 §3 water plane
+};

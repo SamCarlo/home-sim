@@ -69,7 +69,8 @@ app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScre
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters)
+                               seeds.js (fixtures) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene)
+app/src/three/                 scene.js sky.js terrain.js landmarks.js materials.js (browser only, import() lazily; see 3D scene)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
                                paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
@@ -379,6 +380,25 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 
+## 3D scene (08 §1–§3, task 32; `app/src/three/`, browser only)
+- `scene.js` `createScene(container, {location?, biome?, landmark?, monthIndex, timeOfDay, interactive, seasons?, coastal?,
+  homeTypeId?, seed?})` → `{scene, camera, renderer, controls, sky, terrain, info {calls, triangles}, nightFactor, season,
+  setTimeOfDay(t), setSeason(mi), add, remove, frame(box3, {padding}), requestRender, start(fn(dt, s)), stop, dispose,
+  firstFrame()}` or **null** when WebGL fails (the 2D preview + "3D isn't available" note is shown). Render on demand
+  (controls, ResizeObserver, `requestRender`); the loop pauses when the tab is hidden. `frame` keeps the view direction, sets
+  zoom limits (0.5–2.5×) and fits the sun's shadow camera. Pan is clamped to ±`SCENE3D.lotHalf`. Tunables: `config.SCENE3D`.
+- `sky.js` `createSky({biome})`: gradient dome (ShaderMaterial), 700 stars, sun/moon discs, hemisphere + shadow-casting sun +
+  moon light; `paletteAt(t, biome)` blends night/dawn/day (biome sky from preview2d `BIOME_PALETTE`)/dusk.
+- `terrain.js` `createTerrain({biome, landmark, seasons, coastal, monthIndex, seed})` → `{group, setSeason, heightAt}`:
+  per-biome `RECIPES` (ground, rolling, vegetation, extras urban/fence/lava/rocks/peaks), lot pad, water on the −X edge,
+  landmark backdrop. Snow = white ground + hidden deciduous crowns; fall = recolored leaf materials.
+- `landmarks.js` `addLandmark(batch, key, ctx)` for all 20 `LANDMARKS` (`LANDMARK_KEYS`).
+- `materials.js`: `mat(color, opts)` (cached, flat-shaded), `ownMat` (uncached, for recoloring), `canvasTexture('siding'|'brick'|
+  'shingle'|'metal')`, `texturedMat`, `createBatch()` → `add(geo, material, {x,y,z,rx,ry,rz,s,sx,sy,sz})` / `build({castShadow,
+  receiveShadow})` (one merged mesh per material), `disposeMaterials()` (called by `dispose`).
+- Gallery `?dev=scene&biome=&t=&month=&landmark=&loc=` shows calls/triangles vs the budget; `window.__scene` is the handle.
+  Current scenes: 9–18 draw calls, ≤ 13.5k triangles.
+
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
 - `main.js`: `?seed=` → `local-dev` user + fixture (saved at once, no login); otherwise `accounts.current()` or the login
@@ -391,6 +411,7 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `pagehide` flush. In unit tests pass `attach(store, adapter, {clock, events})` (see `tests/unit/persistence.test.js`'s fake clock).
 - `store.replace(state)` swaps the whole state (seed load, reset) as a checkpoint. Listeners get `(state, {checkpoint, prev})`.
 - `shoot.mjs` uses a top-level `await`: module-level `const`s it needs must be declared *above* that block (TDZ).
+- three r186 has no `PCFSoftShadowMap` (warns and falls back); use `PCFShadowMap`.
 - The OS on this machine prefers dark, so plain headless shots come out dark; pass `?theme=light` for light.
 
 ## Current status

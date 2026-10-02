@@ -1112,3 +1112,35 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Task 32+: the design phase starts with `home.label 'To be chosen'`; the e2e ends on the design placeholder.
   - Loose end: `tests/e2e/renter-apartment.json` and `paperwork-flow.json` click `.pw-dev-done` on steps that are real now
     (they aren't in check.sh); run them with `?dev=1` or retire them in task 56.
+
+## Task 32 — 3D scene foundation
+- attempt started 2026-10-02T07:15:52-10:00
+- done 2026-10-02T07:28:00-10:00
+- Files: `app/src/three/scene.js` (createScene, webglAvailable, showFallback), `three/sky.js` (createSky, paletteAt),
+  `three/terrain.js` (createTerrain), `three/landmarks.js` (20 backdrops, addLandmark), `three/materials.js` (mat, ownMat,
+  canvasTexture, texturedMat, createBatch, disposeMaterials), `dev/sceneGallery.js` + `dev/galleries.js` (scene),
+  `config.js` (`SCENE3D`), `styles/components.css` (`.three-fallback`, `.dev-scene*`), `tools/smoke.txt` (+scene).
+- Verified: `bash tools/check.sh` OK (145 files, tests, data 11, smoke 49/49). One shoot run visited all 20 `?dev=scene&loc=<id>`
+  pages with no console errors: draw calls 9–18, triangles 1,388–13,470 (budget 150 / 120k).
+  - t32/tropical-wet-noon.png (`biome=tropical-wet&t=0.5&landmark=kilauea-plume`): **11 calls, 4,641 tris**. Blue sky, green
+    ground, lighter lot pad, palms, ferns, round trees, black lava patches, broad shield volcano with a gray plume behind the lot.
+  - t32/desert-sunset.png (`biome=desert&t=0.75`, Las Vegas): **10 calls, 3,652 tris**. Orange/pink sky, ochre ridge, Strip
+    towers, cacti, agave and rocks in warm, dim light.
+  - t32/alpine-night.png (`biome=alpine&t=0.95`, Yellow Pine, January snow): **11 calls, 10,798 tris**. Navy sky with stars,
+    moonlit blue snow on rolling ground, dark pines, snow-capped distant peaks.
+  - t32/continental-lake-snow.png (`biome=continental-lake&t=0.55&month=0`, Marquette): **12 calls, 2,800 tris**. White
+    ground and lot, bare deciduous trunks, green pines, ore dock over Lake Superior, green ridges.
+  - Extra: kona-coast.png (water plane + sand shore on the west edge, Hualālai), honolulu-urban.png (asphalt/sidewalk grid,
+    Lēʻahi crater, skyline, ocean), montpelier-fall.png (September: orange/red/gold crowns, gold dome capitol).
+- Deviations (DEVIATIONS.md): PCFShadowMap instead of PCFSoftShadowMap (removed in r186); createScene takes
+  `location`/`seasons`/`coastal` and returns null after drawing the fallback; the plain ground runs to 1,800 ft.
+- Notes for later tasks:
+  - `createScene(container, {location, homeTypeId, timeOfDay, monthIndex, interactive})` → null means fallback was shown.
+    Add the home with `sc.add(group)`, then `sc.frame(new THREE.Box3().setFromObject(group))` (also fits the sun shadow box).
+    `sc.nightFactor` drives window glow; `sc.season` = {snow, fall, month} after `setSeason` (task 34+: roof snow caps).
+  - Merge static parts with `createBatch()` (one mesh per material). Use `mat()` for shared colors, `ownMat()` for anything
+    you recolor. `dispose()` frees everything, including the material cache, so don't keep `mat()` results across scenes.
+  - Animations: `sc.start((dt, s) => …)` / `sc.stop()`; outside the loop call `sc.requestRender()` after changes.
+  - The default camera looks from front-right (`SCENE3D.viewDir`); terrain keeps that foreground clear and turns the
+    landmark backdrop to sit behind the lot. Water is on the −X edge.
+  - three/*.js import `three` statically, so they can't load in Node tests; keep pure logic elsewhere if it needs tests.

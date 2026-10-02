@@ -8,6 +8,7 @@ export const galleries = {
   gallery2d: () => import('./gallery2d.js'),
   forms: () => import('./formsGallery.js'),
   letters: () => import('./lettersGallery.js'),
+  scene: () => import('./sceneGallery.js'),
 };
 
 /** Mount gallery `name` into root. Returns false when no such gallery exists. */

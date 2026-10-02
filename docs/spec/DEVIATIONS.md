@@ -141,3 +141,12 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
 - 2026-10-02, task 30, worked example wording: 05 §6 says "$1,000 paid at the $25 minimum". The real minimum on $1,000 is
   $31.66 at 25.99% (1% + interest), so the example pays the card's actual minimum ("starts at $31.66 and never drops under
   $25") with `cardPayoff`, and adds a $100/month contrast and "pay in full = $0". Where: `finance/creditCard.js` `payoffExample`.
+- 2026-10-02, task 32, shadow filter: three r186 removed `PCFSoftShadowMap` (it logs a warning and falls back), so the
+  renderer uses `PCFShadowMap` (08 §2 asks for soft). Where: `three/scene.js`.
+- 2026-10-02, task 32, createScene options: besides 08 §2's `{biome, landmark, monthIndex, timeOfDay, interactive}` it takes
+  `location` (supplies biome, landmark, seasons, coastal and the fallback preview), `seasons`, `coastal`, `homeTypeId` and
+  `seed`, because snow/fall months and the water plane come from the location record. When WebGL fails it shows the
+  fallback and returns null instead of a handle. Where: `three/scene.js`.
+- 2026-10-02, task 32, terrain size: decorations fill the 400 × 400 ft area of 08 §3, but the plain ground plane is
+  1,800 ft so the horizon never shows an edge; landmarks are merged backdrops scaled by `SCENE3D.backdrop` and turned to
+  sit behind the lot in the default view. Landmark builders live in their own `three/landmarks.js`. Where: `three/terrain.js`.
