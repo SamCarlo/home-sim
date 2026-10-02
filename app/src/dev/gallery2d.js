@@ -1,5 +1,5 @@
 // `?dev=gallery2d`: every place's 2D preview in a labeled grid (04 §7), the visual check for tasks 13–14.
-// `&region=hawaii|cities|towns` filters rows; `&type=<home type>|all` picks the column(s) (default house).
+// `&region=hawaii|cities|towns` filters rows; `&type=<home type>|all` picks the column(s) (default all 100 cells).
 import { h, clear } from '../ui/dom.js';
 import { LOCATIONS, REGION_LABELS } from '../data/locations/index.js';
 import { HOME_TYPES } from '../data/enums.js';
@@ -11,7 +11,7 @@ export function mount(root) {
   clear(root);
   const params = new URLSearchParams(location.search);
   const region = params.get('region');
-  const typeParam = params.get('type') || 'house';
+  const typeParam = params.get('type') || 'all';
   const types = typeParam === 'all' ? HOME_TYPES : [HOME_TYPES.includes(typeParam) ? typeParam : 'house'];
   const places = LOCATIONS.filter((l) => !region || l.region === region);
 

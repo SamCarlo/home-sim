@@ -62,6 +62,7 @@ test('caption chip text, escaping and the unavailable sign', () => {
 
 test('catchment tank appears only where water is catchment', () => {
   assert.equal(byId.pahoa.water, 'catchment');
-  assert.match(renderPreviewSVG({ location: byId.pahoa, homeTypeId: 'house' }), /#4f7a5a/);
-  assert.doesNotMatch(renderPreviewSVG({ location: byId.hilo, homeTypeId: 'house' }), /#4f7a5a/);
+  const tank = /rx="16" ry="4" fill="#3f6a4a"/; // the tank lid (#4f7a5a is also a plantation roof color)
+  assert.match(renderPreviewSVG({ location: byId.pahoa, homeTypeId: 'house' }), tank);
+  assert.doesNotMatch(renderPreviewSVG({ location: byId.hilo, homeTypeId: 'house' }), tank);
 });

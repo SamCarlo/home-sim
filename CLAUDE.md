@@ -68,7 +68,7 @@ app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ �
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
                                ui/login.js (welcome screen: Log in / Create account tabs)
-app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js ·
+app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
                                locations/{hawaii,cities,towns,index}.js (pure)
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
@@ -151,8 +151,13 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 - 2D previews (04 §7, pure): `phases/plan/preview2d/index.js` `renderPreviewSVG({location, homeTypeId, seed?})` → SVG string
   (480×270, title/desc, caption chip, muted + "Not available here" for n/a cells). Layers: `backgrounds.js` `sky(biome, uid)`,
   `landmark(key)` (drawings in `landmarks.js`), `terrain/vegetation(biome, rng)`, props `mailbox fence car busStop
-  catchmentTank people`; palettes in `palette.js`. The home is a placeholder until task 14 (`GROUND` 238, x 170–310).
-  Gallery: `?dev=gallery2d&region=<r>&type=<id|all>`; shoot at `--size 1600x1400`.
+  catchmentTank people`; palettes in `palette.js`. The home: `buildings.js` `drawHome({location, homeTypeId, seed})`
+  (apartment walk-up/mid-rise/tower, condo townhomes/low-rise/glass tower, shared = house + 3 figures, build lot), houses
+  per family in `houses.js` `drawHouse(family, palette, opts)` → `{svg, porch}`, primitives + `GROUND` (238) in `shapes.js`.
+  Gallery: `?dev=gallery2d&region=<r>&type=<id|all>` (default all 100); shoot at `--size 1600x1800` per region.
+- Style families (08 §4, pure): `data/styleFamilies.js` `STYLE_FAMILY_DATA`/`STYLE_FAMILY_LIST`, `styleFamily(key, variant)`
+  (merges `hillside`/`alaska`): palettes {wall, trim, roof, accent}, house traits, apartment + condo floorsBySettlement
+  and traits, vegetation, props. Shared by 2D and 3D (task 34 adds 3D params).
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

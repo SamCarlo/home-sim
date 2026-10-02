@@ -434,3 +434,44 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     (`people`, `fence`, `mailbox`) are exported from backgrounds.js; the shared-room people currently overlap the door.
   - Gradient/filter ids are prefixed with a per-cell uid (`pv<hash>`), so many SVGs can be inlined on one page.
   - Task 15 can inline `renderPreviewSVG(...)` with innerHTML: every text node goes through escapeHtml.
+
+## Task 14 — 2D preview homes by type and regional style
+- attempt started 2026-10-01T14:07:52-10:00
+- done 2026-10-01T14:17:53-10:00
+- Added: `app/src/data/styleFamilies.js` (STYLE_FAMILY_DATA for all 16 families: 3–4 palettes {wall, trim, roof,
+  accent}, house traits, apartment {floorsBySettlement, balconies, exteriorStairs, fireEscapes, rooftop, material,
+  groundFloor}, condo {floorsBySettlement, townhomes/resort/glass, glassTint, crown}, vegetation, props; hillside and
+  alaska variants; `styleFamily(key, variant)` merges a variant), `preview2d/shapes.js` (drawing primitives + GROUND),
+  `preview2d/houses.js` (one house per family + hillside; `drawHouse` → {svg, porch}), `preview2d/buildings.js`
+  (`drawHome`, apartment walk-up/mid-rise/tower, condo townhomes/low-rise/glass tower, shared = house + 3 figures,
+  build lot), `tests/unit/buildings2d.test.js` (4 tests). Changed: `preview2d/index.js` (placeholder removed, uses
+  drawHome; catchment tank for every type where water is catchment), `dev/gallery2d.js` (default `type=all`, 100 cells),
+  `tests/unit/preview2d.test.js` (tank check now matches the tank lid, since #4f7a5a is also a plantation roof color), `CLAUDE.md`.
+- Verified:
+  - `node --test tests/unit/buildings2d.test.js tests/unit/preview2d.test.js` 10/10 (16 families complete; every
+    house drawing clean; all 100 cells deterministic with 5 distinct homes per place; build sign, 3 shared figures,
+    Honolulu condo tall vs Waimea low, Pāhoa tank on apartment/shared/house/build, none in Hilo).
+  - `bash tools/check.sh` → "check: OK (syntax 60 files · tests · data 10 files · smoke) in 18s" (smoke 11/11).
+  - `t14-hawaii.png` (1600x1800, all types): plantation homes on posts with lānai and ribbed metal roofs (Pāhoa blue, Hilo
+    sage, different palettes), walk-ups with outdoor stairs and lānai walkways, catchment tanks in Pāhoa; Kona salmon
+    stucco with lava-rock wall and plumeria, 4-floor resort condo; Waimea board-and-batten with stone chimney, townhome
+    condos; Honolulu concrete tower on a parking podium, teal glass condo tower, modern small-lot house with carport.
+    Pāhoa condo gray "Not available here".
+  - `t14-cities.png`: Seattle mixed-use mid-rise with shops, slanted-crown tower, craftsman; Brooklyn brick walk-up with
+    fire escapes and rooftop water tank, setback tower, brownstone row with stoop, build n/a; Miami deco low-rise, curved
+    crown tower, pink deco house with porthole; Katy brick garden apartments, townhome condos, 2-story brick with garage
+    and driveway; Las Vegas stucco complex, gold-glass tower with fin, tile-roof stucco house; Chattanooga brick block,
+    balcony condo, wraparound-porch farmhouse; Halifax yellow walk-up, balcony condo, jellybean row.
+  - `t14-towns.png`: Yellow Pine log cabin (shared) and A-frame (house) with woodpile, apt/condo n/a; Marquette
+    foursquare with dormer and sandstone base; Montpelier white Cape with shutters and red barn, brick block, townhomes;
+    Elkins farmhouse; Clarksdale pair of shotgun houses on piers; Bisbee hillside cottages with stairs; Valentine ranch
+    with barn and grain bin; Homer metal-sided house with a boat on a trailer. Five n/a condos/apartments show the sign.
+  - First pass: the five big-city condo towers were identical and Pāhoa/Hilo shared a palette. Fixed with per-family
+    `glassTint`/`crown` and a palette index from `hashString(location.id)`; re-shot `t14-condo-cities.png` (5 distinct towers).
+- Deviations: none. Judgment calls: condo traits (`condo` key) and `variants` added to the 08 §4 shape (spec shape lists
+  only apartment); apartments with `material: 'brick'` use a brick tone instead of the palette wall; house cell draws the
+  A-frame for mountain-cabin and shared draws the log cabin; shared uses the next palette so it differs from house.
+- Notes for later tasks:
+  - Task 34 (3D styles): reuse `styleFamily(key, variant)` palettes/traits; add 3D params next to them.
+  - Task 15: `renderPreviewSVG` is final; inline it in the detail panel. Houses span about x 150–335 (ranch grain bin,
+    hillside slope), wider than 170–310 but the landmark still shows.
