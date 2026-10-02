@@ -182,3 +182,12 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   span ~600 ft and towers reach 300 ft. The picker slides the building row so the chosen one sits at the lot center, and
   `three/scene.js` gained `setPanLimits({half, yMax})` (defaults unchanged) so it can look up at a tall tower's chosen floor.
   On buildings over 80 ft, choosing a floor frames that floor and a few around it. Where: `phases/design/pickerView.js`.
+- 2026-10-02, task 37, houseGen options: besides 08 §5's `{style, seed, variant, palette, extras}`, `generate()` takes
+  `styleVariant` (hillside/alaska; buildingGen calls this `variant`, but here `variant` is 'house'|'shared' per the spec),
+  `biome` (lawn color, fruit tree kind), `season`, `snow`, and `sqft`/`bedrooms` (a listing's target size), and returns
+  `plan`, `kit` and `info`. The seeded numbers live in pure `phases/design/housePlan.js` so pickers get beds/baths/sq ft
+  without three. Where: `three/houseGen.js`, `phases/design/housePlan.js`.
+- 2026-10-02, task 37, house yards: Kona's lava-rock wall and the desert block wall act as the yard fence (with gaps for
+  the path and driveway) instead of the swatch's short front wall; Hawaiʻi plantation and Miami use flowering hedges;
+  Texas has an open lawn. Brownstones get the two neighbours in the row (other palettes) and no fire escape. Where:
+  `three/houseYard.js`, `three/houseGen.js`.

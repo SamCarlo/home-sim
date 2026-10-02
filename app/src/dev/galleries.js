@@ -12,6 +12,7 @@ export const galleries = {
   props: () => import('./propsGallery.js'),
   styles: () => import('./stylesGallery.js'),
   buildings: () => import('./buildingsGallery.js'),
+  houses: () => import('./housesGallery.js'),
 };
 
 /** Mount gallery `name` into root. Returns false when no such gallery exists. */

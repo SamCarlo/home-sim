@@ -17,7 +17,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 
 ## Key rules (01 §3–§4)
 - **Pure modules** (`util/ data/ finance/ letters/ life/`, `state/{schema,migrate,summary}.js`, `phases/plan/preview2d/`,
-  `phases/design/blueprint/{model,validate,cost,templates}.js`, `phases/design/{buildingPlan,apartmentModel}.js`): no DOM, `window`, `localStorage`, `three` or network;
+  `phases/design/blueprint/{model,validate,cost,templates}.js`, `phases/design/{buildingPlan,apartmentModel,housePlan}.js`): no DOM, `window`, `localStorage`, `three` or network;
   relative imports only; importable from Node tests.
 - three.js, the spelling dictionary and Firebase load lazily with `import()`; login, intake and the plan table never pull them in.
 - Money is integer cents (format only at the UI edge with `util/format.js`); rates are decimals.
@@ -69,9 +69,9 @@ app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScre
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · designSeeds.js (design-* seeds, addDesignSeeds) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles) · buildingsGallery.js (?dev=buildings)
+                               seeds.js (fixtures) · designSeeds.js (design-* seeds, addDesignSeeds) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles) · buildingsGallery.js (?dev=buildings) · housesGallery.js (?dev=houses)
 app/src/three/                 scene.js sky.js terrain.js landmarks.js materials.js · props.js propKit.js animals.js yard.js
-                               character.js · styles.js styleParts.js styleSwatch.js · buildingGen.js buildingParts.js
+                               character.js · styles.js styleParts.js styleSwatch.js · buildingGen.js buildingParts.js · houseGen.js houseYard.js
                                (browser only, import() lazily; see 3D scene)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
@@ -444,6 +444,15 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   screenOf, dispose}` (focusing slides the row; tall buildings zoom to the floor). `window.__design = {clickAt, screenOf,
   info(), sel}` for e2e. CSS `styles/design.css` (`dz-`). Seeds `design-apartment-hilo`, `design-condo-miami`; e2e
   `tests/e2e/design-apartment.json`.
+- Houses (08 §5, 07 §3–§4, task 37): pure `phases/design/housePlan.js` `planHouse({style, styleVariant, seed, variant:
+  'house'|'shared', palette?, sqft?, bedrooms?})` → `{main {w,d,stories,storyH,porchD,porchW,doorX}, houseZ, wings [{side
+  left|right|back, x, z, w, d, stories}], footprint {minX,maxX,frontZ,backZ}, beds, baths, sqft, garage, driveX, fence,
+  streetZ, row, hawaii, bikes, spots {beds[3], trees[2], coop, pet, porch}}`; `HOUSE_SHAPE` (main-block shapes, also the
+  styles-gallery swatches), `FENCES`, `fruitTreeKind(biome, seed)`. `three/houseGen.js` `generate({style, seed, variant,
+  palette, extras {gardenBeds, fruitTrees, coop}, styleVariant, biome, season, snow, sqft, bedrooms})` → 08 §5 contract +
+  `plan kit info`; body = styleSwatch `addBody`/`addExtras` + wings + `houseYard.js` `addYard` (lawn, sidewalk, path,
+  driveway, picket|iron|ranch|hedge|lava|block fence) in one merged mesh; repeated props are instanced. Gallery
+  `?dev=houses&loc=&variant=house|shared&seed=&palette=&extras=0|1` (`window.__houses`). Single houses 79–108 calls.
 - `scene.setPanLimits({half, yMax})` widens the pan clamp (default ±`SCENE3D.lotHalf`, look-at y ≤ 40).
 
 ## Gotchas
@@ -460,6 +469,8 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 - `shoot.mjs` uses a top-level `await`: module-level `const`s it needs must be declared *above* that block (TDZ).
 - three r186 has no `PCFSoftShadowMap` (warns and falls back); use `PCFShadowMap`.
 - `Box3.setFromObject` before the first render: call `scene.updateMatrixWorld(true)` first, or the box is empty/at the origin.
+- Draw calls ≈ 2 × visible meshes (the shadow pass draws casters again): instance repeated props (`instanceProp`) and
+  merge static parts into the main build.
 - The OS on this machine prefers dark, so plain headless shots come out dark; pass `?theme=light` for light.
 
 ## Current status

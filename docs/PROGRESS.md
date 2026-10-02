@@ -1297,3 +1297,41 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     seeds until the draw approves). Tasks 38/41 add their seeds the same way in `addDesignSeeds`.
   - Loose ends: no 3D potted plants on the balcony yet (task 42); long tower floor lists are a button grid; on phones the
     auto-scroll to the next step moves the 3D view off screen.
+
+## Task 37 — Procedural houses (single-family and shared)
+- attempt started 2026-10-02T12:37:55-10:00
+- done 2026-10-02T12:48:42-10:00
+- Files: `app/src/phases/design/housePlan.js` (new, pure: planHouse, HOUSE_SHAPE (moved from styleSwatch SWATCH),
+  HOUSE, FENCES, fruitTreeKind, isHawaii), `three/houseGen.js` (new: generate → 08 §5 contract + plan/kit/info),
+  `three/houseYard.js` (new: addYard lawn/sidewalk/path/driveway/fences, createBike, createGrainBin, lawnColor),
+  `three/styleSwatch.js` (exports addBody/addExtras/makeBarn; SWATCH = HOUSE_SHAPE), `dev/housesGallery.js` +
+  `dev/galleries.js` (houses), `tools/smoke.txt` (+houses, houses-shared), `tests/unit/housePlan.test.js`.
+- Verified: `bash tools/check.sh` OK (167 files, tests, data 11, smoke 56/56). Shots in tools/shots/t37/ (all read):
+  - hilo.png: sky-blue board-and-batten plantation house on posts, deep lānai with white rails and steps, corrugated
+    hip roof + solar, left wing, flowering hedge fence, path, driveway + car, mailbox, mango trees, palm. 110 calls before instancing.
+  - katy.png: 2-story tan brick hip-roof house, attached 2-car garage + driveway + car, ground AC, open lawn (no fence),
+    citrus trees. 95 calls / 9k tris.
+  - brooklyn-house.png: three 4-story brownstone row houses (brown / tan / red), stoops with iron rails, cornices,
+    water tanks, iron areaway rails open at each stoop, street tree at the left end (moved off the middle house).
+  - yellow-pine.png: log A-frame with green metal roof, stone chimney, front porch, back wing, woodpile, ranch fence,
+    pines, apple tree.
+  - valentine-house.png: long single-story ranch, gray lap siding, left wing, red barn + grain bin (moved apart after the
+    first shot showed them overlapping), windmill, ranch fence, oak shade trees. 91 calls.
+  - hilo-shared.png: larger plantation house with left + right wings, 3 bikes by the steps, 4 bd / 2 ba. 108 calls.
+  - Extra: kailua-kona (lava-rock wall, glass lānai rails), bisbee (hillside tin-roof cottage, block wall, gravel yard,
+    saguaro), honolulu (2-story modern, carport, upper lānai, low block wall), katy-shared (back wing, 5 bd),
+    brooklyn-shared (back extension), chattanooga (picket fence).
+  - All 15 shots: 79–108 draw calls, 8–28k triangles (budget 150 / 120k). First pass was 110–134 calls: every mesh
+    draws twice (shadow pass), so repeated props (beds, fruit trees, bikes) are now instanced and ranch fences merged.
+- Deviations: `generate` also takes styleVariant/biome/season/snow/sqft/bedrooms and returns plan/kit/info; `variant`
+  means house|shared here (buildingGen's `variant` is the style variant); walls replace fences in Kona/desert (DEVIATIONS.md).
+- Notes for later tasks:
+  - Task 38 house picker: `planHouse({style, styleVariant, seed: seedFor(meta.seed, 'house', i), variant, sqft:
+    loc.housing.house.sqft, bedrooms})` gives beds/baths/sqft without three; `generate({...same, palette, extras:
+    {gardenBeds, fruitTrees, coop}, biome: loc.biome, season: sc.season})` renders it. Palette changes need a rebuild
+    (dispose + generate). Fruit tree kind: `fruitTreeKind(biome, seed)`.
+  - Task 42 homeRender: pets go at `animalSpots[0]` (yard) / [1] (porch) / [2] (coop); plants at `plantSpots`
+    (3 beds at bed height + 1 porch pot). Pass `snow` for a white lawn in snowy months (gallery uses sc.season.snow).
+  - Shared variant always uses houseGen; 07 §4's "or buildingGen depending on the style" is the picker's call (task 38).
+  - Loose ends: the brownstone stoop's iron handrail bars render as thin stray lines (styleParts addPorch 'stoop', from
+    task 34); bikes are small at the default framing; Alaska 'boat' extra not drawn.

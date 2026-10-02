@@ -9,29 +9,13 @@ import {
   styleKit, addWalls, addRoof, addWindow, addWindowRow, addDoor, addGarageDoor, frame, addBase, addPorch, addRail,
   addFireEscape, addChimney, addRooftop, texBox, BASE_HEIGHT,
 } from './styles.js';
+import { HOUSE_SHAPE } from '../phases/design/housePlan.js';
 
-/** Swatch footprint per family: width, depth, stories, story height, porch depth/width, door offset. */
-export const SWATCH = {
-  'hawaii-plantation': { w: 30, d: 24, stories: 1, porchD: 8 },
-  'hawaii-upcountry': { w: 28, d: 22, stories: 1, porchD: 6, porchW: 16 },
-  'kona-coastal': { w: 34, d: 24, stories: 1, porchD: 9 },
-  'honolulu-highrise': { w: 22, d: 26, stories: 2, storyH: 9.5 },
-  'pnw-urban': { w: 26, d: 32, stories: 1, storyH: 10, porchD: 8 },
-  'nyc-brownstone': { w: 20, d: 40, stories: 4, storyH: 11, doorX: -5 },
-  'miami-deco': { w: 32, d: 26, stories: 1, storyH: 11, porchD: 8 },
-  'texas-suburban': { w: 34, d: 30, stories: 2 },
-  'desert-southwest': { w: 32, d: 26, stories: 1, storyH: 10 },
-  'mountain-cabin': { w: 24, d: 30, stories: 1, storyH: 3, porchD: 7 },
-  'new-england': { w: 30, d: 24, stories: 2, storyH: 8.5 },
-  maritime: { w: 18, d: 24, stories: 2, doorX: -4 },
-  appalachian: { w: 30, d: 26, stories: 2, porchD: 8 },
-  'delta-south': { w: 14, d: 40, stories: 1, storyH: 11, porchD: 6, doorX: -3 },
-  'midwest-lakeside': { w: 28, d: 28, stories: 2, porchD: 8 },
-  'plains-ranch': { w: 46, d: 24, stories: 1, doorX: -8 },
-};
+/** Swatch footprint per family (the house generator's main-block shapes). */
+export const SWATCH = HOUSE_SHAPE;
 
 /** Build the house body (walls, roof, openings, porch, roof features) into `add`; returns {top, ridge, floorY}. */
-function addBody(add, kit, sw) {
+export function addBody(add, kit, sw) {
   const { look } = kit;
   const { w, d, stories, storyH = 9, porchD = 8, porchW = w, doorX = 0 } = sw;
   const floorY = addBase(add, kit, w, d);
@@ -74,7 +58,7 @@ function addBody(add, kit, sw) {
 }
 
 /** Extras that belong to the body's merged build (chimneys, cornice, bands, garage, dormer, walls). */
-function addExtras(add, kit, sw, { top, ridge, floorY }) {
+export function addExtras(add, kit, sw, { top, ridge, floorY }) {
   const { w, d, stories, storyH = 9, porchD = 8 } = sw;
   const { trim, accent, wall, concrete, metal } = kit.m;
   for (const x of kit.look.extras) {
@@ -127,7 +111,7 @@ function addExtras(add, kit, sw, { top, ridge, floorY }) {
 }
 
 /** A small red barn (gable roof, white trim cross doors), front +Z. */
-function makeBarn(kit) {
+export function makeBarn(kit) {
   return merged((add) => {
     const red = mat('#a8322a');
     add('box', red, { sx: 20, sy: 12, sz: 24 });
