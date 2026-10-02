@@ -5,6 +5,7 @@ import { LEASE } from '../../config.js';
 import { registerAgreementDoc } from '../../ui/portfolio/agreementDoc.js';
 import { leaseSchema } from './steps/lease.js';
 import { roommateSchema } from './steps/roommate-agreement.js';
+import { hoaSchema } from './steps/hoa-review.js';
 
 /** Renter terms from an agreement, with defaults for anything missing. */
 export function termsFromAgreement(a) {
@@ -16,3 +17,4 @@ export function termsFromAgreement(a) {
 
 registerAgreementDoc('lease', (a) => leaseSchema(termsFromAgreement(a)));
 registerAgreementDoc('roommate-agreement', (a) => roommateSchema(termsFromAgreement(a)));
+registerAgreementDoc('hoa-review', (a, state) => hoaSchema(a.terms, state));

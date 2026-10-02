@@ -257,6 +257,32 @@ export const LEASE = {
   quietHours: '10 pm to 7 am',
 };
 
+/** Buyer documents (05 §4 hoa-review, home-inspection, appraisal, closing-disclosure; task 22). */
+export const BUYING = {
+  hoa: {
+    healthyPct: [62, 78],               // reserve fund % funded when healthy (~70%) …
+    lowPct: [18, 32],                   // … or low (~25%)
+    lowChance: 0.35,                    // chance the reserve is low (raised by a pending assessment)
+    lowChanceWithAssessment: 0.7,
+    assessmentChance: { miami: 0.85, brooklyn: 0.35, honolulu: 0.35, default: 0.2 },
+    assessmentMonthlyCents: { miami: [20000, 30000], default: [6000, 18000] },
+    assessmentMonths: { miami: [60, 60], default: [24, 48] },
+  },
+  inspection: {
+    inspectors: [
+      { id: 'budget', label: 'Budget', feeCents: 30000, stars: 2.8, blurb: 'A quick walk-through and a two-page checklist.' },
+      { id: 'standard', label: 'Standard', feeCents: 50000, stars: 4.6, blurb: 'A full report with photos of every problem.' },
+      { id: 'thorough', label: 'Thorough', feeCents: 75000, stars: 4.9, blurb: 'Full report plus a termite check and a camera down the sewer line.' },
+    ],
+    findings: [3, 6],                   // how many problems a home has
+    hiddenChance: 0.45,                 // a quick walk-through misses this finding
+    missMonths: [1, 7],                 // a missed finding shows up in monthIndex 1–7 (life months 2–8, 09 §7)
+    creditChance: { minor: 0.3, moderate: 0.6, major: 0.85 }, // seller agrees to a repair credit, by worst severity asked
+  },
+  appraisal: { low: 0.96, high: 1.03, sellerLowersChance: 0.5 },
+  closing: { rateErrorPts: 0.0025 },    // the deliberate closing-disclosure error: rate 0.25 points too high
+};
+
 /** Student accounts (11 §2). */
 export const ACCOUNTS = {
   usernamePattern: /^[a-z0-9][a-z0-9_-]{2,19}$/,

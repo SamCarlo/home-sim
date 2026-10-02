@@ -59,7 +59,7 @@ app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
 app/src/finance/               money.js loans.js costs.js affordability.js grid.js · ledger.js (+ ledgerRecords.js
-                               ledgerTotals.js) creditScore.js loanOptions.js (pure; see Finance helpers, Plan numbers, Ledger)
+                               ledgerTotals.js) creditScore.js loanOptions.js buying.js (pure; see Finance helpers, Plan numbers, Ledger)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
@@ -181,7 +181,7 @@ and returns a result, never a new state. Accounts `'checking' | 'savings' | 'car
   apartment panel open), `portfolio-demo` (phase life, April 2033: Hilo house, mortgage with PMI, card, 11 bills,
   4 agreements, 2 scored letters, 3 applications, credit history), `paperwork-{apartment,shared,condo,house,build}-start`
   and `paperwork-apartment-cosigner` (built with `paperworkStart(now, {locationId, homeTypeId, income, savings})`),
-  `paperwork-apartment-lease`, `paperwork-shared-agreement`, `paperwork-house-options`, `paperwork-pahoa-house-options` (earlier steps done via `finishSteps(s, ids, values)`;
+  `paperwork-apartment-lease`, `paperwork-shared-agreement`, `paperwork-house-options`, `paperwork-pahoa-house-options`, the task 22 buyer seeds (earlier steps done via `finishSteps(s, ids, values)`;
   `SAMPLE_APPLICATION` = valid application answers for "Kai Mana").
 - Calendar: `util/dates.js` `monthLabel/monthName/daysInMonth/weekday (0 = Sunday)/dayLabel`. Jan 1, 2033 is a Saturday.
 - Save indicator: `renderSaveStatus(persistence.status)` from `ui/saveStatus.js`; the header shows it.
@@ -283,6 +283,17 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `programBlock` (lava/FHA/credit rules). `loan-options.js` (kind 'choice', mount) stores `paperwork.options.{program,
   downPaymentPct, termYears}`. Seeds `paperwork-house-options` (Katy), `paperwork-pahoa-house-options` (Lava Zone 1);
   `SAMPLE_MORTGAGE_APPLICATION`. e2e `tests/e2e/mortgage-house.json` (on paperwork-house-start).
+- Buyer documents (task 22): pure `finance/buying.js` (`config.BUYING`): `hoaReport`, `inspectionFindings`/`inspectionReport`
+  (`inspectorFinds`: thorough finds all, standard misses termite/sewer specialty items, budget also misses `hidden` ones),
+  `creditAsk`/`repairCreditDecision`, `appraisalResult`/`canPayGap`/`sellerLowersDecision`/`resolvePurchase`,
+  `closingDisclosure`/`flagRow`/`closingOutcome`; all seeded by `buyingRng(state, purpose)` (save + place + attempt).
+  Stored in `paperwork.options`: `hoa`, `specialAssessment` (+ a 'special-assessment' line pushed into the snapshot's
+  monthly breakdown, so `loanOptions` counts it), `inspection {inspectorId, feeCents, company, found, decision, credit}`,
+  `missedFindings [{month, label, cents}]` (task 44 surprise repairs), `repairCreditCents`, `appraisal`, `purchase
+  {priceCents, appraisedCents, gapCents, resolution}` (`loanOptions` lends on min(price, value), adds the gap, subtracts the
+  credit), `closing {agreedRate, finalRate, errorFlagged, wrongFlags, extraMonthlyCents}`. Walking away calls
+  `withdraw(s, now, reason)`. Seeds `paperwork-condo-hoa` (Miami), `paperwork-house-{inspection,appraisal,appraisal-low,closing}`
+  (Katy). e2e `tests/e2e/buyer-house.json` (on paperwork-house-inspection).
 - Names (05 §10): `content/names.js` (pure) `NAMES[region]` pools; `businessFor(s, kind)`, `peopleFor(s, purpose, n)`,
   `phoneFor(s, purpose)`, all seeded by save + place + attempt.
 

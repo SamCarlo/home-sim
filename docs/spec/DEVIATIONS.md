@@ -51,3 +51,12 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   Monthly housing on the table = P&I + PMI/MIP + tax + insurance + required hazard + HOA (no utilities). The mortgage
   application adds a bankruptcy declaration that must be "No" (the character has none). Code: `finance/loanOptions.js`,
   `phases/paperwork/steps/{mortgage-application,loan-options}.js`.
+- **2026-10-01, task 22**: buyer documents. The inspector's fee is what that inspector charges ($300/$500/$750), and
+  hiring settles the snapshot's whole 'inspection' upfront line so commit doesn't charge it again. A repair-credit request
+  asks for the moderate + major items (all items if only minor ones were found); the acceptance chance is set by the worst
+  severity asked (`BUYING.inspection.creditChance`), one try. Lenders lend on the lower of price and appraised value, so a
+  paid gap lowers the loan and adds the gap to cash to close; "ask the seller" is one seeded try. A pending HOA special
+  assessment is pushed into the snapshot's monthly breakdown as a 'special-assessment' line (no state version bump). The
+  closing disclosure's escrow row is property tax + insurance + required hazard (HOA dues aren't escrowed); each row has its
+  own "Flag an error" button and wrong flags are counted (`options.closing.wrongFlags`). Code: `finance/buying.js`,
+  `finance/loanOptions.js`, `phases/paperwork/steps/{hoa-review,home-inspection,appraisal,closing-disclosure}.js`.

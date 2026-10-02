@@ -738,3 +738,42 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     option, not the snapshot's 10% lines. `FIXED_KEYS` already includes 'special-assessment' if hoa-review adds one.
   - The paperwork screen's error text after a refused complete() says "to pay this fee"; loan-options never hits it
     because disabled rows can't be picked.
+
+## Task 22 — HOA review, inspection, appraisal, closing disclosure
+- attempt started 2026-10-01T22:03:47-10:00
+- attempt started 2026-10-01T22:49:53-10:00
+- done 2026-10-01T22:52:18-10:00
+- Resumed the first attempt's uncommitted work (all four steps, buying.js, tests and seeds were already written); this run
+  verified it, added the e2e and wrapped up.
+- Added: `app/src/finance/buying.js` (pure), `tests/unit/buyerPaperwork.test.js` (6 tests), `tests/e2e/buyer-house.json`.
+  Rewrote steps `hoa-review.js` (`hoaTerms`, `hoaQuestions`, `hoaSchema`), `home-inspection.js` (`hireInspector`,
+  `requestRepairCredit`), `appraisal.js` (`orderAppraisal`, `gapAffordability`, `askSeller`, `payGap`),
+  `closing-disclosure.js` (`closingTerms`). Changed: `config.js` (`BUYING`), `finance/loanOptions.js` (purchase price /
+  appraisal / gap / repair credit), `flow.js` (`withdraw(s, now, reason)`), `docs.js` (hoa-review doc), `dev/seeds.js`
+  (5 seeds), `styles/paperwork.css`, `tools/smoke.txt` (+5), CLAUDE.md, DEVIATIONS.
+- Verified:
+  - `node --test tests/unit/buyerPaperwork.test.js` → 6 pass (deterministic 3–6 findings, thorough misses none, budget ⊆
+    standard, missedFindings months 1–7; fee charged once + line settled; credit odds by severity and credit lowers cash to
+    close; appraisal gap math incl. loan on the lower value; closing rate +0.25 until flagged, only the rate flag is correct,
+    signing records final rate; Miami HOA assessment line added once + agreement docType; states valid).
+  - `bash tools/check.sh` → "check: OK (syntax 116 files · tests · data 10 files · smoke) in 40s", smoke 29/29.
+  - e2e ✓ `buyer-house.json` on paperwork-house-inspection (light): budget inspector −$300, missedFindings = termites
+    (month 3, $3,990) + water heater (month 4); credit asked (seller no); accept → appraisal at value $386,000 → continue →
+    home insurance (dev) → closing: wrong flag on loan amount shows the red note, rate flag fixes it, sign → errorFlagged.
+  - Shots in tools/shots/t22/:
+    - 1-inspection-pick: three inspector cards ($300 ★2.8, $500 ★4.6, $750 ★4.9) with blurbs and Hire buttons.
+    - 2-inspection-report: ClearSight report, 3 findings with Moderate/Minor chips and estimates, budget-limits note, choices box, "The seller said no", Accept / Walk away.
+    - 3-appraisal: at-value result with Continue.
+    - 4-closing-flagged: agreed-loan box (6.875%), 9 rows, rate row green "✓ Fixed", "saves $57 a month", signature filled.
+    - 6-hoa-review (Miami condo, light): dues $850, covers list, reserve 78% healthy, pending assessment $215/mo × 60, rules, 3 questions, ack + signature.
+    - 7-appraisal-low (dark): $375,000 vs $363,000, gap $12,000 warning, Pay gap / Ask seller / Walk away.
+    - 8-appraisal-asked: seller agreed, "The seller lowered the price to $363,000." + Continue.
+- Deviations: see DEVIATIONS (inspector fee, credit ask, lend on lower value, assessment line, escrow row, wrong-flag count).
+- Notes for later tasks:
+  - Task 44: `paperwork.options.missedFindings` = [{month (monthIndex 1–7), label, cents}] → surprise repairs.
+  - Task 29: the special assessment is already in `loanOptions(state).fixedCents`/housing; reuse `findOption`.
+  - Task 31 (results/commit): `options.closing.finalRate` is the rate to open the loan at (higher if not flagged,
+    `extraMonthlyCents` for the message); `options.purchase.priceCents` is the final price; `specialAssessment` becomes a
+    recurring item for `months`; `repairCreditCents` and `purchase.gapCents` are already in the option's cash to close.
+  - Polish: after the seller refuses a repair credit the "Your choices" box still lists the credit option; after the seller
+    lowers the price the "came in low" warning still shows the old gap.

@@ -78,3 +78,26 @@
 .pw-lo-detail h3 { margin: 0 0 var(--sp-1); font-size: 1rem; }
 .pw-lo-detail ul { margin: 0; padding-left: 1.2em; }
 .pw-lo-done { font-weight: 600; color: var(--accent-ink); }
+
+/* Buyer documents (task 22): inspection, appraisal, closing disclosure */
+.pw-pick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sp-3); margin: var(--sp-3) 0; }
+.pw-pick { display: flex; flex-direction: column; gap: var(--sp-1); padding: var(--sp-3) var(--sp-4); }
+.pw-pick h3 { margin: 0; }
+.pw-pick p { margin: 0; }
+.pw-pick-price { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pw-pick-stars { color: var(--st-yellow-ink); font-weight: 600; }
+.pw-pick .btn { margin-top: auto; align-self: flex-start; }
+.pw-findings, .pw-cd-table { width: 100%; margin: var(--sp-3) 0; }
+.pw-findings .num, .pw-cd-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pw-sev { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .8rem; font-weight: 600; }
+.pw-sev.is-minor { background: var(--st-cyan-bg); color: var(--st-cyan-ink); }
+.pw-sev.is-moderate { background: var(--st-yellow-bg); color: var(--st-yellow-ink); }
+.pw-sev.is-major { background: var(--st-red-bg); color: var(--st-red-ink); }
+.pw-insp-note { font-size: .9rem; }
+.pw-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-3) 0; }
+.pw-good { color: var(--st-green-ink); font-weight: 600; }
+.pw-bad { color: var(--danger-ink); font-weight: 600; }
+.pw-cd-flag { text-align: right; width: 1%; white-space: nowrap; }
+.pw-cd-row.is-fixed td, .pw-cd-row.is-fixed th { background: var(--st-green-bg); }
+.pw-cd-sign { max-width: 420px; display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-4); }
+.pw-cd-sign .btn { align-self: flex-start; }

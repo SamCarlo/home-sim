@@ -136,13 +136,14 @@ export function completeStep(state, id, { values = {}, upfrontKey = null, feeLab
 /**
  * "Choose a different home" (05 §1): record the attempt as withdrawn (fees stay spent), void this attempt's pending
  * agreements, close its pending applications, clear the choice and paperwork, and go back to Plan. Letters are kept.
+ * `reason` is the attempt's reason (walking away after an inspection or appraisal passes its own).
  * Use with store.update(…, {checkpoint: 'paperwork-withdrawn'}).
  */
-export function withdraw(state, now = 0) {
+export function withdraw(state, now = 0, reason = 'You chose a different home before the paperwork was finished.') {
   const { choice } = state;
   if (choice) {
     state.plan.attempts.push({ locationId: choice.locationId, homeTypeId: choice.homeTypeId, outcome: 'withdrawn',
-      reasons: ['You chose a different home before the paperwork was finished.'], at: now });
+      reasons: [reason], at: now });
   }
   for (const a of state.finances.agreements) if (a.status === 'pending') setAgreementStatus(state, a.id, 'void');
   for (const a of state.finances.applications) {

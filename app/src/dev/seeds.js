@@ -10,6 +10,10 @@ import { buildGrid, gridCells } from '../finance/grid.js';
 import { applyChoice } from '../phases/plan/detailModel.js';
 import { completeStep } from '../phases/paperwork/flow.js';
 import { step as paperworkStep } from '../phases/paperwork/steps/index.js';
+import { hireInspector } from '../phases/paperwork/steps/home-inspection.js';
+import { orderAppraisal, payGap } from '../phases/paperwork/steps/appraisal.js';
+import { appraisalResult } from '../finance/buying.js';
+import { byId } from '../data/locations/index.js';
 
 /** The dev account every seed runs as (01 §7). */
 export const DEV_USER = { uid: 'local-dev', username: 'dev', classCode: 'DEMO' };
@@ -255,3 +259,44 @@ export function buildSeed(name, now = 0) {
   if (!def) throw new Error(`Unknown seed "${name}". Known: ${Object.keys(seeds).join(', ')}`);
   return def.build(now);
 }
+
+// Task 22 seeds: buyer documents after the loan is chosen (conventional 10% down, 30 years).
+const LOAN_10_30 = { program: 'conventional', downPaymentPct: 0.1, termYears: 30 };
+const katyHouse = (now) => paperworkStart(now, { locationId: 'katy', homeTypeId: 'house', netMonthlyIncomeCents: 600000,
+  startingSavingsCents: 8000000, jobTitle: 'Teacher' });
+const KATY_VALUES = { 'mortgage-application': SAMPLE_MORTGAGE_APPLICATION, 'loan-options': LOAN_10_30 };
+seeds['paperwork-condo-hoa'] = { phase: 'paperwork',
+  description: 'Miami condo: mortgage application and loan choice done; the HOA review (with a special assessment) is next.',
+  build: (now) => finishSteps(paperworkStart(now, { locationId: 'miami', homeTypeId: 'condo', netMonthlyIncomeCents: 700000,
+    startingSavingsCents: 8000000, jobTitle: 'Engineer' }), ['mortgage-application', 'loan-options', 'loan-purpose'],
+  { 'mortgage-application': { ...SAMPLE_MORTGAGE_APPLICATION, employer: 'Biscayne Engineering' }, 'loan-options': LOAN_10_30 }, now) };
+seeds['paperwork-house-inspection'] = { phase: 'paperwork',
+  description: 'Katy house: application, loan choice and loan letter done; pick a home inspector next.',
+  build: (now) => finishSteps(katyHouse(now), ['mortgage-application', 'loan-options', 'loan-purpose'], KATY_VALUES, now) };
+/** Katy house up to the appraisal; `metaSeed` replaces the save's seed (to pick a low appraisal). */
+function katyToAppraisal(now, metaSeed = null) {
+  const s = katyHouse(now);
+  if (metaSeed !== null) s.meta.seed = metaSeed;
+  finishSteps(s, ['mortgage-application', 'loan-options', 'loan-purpose'], KATY_VALUES, now);
+  hireInspector(s, 'standard');
+  return finishSteps(s, ['home-inspection'], { 'home-inspection': { decision: 'accept' } }, now);
+}
+seeds['paperwork-house-appraisal'] = { phase: 'paperwork',
+  description: 'Katy house: inspection done (standard inspector, accepted as-is); order the appraisal next.',
+  build: (now) => katyToAppraisal(now) };
+seeds['paperwork-house-appraisal-low'] = { phase: 'paperwork',
+  description: 'Katy house, a save whose appraisal comes in below the price: pay the gap, ask the seller, or walk away.',
+  build: (now) => {
+    for (let k = 1; ; k++) {
+      const s = katyToAppraisal(now, k);
+      if (appraisalResult(s, byId.katy.housing.house.priceCents).gapCents > 0) return s;
+    }
+  } };
+seeds['paperwork-house-closing'] = { phase: 'paperwork',
+  description: 'Katy house: inspection, appraisal and home insurance done; review and sign the closing disclosure.',
+  build: (now) => {
+    const s = seeds['paperwork-house-appraisal'].build(now);
+    orderAppraisal(s);
+    if (!s.paperwork.options.purchase) payGap(s);
+    return finishSteps(s, ['appraisal', 'home-insurance'], {}, now);
+  } };

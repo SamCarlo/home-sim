@@ -24,3 +24,8 @@ paperwork-apartment-lease /index.html?seed=paperwork-apartment-lease
 paperwork-shared-agreement /index.html?seed=paperwork-shared-agreement&theme=light
 paperwork-house-options /index.html?seed=paperwork-house-options
 paperwork-pahoa-house-options /index.html?seed=paperwork-pahoa-house-options&theme=light
+paperwork-condo-hoa /index.html?seed=paperwork-condo-hoa&theme=light
+paperwork-house-inspection /index.html?seed=paperwork-house-inspection
+paperwork-house-appraisal /index.html?seed=paperwork-house-appraisal
+paperwork-house-appraisal-low /index.html?seed=paperwork-house-appraisal-low&theme=light
+paperwork-house-closing /index.html?seed=paperwork-house-closing&theme=light

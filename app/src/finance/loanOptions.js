@@ -62,7 +62,7 @@ export function programBlock({ program, downPaymentPct }, { score, location }, u
  * shortCents, disabledReason}.
  */
 export function loanOption(choice, termYears, ctx, config = FINANCE, uw = UNDERWRITING.mortgage) {
-  const { priceCents, score, cashCents, fixedCents, feesCents } = ctx;
+  const { priceCents, score, cashCents, fixedCents, feesCents, gapCents = 0, creditCents = 0 } = ctx;
   const { program, downPaymentPct } = choice;
   const termMonths = termYears * 12;
   const tier = creditTier(score, uw);
@@ -86,7 +86,8 @@ export function loanOption(choice, termYears, ctx, config = FINANCE, uw = UNDERW
   const housingCents = sumCents(piCents, mortgageInsuranceCents, fixedCents);
   const closingCents = mulRate(priceCents, config.closingPct);
   const reservesCents = housingCents * uw.reserveMonths;
-  const cashToCloseCents = sumCents(downCents, closingCents, feesCents, reservesCents);
+  // An appraisal gap the buyer pays adds cash; an accepted repair credit takes some off (task 22).
+  const cashToCloseCents = Math.max(0, sumCents(downCents, closingCents, feesCents, reservesCents, gapCents) - creditCents);
   const shortCents = Math.max(0, cashToCloseCents - cashCents);
   const disabledReason = programBlock(choice, ctx, uw)
     ?? (shortCents > 0 ? `You need ${formatMoney(shortCents)} more in savings and checking to close.` : null);
@@ -94,19 +95,25 @@ export function loanOption(choice, termYears, ctx, config = FINANCE, uw = UNDERW
     key: optionKey({ program, downPaymentPct, termYears }), program, downPaymentPct, termYears, termMonths, rate,
     priceCents, downCents, baseLoanCents, upfrontMipCents, loanCents, piCents, insuranceKind, mortgageInsuranceCents,
     fixedCents, housingCents, totalInterestCents: totalInterest(loanCents, rate, termMonths), closingCents, feesCents,
-    reservesCents, cashToCloseCents, shortCents, disabledReason,
+    reservesCents, gapCents, creditCents, cashToCloseCents, shortCents, disabledReason,
   };
 }
 
 /**
- * Every loan option for the chosen condo/house (05 §4): {priceCents, score, tier, cashCents, grossCents, lavaZone,
+ * Every loan option for the chosen condo/house (05 §4): {priceCents (what the loan is based on), contractCents,
+ * gapCents, creditCents, score, tier, cashCents, grossCents, lavaZone,
  * strictLava, fixedLines, fixedCents, feesCents, options[], cheapestMonthlyKey, leastInterestKey}. The two "best"
  * keys only consider options that can be chosen (null if none can).
  */
 export function loanOptions(state, config = FINANCE, uw = UNDERWRITING.mortgage) {
   const { locationId, homeTypeId, snapshot } = state.choice;
   const location = byId[locationId];
-  const priceCents = location.housing[homeTypeId].priceCents;
+  // After the appraisal (task 22): the agreed price may be lower, and lenders lend on the lower of price and value.
+  const purchase = state.paperwork.options?.purchase;
+  const contractCents = purchase?.priceCents ?? location.housing[homeTypeId].priceCents;
+  const priceCents = Math.min(contractCents, purchase?.appraisedCents ?? contractCents);
+  const gapCents = purchase?.gapCents ?? 0;
+  const creditCents = state.paperwork.options?.repairCreditCents ?? 0;
   const breakdown = snapshot?.breakdown ?? cellCost(location, homeTypeId, config);
   const fixedLines = breakdown.monthly.filter((l) => FIXED_KEYS.includes(l.key));
   const fixedCents = sumCents(fixedLines.map((l) => l.cents));
@@ -115,12 +122,12 @@ export function loanOptions(state, config = FINANCE, uw = UNDERWRITING.mortgage)
     .map((l) => Math.max(0, l.cents - (paid[l.key] ?? 0))));
   const cashCents = cashOf(state);
   const score = state.finances.credit.score;
-  const ctx = { priceCents, score, cashCents, fixedCents, feesCents, location };
+  const ctx = { priceCents, score, cashCents, fixedCents, feesCents, gapCents, creditCents, location };
   const options = LOAN_CHOICES.flatMap((c) => LOAN_TERMS.map((t) => loanOption(c, t, ctx, config, uw)));
   const open = options.filter((o) => !o.disabledReason);
   const best = (by) => (open.length ? open.reduce((a, b) => (by(b) < by(a) ? b : a)).key : null);
   return {
-    priceCents, score, tier: creditTier(score, uw), cashCents,
+    priceCents, contractCents, gapCents, creditCents, score, tier: creditTier(score, uw), cashCents,
     grossCents: Math.round((state.player.netMonthlyIncomeCents ?? 0) / config.netToGross),
     lavaZone: location.ownership.lavaZone ?? null, strictLava: strictLavaZone(location),
     fixedLines, fixedCents, feesCents, options,
