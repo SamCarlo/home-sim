@@ -69,6 +69,15 @@ export const seeds = {
       return s;
     },
   },
+  'plan-detail-open': {
+    phase: 'plan',
+    description: 'plan-after-denial with the Hilo apartment detail panel open (04 §6, task 15).',
+    build: (now) => {
+      const s = seeds['plan-after-denial'].build(now);
+      s.plan.expanded = { locationId: 'hilo', homeTypeId: 'apartment' };
+      return s;
+    },
+  },
 };
 
 /** Register a seed (later tasks): addSeed('paperwork-apartment-start', { phase, description, build }). */

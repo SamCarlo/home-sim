@@ -106,10 +106,89 @@
 .plan-table td.is-hidden { background: repeating-linear-gradient(135deg, transparent 0 6px, var(--tint) 6px 12px); }
 .plan-cell[hidden] { display: none; }
 
-/* Expanded placeholder row (the real detail panel is task 15) */
-.plan-detail-row td { padding: var(--sp-2) var(--sp-3); background: var(--surface-2); }
-.plan-detail { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); position: sticky; left: var(--sp-3); max-width: calc(1366px - 120px); }
-.plan-detail p { margin: 0; }
+/* Detail panel (04 §6): inline in a full-width row at ≥ 900 px, or inside a modal sheet (.plan-sheet) below that. */
+.plan-detail-row td { padding: var(--sp-3); background: var(--surface-2); border-bottom: 2px solid var(--line-2); }
+.plan-detail--inline {
+  position: sticky; left: var(--sp-3); width: min(100%, calc(100vw - 2 * var(--sp-5) - 2 * var(--sp-3) - 4px));
+  max-width: 1376px; box-sizing: border-box;
+}
+.plan-detail { display: flex; flex-direction: column; gap: var(--sp-2); color: var(--ink); }
+.plan-dt-head { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+.plan-dt-title { margin: 0; font-size: 1.35rem; font-family: var(--font-display); font-weight: 600; }
+.plan-dt-title:focus { outline: none; }
+.plan-dt-title:focus-visible { outline: 3px solid var(--sky); outline-offset: 3px; border-radius: 4px; }
+.plan-dt-status {
+  display: inline-flex; align-items: center; gap: .35em; padding: .2rem .65rem; border-radius: var(--r-pill);
+  font-size: .85rem; font-weight: 700; background: var(--st-bg); color: var(--st-ink); border: 1px solid var(--st-line);
+}
+.plan-dt-status-icon { color: var(--st-accent); }
+.plan-dt-denied { align-self: center; font-size: .78rem; padding: .15rem .55rem; }
+.plan-dt-close { margin-left: auto; }
+.plan-dt-reasons { margin: 0; padding-left: 1.2rem; font-size: .88rem; color: var(--ink-2); }
+.plan-dt-body {
+  display: grid; grid-template-columns: minmax(300px, 380px) minmax(280px, 1fr) minmax(300px, 1fr); gap: var(--sp-4);
+  align-items: start;
+}
+.plan-dt-col { display: flex; flex-direction: column; gap: var(--sp-3); min-width: 0; }
+.plan-dt-col h3 { margin: 0 0 var(--sp-1); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-family: var(--font-sans); }
+.plan-dt-preview { margin: 0; }
+.plan-dt-svg svg { display: block; width: 100%; height: auto; border-radius: var(--r-md); border: 1px solid var(--line); }
+.plan-dt-preview figcaption { font-size: .82rem; color: var(--ink-2); margin-top: var(--sp-1); font-style: italic; }
+.plan-dt-small { margin: 0; font-size: .8rem; color: var(--ink-2); line-height: 1.4; }
+
+/* Cost tables */
+.plan-dt-costs { width: 100%; border-collapse: collapse; font-size: .86rem; margin-bottom: var(--sp-3); }
+.plan-dt-costs caption { text-align: left; font-weight: 700; padding-bottom: 2px; }
+.plan-dt-costs th, .plan-dt-costs td { border-bottom: 1px solid var(--line); padding: 3px 0; vertical-align: top; text-align: left; }
+.plan-dt-costs th { font-weight: 600; padding-right: var(--sp-2); }
+.plan-dt-costs td { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.plan-dt-costs tfoot th, .plan-dt-costs tfoot td { border-top: 2px solid var(--line-2); border-bottom: 0; font-weight: 700; }
+.plan-dt-line { display: block; }
+.plan-dt-note { display: block; font-weight: 400; font-size: .74rem; color: var(--muted); line-height: 1.3; }
+
+/* Lifestyle metrics */
+.plan-dt-metrics { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.plan-dt-metric {
+  display: grid; grid-template-columns: 26px 1fr; grid-template-areas: "icon head" "icon meaning"; column-gap: var(--sp-2);
+  font-size: .84rem;
+}
+.plan-dt-metric-icon { grid-area: icon; color: var(--accent); padding-top: 1px; }
+.plan-dt-metric-head { grid-area: head; display: flex; justify-content: space-between; gap: var(--sp-2); align-items: baseline; }
+.plan-dt-metric-label { font-weight: 600; }
+.plan-dt-metric-meaning { grid-area: meaning; font-size: .76rem; color: var(--ink-2); line-height: 1.3; }
+.plan-dt-num { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.plan-dt-stars { position: relative; display: inline-block; font-size: 1rem; letter-spacing: 1px; line-height: 1; white-space: nowrap; }
+.plan-dt-stars-back { color: var(--line-2); }
+.plan-dt-stars-fill { position: absolute; inset: 0 auto 0 0; overflow: hidden; color: var(--st-yellow); }
+.plan-dt-bar-wrap { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.plan-dt-bar { width: 64px; height: 8px; border-radius: var(--r-pill); background: var(--line); overflow: hidden; }
+.plan-dt-bar-fill { display: block; height: 100%; background: var(--sky); }
+
+/* About this place */
+.plan-dt-about p { margin: 0 0 var(--sp-2); font-size: .84rem; line-height: 1.45; }
+.plan-dt-hazards { list-style: none; margin: 0 0 var(--sp-2); padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.plan-dt-chip {
+  display: inline-flex; align-items: center; gap: 4px; padding: .1rem .5rem; border-radius: var(--r-pill);
+  font-size: .76rem; font-weight: 600; background: var(--sunset-wash); color: var(--sunset-ink); border: 1px solid var(--sunset);
+}
+.plan-dt-utils { list-style: none; margin: var(--sp-2) 0 0; padding: 0; font-size: .8rem; color: var(--ink-2); }
+.plan-dt-utils li { display: flex; gap: 6px; align-items: flex-start; margin-bottom: 3px; }
+.plan-dt-utils .icon { flex: none; color: var(--sky); margin-top: 1px; }
+
+/* Choose */
+.plan-dt-foot { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; padding-top: var(--sp-2); border-top: 1px solid var(--line); }
+.plan-dt-why { margin: 0; font-size: .86rem; font-weight: 600; color: var(--danger-ink); }
+
+/* Modal sheet (< 900 px) */
+.modal.plan-sheet { width: min(720px, 100vw - 24px); max-height: calc(100dvh - 24px); }
+.plan-detail--sheet .plan-dt-body { grid-template-columns: 1fr; }
+.plan-detail--sheet .plan-dt-preview { max-width: 480px; }
+
+@media (max-width: 1240px) {
+  .plan-detail--inline .plan-dt-body { grid-template-columns: minmax(280px, 360px) 1fr; }
+  .plan-detail--inline .plan-dt-body > .plan-dt-col:last-child { grid-column: 1 / -1; }
+  .plan-detail--inline .plan-dt-metrics { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--sp-4); }
+}
 
 /* Notes under the table */
 .plan-notes { flex: none; font-size: .78rem; color: var(--muted); line-height: 1.4; }

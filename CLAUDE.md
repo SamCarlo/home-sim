@@ -61,7 +61,8 @@ app/src/util/                  escape.js format.js rng.js dates.js (pure)
 app/src/finance/               money.js loans.js costs.js affordability.js grid.js (pure; see Finance helpers, Plan numbers)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
-app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js
+app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
+                               modal.js (openModal, confirmDialog) · icons.js
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
                                seeds.js (fixtures) · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
@@ -73,7 +74,7 @@ app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js hom
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
-tests/e2e/                     shoot.mjs step scripts (example.json, persist.json, register.json, intake.json, plan-keys.json)
+tests/e2e/                     shoot.mjs step scripts (example, persist, register, intake, plan-keys, choose-home .json)
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
@@ -136,7 +137,8 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 - Seeds: `dev/seeds.js` `seeds[name] = { phase, description, build(now) → state }` (or `addSeed`). Start from
   `baseState(now)`; `afterIntake(s, {netMonthlyIncomeCents, startingSavingsCents})` gives a plan-phase player.
   `tests/unit/state.test.js` validates every registered seed automatically. Current: `fresh`, `plan-comfortable`,
-  `plan-tight`, `plan-rich`, `plan-after-denial` (denied Hilo apartment, $50 fee spent).
+  `plan-tight`, `plan-rich`, `plan-after-denial` (denied Hilo apartment, $50 fee spent), `plan-detail-open` (same, Hilo
+  apartment panel open).
 - Calendar: `util/dates.js` `monthLabel/monthName/daysInMonth/weekday (0 = Sunday)/dayLabel`. Jan 1, 2033 is a Saturday.
 - Save indicator: `renderSaveStatus(persistence.status)` from `ui/saveStatus.js`; the header shows it.
 - Intake (04 §1): rules in `phases/intake/intakeModel.js` (pure, DOM-free; limits in `config.INTAKE`); `applyIntake(s, player)`
@@ -147,7 +149,13 @@ docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 - Plan table (04 §5): `phases/plan/table.js` `createTable(grid, {onOpen, onClose})` → `{el, update(grid, {hideUnaffordable,
   denied, expanded, detail}), focusCell(key)}`; builds DOM once, recolors via `st-<status>` classes (plan.css sets
   `--st-accent/-bg/-line/-ink` per class; reuse them for status chips elsewhere). Pure rules in `tableModel.js`.
-  `detail(x)` in planScreen.js is the task-15 hook. e2e: `tests/e2e/plan-keys.json`.
+  e2e: `tests/e2e/plan-keys.json`, `tests/e2e/choose-home.json`. `lookup(key)` → the cell entry.
+- Detail panel (04 §6): `phases/plan/detail.js` `renderDetail({cell, location, homeType, denied, mode, onClose, onChoose})`;
+  pure rules + `applyChoice(s, cell, now)` (choice + snapshot, `freshPaperwork()`, phase 'paperwork') in `detailModel.js`.
+  planScreen shows it inline when `(min-width: 900px) and (min-height: 720px)`, otherwise in a modal sheet. Seed `plan-detail-open`.
+- Modals: `ui/modal.js` `openModal({label, content, className?, onClose?, initialFocus?})` → `{el, panel, close}` (focus
+  trap, Esc/backdrop close, opener refocused, stacked so only the top modal handles keys); `confirmDialog({title, message,
+  confirmLabel, cancelLabel})` → Promise<boolean>. Inline SVG icons: `ui/icons.js` `icon(key)`.
 - 2D previews (04 §7, pure): `phases/plan/preview2d/index.js` `renderPreviewSVG({location, homeTypeId, seed?})` → SVG string
   (480×270, title/desc, caption chip, muted + "Not available here" for n/a cells). Layers: `backgrounds.js` `sky(biome, uid)`,
   `landmark(key)` (drawings in `landmarks.js`), `terrain/vegetation(biome, rng)`, props `mailbox fence car busStop

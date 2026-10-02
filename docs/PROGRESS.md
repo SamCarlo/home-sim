@@ -475,3 +475,49 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Task 34 (3D styles): reuse `styleFamily(key, variant)` palettes/traits; add 3D params next to them.
   - Task 15: `renderPreviewSVG` is final; inline it in the detail panel. Houses span about x 150–335 (ranch grain bin,
     hillside slope), wider than 170–310 but the landmark still shows.
+
+## Task 15 — Cell detail panel and choosing a home
+- attempt started 2026-10-01T16:07:51-10:00
+- done 2026-10-01T16:16:25-10:00
+- Added: `app/src/phases/plan/detail.js` (`renderDetail`: title + status badge + reasons + denied badge, 2D preview with
+  the location hook as caption, Upfront/Monthly tables with each line's note (aria-describedby) and totals, 10 metrics with
+  inline SVG icons + stars/bar/number + meaning, about this place with hazard chips, hazard notes and water/sewer notes,
+  Choose this home), `phases/plan/detailModel.js` (pure: `detailTitle`, `utilityNotes`, `hazardLabel`, `chooseCheck`,
+  `confirmText`, `choiceSnapshot`, `applyChoice`), `ui/modal.js` (`openModal` focus-trapped sheet with a modal stack,
+  `confirmDialog` → Promise<boolean>), `ui/icons.js` (`icon(key)` inline SVGs), `tests/unit/planDetail.test.js` (4 tests),
+  `tests/e2e/choose-home.json`, seed `plan-detail-open` + smoke line.
+  Changed: `planScreen.js` (placeholder replaced; inline vs sheet via matchMedia, cached panel node, focus into the
+  panel title and the frame scrolled so the clicked row sits under the sticky header; choose → confirm →
+  `store.update(applyChoice, {checkpoint: 'home-chosen'})`), `table.js` (`lookup(key)`), `state/schema.js`
+  (`freshPaperwork()` exported and used by createInitialState), `plan.css` (panel styles), `components.css` (modal),
+  `tests/e2e/plan-keys.json` (asserts the real panel; End/Home now run after Esc since focus moves into the panel).
+- Verified:
+  - `bash tools/check.sh` → "check: OK (syntax 64 files · tests · data 10 files · smoke) in 21s" (smoke 12/12).
+  - e2e `choose-home.json` ✓ (Pāhoa shared, green): focus moves to the panel title; panel totals equal the cell's
+    Upfront/monthly text (both from cellCost); 10 metrics with 10 SVGs; Choose → confirm focuses "Not yet"; Esc closes it
+    and returns focus to Choose; Choose → "Yes, start the paperwork" → phase 'paperwork', choice with snapshot (sums
+    match), expanded null, fresh paperwork. `plan-keys.json` ✓.
+  - `t15-hilo-apt.png` (1366×768): Hilo row under the header, panel below: "Apartment in Hilo" + Stretch badge + reason,
+    Maunakea preview with caption, Upfront ,150 (deposit, first month, 0 fee) with notes, metrics column with icons,
+    stars and noise/garage bars. No horizontal clipping; the rest scrolls inside the table frame.
+  - `t15-yellowpine-apt.png`: "Not available here" badge, reason "There are no apartment buildings…", muted preview with
+    the sign, "There are no prices…" instead of tables.
+  - `t15-red.png` (Honolulu house, scrolled to the footer): Upfront 51,900, Monthly ,833 (P&I, PMI, tax, HO-3,
+    utilities), hazard chips, water/sewer notes; Choose disabled with the red reason text.
+  - `t15-sheet-900x700.png`: modal sheet over the dimmed plan, single column, title focused; `t15-inline-1024.png`
+    (1024×768): inline two-column layout.
+  - `t15-confirm.png`: confirm dialog over the panel. `t15-denied-dark.png` (seed plan-detail-open, dark): red
+    "Denied last time" pill beside the status badge (first pass sat low; fixed with align-self) plus the retry note.
+- Deviations: the inline panel also needs ≥ 720 px of height; shorter windows get the sheet (DEVIATIONS 2026-10-01).
+  Judgment calls: the task's "900×700 shows the modal" holds through that height rule, while 04 §6's "≥ 900 px inline"
+  still holds at normal heights. Confirm text varies by type (condo/house: mortgage + closing papers; build: construction
+  loan + permits; build reads "You're choosing to build a new house in Hilo"). The snapshot also stores `status`. A denied
+  cell can still be chosen (retry) but shows the badge and a note.
+- Notes for later tasks:
+  - Task 19 (paperwork): `state.choice = {locationId, homeTypeId, snapshot: {upfrontCents, monthlyCents, breakdown:
+    {upfront, monthly}, status}, chosenAt}`; `freshPaperwork()` is in state/schema.js. The e2e waits 500 ms after confirming
+    because the placeholder paperwork screen has no stable selector; tighten it once task 19 lands.
+  - `ui/modal.js` is generic: `openModal({label, content, className, onClose, initialFocus})` stacks (only the top
+    handles Esc/Tab/focus), restores focus to the opener. Reuse for the portfolio (17) and paperwork dialogs.
+  - `ui/icons.js` `icon(key)` has the metric keys plus 'water' and 'hazard'; add more there.
+  - `data/metrics.js` still carries emoji `icon` fields; the panel ignores them in favor of the SVGs.

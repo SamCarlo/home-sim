@@ -11,6 +11,9 @@ export const PHASES = ['intake', 'plan', 'paperwork', 'design', 'life'];
 export const LIFE_STAGES = ['welcome', 'plan', 'live', 'summary'];
 const WELLBEING_KEYS = ['physical', 'purpose', 'financial', 'social', 'mental'];
 
+/** A fresh paperwork attempt (02 §2), used by a new save and by choosing a home (04 §6). */
+export const freshPaperwork = () => ({ steps: {}, options: {}, letterIds: [], decisions: [], committed: false });
+
 /** A brand-new save for an account (02 §2). meta.seed = hashString(uid), fixed forever. */
 export function createInitialState({ uid, username = '', classCode = '', now = 0 } = {}) {
   const wb = LIFE.wellbeing.start;
@@ -28,7 +31,7 @@ export function createInitialState({ uid, username = '', classCode = '', now = 0
     phase: 'intake',
     plan: { expanded: null, hideUnaffordable: false, attempts: [] },
     choice: null,
-    paperwork: { steps: {}, options: {}, letterIds: [], decisions: [], committed: false },
+    paperwork: freshPaperwork(),
     letters: {},
     finances: {
       checkingCents: 0,

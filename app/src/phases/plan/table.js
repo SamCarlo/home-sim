@@ -10,7 +10,7 @@ import {
 const STATUS_CLASSES = ['st-red', 'st-yellow', 'st-cyan', 'st-green', 'st-na'];
 
 /**
- * createTable(grid, {onOpen(locationId, homeTypeId), onClose()}) → { el, update(grid, view), focusCell(key) }.
+ * createTable(grid, {onOpen(locationId, homeTypeId), onClose()}) → { el, update(grid, view), focusCell(key), lookup(key) }.
  * view: { hideUnaffordable, denied: Set<key>, expanded: {locationId, homeTypeId} | null, detail: (cell) → Node }.
  */
 export function createTable(grid, { onOpen, onClose }) {
@@ -146,6 +146,12 @@ export function createTable(grid, { onOpen, onClose }) {
     if (visible[focus.r]?.[focus.c]) focusAt(focus);
   }
 
+  /** The cell entry for a key ({cell, location, homeType, button}), or null; used by the modal detail sheet. */
+  function lookup(key) {
+    for (const row of cells) for (const x of row) if (cellKey(x.location.id, x.homeType.id) === key) return x;
+    return null;
+  }
+
   update(grid);
-  return { el, update, focusCell };
+  return { el, update, focusCell, lookup };
 }
