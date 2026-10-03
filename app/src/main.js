@@ -1,6 +1,6 @@
 // Game boot (01 §5): account provider → login → save → store + local persistence → phase screen.
 import * as config from './config.js';
-import { FIREBASE_ENABLED } from './firebase-config.js';
+import { FIREBASE_ENABLED, firebaseConfig } from './firebase-config.js';
 import { h, clear } from './ui/dom.js';
 import { registerScreen, renderPhase, unmountCurrent } from './ui/screens.js';
 import { renderHeader } from './ui/header.js';
@@ -12,7 +12,7 @@ import { migrate } from './state/migrate.js';
 import { createStore } from './state/store.js';
 import { attach } from './state/persistence.js';
 import { createLocalAdapter } from './persistence/local.js';
-import { selectProvider } from './accounts/provider.js';
+import { selectProvider, chooseMode } from './accounts/provider.js';
 import { applySettings } from './ui/portfolio/settings.js';
 
 registerScreen('login', () => import('./accounts/ui/login.js'));
@@ -24,8 +24,8 @@ registerScreen('life', () => import('./phases/life/lifeScreen.js'));
 
 const params = new URLSearchParams(location.search);
 const devAllowed = isDevAllowed();
-const firebaseMode = FIREBASE_ENABLED && !params.has('adapter') && !params.has('seed');
-const dev = { allowed: devAllowed, params, firebaseMode };
+const { firebaseMode, emulator } = chooseMode({ enabled: FIREBASE_ENABLED, params, hostname: location.hostname, devHosts: config.DEV_HOSTS });
+const dev = { allowed: devAllowed, params, firebaseMode, emulator };
 
 // ?theme=light|dark (dev) wins over settings.theme until the player picks a theme in Settings.
 let themeOverride = devAllowed && ['light', 'dark'].includes(params.get('theme')) ? params.get('theme') : null;
@@ -43,9 +43,9 @@ async function boot() {
     if (await mountGallery(gallery, main)) return;
   }
 
-  const accounts = await selectProvider({ firebaseMode });
+  const accounts = await selectProvider({ firebaseMode, emulator, config: firebaseConfig });
   await accounts.init();
-  const adapter = createLocalAdapter();
+  const adapter = createLocalAdapter(); // Firebase mode too, until persistence/firestore.js (task 51)
   let game = null; // { store, persistence, unsubscribe, devPanel, user }
 
   /** No one signed in: show the welcome screen; accounts.onChange picks up the sign-in. */

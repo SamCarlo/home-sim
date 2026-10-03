@@ -1,5 +1,5 @@
 // Account provider selection, errors and validation (01 §6, 11 §2). No DOM: the rules are unit-tested in Node.
-// Both providers (local now, Firebase in task 50) implement:
+// Both providers (local.js, firebase.js) implement:
 // { kind, init(), register({username, password, classCode}), login({username, password, remember}), logout(),
 //   current() → {uid, username, classCode}|null, onChange(cb) → unsubscribe }.
 import { ACCOUNTS } from '../config.js';
@@ -77,11 +77,22 @@ export function assertRegistration(input) {
 }
 
 /**
- * Pick the account provider for this boot (01 §5 step 2). Firebase mode arrives in task 50;
- * until then every mode gets the local provider.
+ * Which mode this boot runs in (01 §5 step 1, 11 §1). Firebase when FIREBASE_ENABLED, or with ?emulator=1 on a dev host
+ * (the emulators with the demo project, even before the teacher's setup). ?adapter=local and ?seed= always stay local.
+ * → { firebaseMode, emulator }.
  */
-export async function selectProvider({ firebaseMode = false } = {}) {
-  void firebaseMode; // task 50: firebaseMode → (await import('./firebase.js')).createFirebaseProvider()
+export function chooseMode({ enabled = false, params = new URLSearchParams(), hostname = '', devHosts = [] } = {}) {
+  const emulator = params.get('emulator') === '1' && devHosts.includes(hostname);
+  const forcedLocal = params.has('adapter') || params.has('seed');
+  return { firebaseMode: !forcedLocal && (enabled || emulator), emulator: !forcedLocal && emulator };
+}
+
+/** Pick the account provider for this boot (01 §5 step 2): Firebase (lazy SDK) or local. */
+export async function selectProvider({ firebaseMode = false, emulator = false, config } = {}) {
+  if (firebaseMode) {
+    const { createFirebaseProvider } = await import('./firebase.js');
+    return createFirebaseProvider({ emulator, config });
+  }
   const { createLocalProvider } = await import('./local.js');
   return createLocalProvider();
 }

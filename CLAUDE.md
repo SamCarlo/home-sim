@@ -82,7 +82,8 @@ app/src/three/                 scene.js sky.js terrain.js landmarks.js materials
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks); design/blueprint/ = the build editor
                                paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
-app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
+app/src/accounts/              provider.js (AccountError, validation, chooseMode, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
+                               · firebase.js (Firebase Auth, synthetic email, lazy SDK; task 50)
                                ui/login.js (welcome screen: Log in / Create account tabs)
 app/src/content/names.js       fictional people/businesses per region (pure, seeded)
 app/src/letters/               types.js send.js score.js text.js allowlist.js spell.js grammar.js sentiment.js features.js
@@ -102,7 +103,7 @@ tools/configure.mjs            Firebase setup: firebase-config.js + firestore.ru
 firebase.json .firebaserc      hosting (public app/), emulators auth 9099 / firestore 8080 / hosting 5000, rules + indexes
 firestore.rules.template       the rules source (edit this) → firestore.rules (rendered, committed with admin@example.com)
 firestore.indexes.json         no composite indexes; saves.stateJson exempt from indexing
-tests/firebase/                emulator tests (rules.test.js); not part of npm test
+tests/firebase/                emulator tests (rules.test.js, accounts.test.js); not part of npm test
 tools/letter-model/            corpus/<type>.json · logreg.mjs (pure LR math) · train.mjs (npm run train:letters)
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 ```
@@ -619,6 +620,23 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   (disabled) with saves. `setLogLevel('silent')` hides the SDK's PERMISSION_DENIED noise.
 - Emulator ports: auth 9099, firestore 8080, hosting 5000; UI off; project `demo-home-sim` (a `demo-` project never
   touches the cloud). The firestore emulator jar downloads to `~/.cache/firebase/emulators` on first run.
+
+## Firebase accounts (11 §1–§2, task 50)
+- `accounts/provider.js` `chooseMode({enabled, params, hostname, devHosts})` → `{firebaseMode, emulator}`: Firebase when
+  `FIREBASE_ENABLED`, **or** `?emulator=1` on localhost/127.0.0.1 (works with the placeholder config); `?seed=` /
+  `?adapter=` always stay local. `selectProvider({firebaseMode, emulator, config})`.
+- `accounts/firebase.js` `createFirebaseProvider({config, emulator, appName?, sdk?, browser?})`: lazy `import('firebase/…')`
+  (import map in the browser, npm `firebase` in Node, so the same module runs in Node tests). `EMULATOR` (ports + demo
+  config), `emailFor(username)`, `friendlyError(err)` → AccountError (11 §2 table, `FIREBASE_MESSAGES`). Register = code
+  `getDoc` → createUser → `players/{uid}` (summary `{phase:'intake', monthIndex:0}`) → `deleteUser` on a failed write.
+  Login/init read `players/{uid}`: disabled → "Your account is paused…", missing → refused; both sign out. Persistence:
+  session, or local when "keep me logged in". The provider exposes `db`/`auth` getters for task 51's adapter.
+- **Saves still go to the local adapter in Firebase mode** until `persistence/firestore.js` (task 51) is wired in main.js.
+- Emulator tests: `tests/firebase/accounts.test.js` (Node provider tests + shoot runs of `tests/e2e/firebase-register.json`
+  and `firebase-errors.json` on `/index.html?emulator=1&theme=light`). Seed the emulator over REST with
+  `Authorization: Bearer owner` (skips rules); reset with `DELETE …/emulator/v1/projects/demo-home-sim/accounts` and
+  `…/databases/(default)/documents`. Node providers need a unique `appName` each and `deleteApp` in `after()`, or the
+  test process never exits (emulators:exec then hangs).
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

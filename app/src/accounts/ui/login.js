@@ -52,7 +52,7 @@ export function mount(container, ctx) {
       ),
       h('p', { class: 'login-mode', dataset: { mode: local ? 'local' : 'online' } },
         h('span', { class: 'login-mode-dot', 'aria-hidden': 'true' }),
-        local ? 'Local mode: saves stay in this browser' : 'Online'),
+        local ? 'Local mode: saves stay in this browser' : accounts.emulator ? 'Online (local test emulator)' : 'Online'),
     ),
   );
   select('login');

@@ -309,3 +309,13 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   email, and defaults `--project` to the config's projectId. (5) `firestore.indexes.json` exempts `stateJson` with a
   `fieldOverrides` entry on collection group `saves`. Where: firestore.rules.template, package.json, firebase.json,
   tools/configure.mjs, firestore.indexes.json.
+- 2026-10-03, task 50, Firebase accounts: (1) `?emulator=1` on localhost turns Firebase mode on even while
+  `FIREBASE_ENABLED` is false (the placeholder), so the emulator e2e runs without configuring a project; it connects with
+  the demo config, never the cloud. (2) In Firebase mode saves still use the local adapter until task 51 adds
+  `persistence/firestore.js`; 11 §2 step 5 (initial save) is main.js's existing `saveNow('account-created')`. (3) The new
+  player doc carries `summary: {phase: 'intake', monthIndex: 0}` so the admin table has a row before the first summary
+  write. (4) A signed-in user with no `players/{uid}` doc is signed out with "Your account isn't set up in the class list.
+  Ask your teacher." (an admin "Delete class data" leaves Auth users behind). (5) The login badge reads "Online (local test
+  emulator)" in emulator mode. (6) No separate `test:e2e:emulator` script: `npm run test:firebase` runs the shoot step
+  files from `tests/firebase/accounts.test.js` (shoot's own server; the page talks to the emulators on 9099/8080).
+  Where: app/src/accounts/{firebase,provider}.js, app/src/accounts/ui/login.js, app/src/main.js, tests/firebase/accounts.test.js.

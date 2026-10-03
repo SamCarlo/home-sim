@@ -1798,3 +1798,34 @@ life-month1-house · seed 7 · income $4,300/mo
   - The admin console (52) needs `list` on players/saves/classCodes: allowed for the admin only; a student query on
     `players` is denied even when filtered to their own uid, so read by doc path.
   - The emulators leave `firestore-debug.log` in HS (gitignored by `*-debug.log`).
+
+## Task 50 — Student accounts on Firebase Auth
+- attempt started 2026-10-03T00:07:47-10:00
+- done 2026-10-03T00:21:34-10:00
+- Files: new `app/src/accounts/firebase.js` (createFirebaseProvider, EMULATOR, emailFor, friendlyError),
+  `tests/firebase/accounts.test.js` (6 emulator tests), `tests/e2e/firebase-register.json`, `firebase-errors.json`,
+  `tests/unit/firebaseAccounts.test.js` (3); changed `accounts/provider.js` (chooseMode, selectProvider picks Firebase),
+  `main.js` (chooseMode + config passed through), `accounts/ui/login.js` (emulator badge text), `CLAUDE.md`, DEVIATIONS.
+- Verified: `mise exec java@temurin-21 -- npm run test:firebase` → tests 31 · pass 31 · fail 0 (25 rules + 6 accounts:
+  register/log out/log in with players doc checked; wrong password, unknown user, taken username, inactive/missing code,
+  short password; paused account refused and signed out; failed players write deletes the Auth user; the two shoot runs).
+  `node --test tests/unit/firebaseAccounts.test.js` 3/3. `bash tools/check.sh` OK (214 files, smoke 76/76). Local-mode
+  e2e `register.json` and `persist.json` OK.
+  Shots (tools/shots/t50/):
+  - 1-register-filled: Create account tab filled (fbkid1, IO-P3 uppercased), footer badge "Online (local test emulator)".
+  - 2-logged-back-in: after register → intake → log out → log in (typed "FBKid1"), the Plan table with $3,200/mo and
+    $8,000, header "Playing as fbkid1", Saved ✓.
+  - 3-wrong-password: Log in tab, red alert "Username or password doesn't match.", no header.
+  - 4-username-taken: username field outlined red with "That username is taken. Try another." under its hint, focused.
+  - 5-inactive-code: OLD-P1 → "That class code isn't right. Check with your teacher." on the class code field.
+  - 6-paused: alert "Your account is paused. Ask your teacher.", still on the login card, session cleared.
+  (The "Hawai ʻ i" spacing in the intro is the existing ʻokina OPEN_ITEM.)
+- Deviations (DEVIATIONS.md): ?emulator=1 enables Firebase mode with the placeholder config; saves stay local until 51;
+  initial summary on the player doc; missing player doc refused; badge text; no separate test:e2e:emulator script.
+- Notes for later tasks:
+  - Task 51: build `persistence/firestore.js` on `accounts.db` (the provider's Firestore handle) and swap
+    `createLocalAdapter()` in main.js when `dev.firebaseMode`. The first save must come after `players/{uid}` exists, which
+    register already guarantees (onChange fires only after the write).
+  - Task 52: `?fakeAdmin=` (11 §7) isn't built yet; reuse `EMULATOR` and `chooseMode` for admin.html.
+  - Node tests of the provider: `createFirebaseProvider({emulator: true, appName: unique, browser: false})`, inject `sdk` to
+    fake failures, and `deleteApp` everything in `after()` or the run hangs.
