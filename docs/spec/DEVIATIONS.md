@@ -201,3 +201,15 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   uses houseGen (`variant: 'shared'`), so Honolulu's highrise family still gets a house. `home.shared` adds `address`,
   `room {id, label, sqft, view, closet, bath, noise}`, `effects {social, noise, choresHours, softened}` and roommate
   `age`; `lifestyle` adds `choresHours`. Roommate noise is 0, 0.5 or 1 before softening. Where: `phases/design/sharedModel.js`.
+- 2026-10-02, task 39, template sizes: 07 §5 says Tiny ~500, Cozy ~950 and Family ~1,450 sq ft, but at those sizes
+  the kitchen (×1.6) and bath (×1.8) multipliers plus roof, walls, doors, windows and the Hawaiʻi solar water heater and
+  catchment push the cost past the tier budget (tier sq ft × 1.10) in some places. The templates are 440 / 812 / 1,248 sq ft
+  (1 / 2 / 3 bedrooms; Cozy and Family add a front lānai) and keep Σ area × multiplier ≤ 85% of the tier's budget sq ft,
+  which a unit test checks. All are ≤ 36 ft wide so they fit the 50 ft lots. Where: `phases/design/blueprint/templates.js`.
+- 2026-10-02, task 39, build window and grid: the 120 × 120 ft window of a big lot is centered across the width and starts
+  at the street; rooms are kept inside the setbacks ∩ window, shrunk onto the 2 ft grid (the 15 ft front setback means
+  rooms start at y = 16). Validation still checks the real setbacks. The plan draws the street at the bottom. Where:
+  `phases/design/blueprint/model.js` `editWindow`/`buildArea`.
+- 2026-10-02, task 39, editor extras: besides 07 §5's tools, the editor has an "Add room" button (a 10 × 10 ft room at the
+  first free spot, so keyboard-only students can add rooms), drag on empty lot = pan (as well as Space+drag), +/−/0 keys
+  for zoom, and Esc to deselect. `designScreen` routes builds to the editor now (task 41 adds the 3D split view).

@@ -380,6 +380,31 @@ export const SCENE3D = {
 };
 
 /** Phase 3 design (07 §1–§2, task 36). */
+// 07 §5 blueprint editor (task 39). Setbacks come from BUILD.setbacksFt. Room types: cost multiplier × the local cost
+// per sq ft, plus the minimum size (a warning, not a blocker). Limits from 02 §6.
+export const BLUEPRINT = {
+  gridFt: 2,
+  windowFt: 120,                // lots larger than this show a 120 × 120 ft buildable window
+  maxRooms: 60, maxOpenings: 200, maxYard: 80,
+  undoSteps: 50,
+  doorFt: 3, windowOpeningFt: 4, // default opening widths (a window shrinks to 3 ft on a short wall)
+  newRoom: { w: 10, h: 10 },    // the "Add room" button's size
+  roomTypes: {
+    bedroom: { label: 'Bedroom', mult: 1.0, minSqft: 70, minWidthFt: 7 },
+    living: { label: 'Living room', mult: 1.0, minSqft: 120 },
+    dining: { label: 'Dining room', mult: 1.0, minSqft: 70 },
+    office: { label: 'Office', mult: 1.0, minSqft: 50 },
+    hallway: { label: 'Hallway', mult: 0.9, minSqft: 0, minWidthFt: 3 },
+    closet: { label: 'Closet', mult: 0.8, minSqft: 6 },
+    laundry: { label: 'Laundry', mult: 1.2, minSqft: 25 },
+    kitchen: { label: 'Kitchen', mult: 1.6, minSqft: 50 },
+    bathroom: { label: 'Bathroom', mult: 1.8, minSqft: 35 },
+    garage: { label: 'Garage', mult: 0.6, minSqft: 200, minWidthFt: 12 },
+    lanai: { label: 'Lānai', mult: 0.45, minSqft: 40 },
+  },
+  required: ['bedroom', 'bathroom', 'kitchen', 'living'],
+};
+
 export const DESIGN = {
   plantCents: 2000,             // 07 §2: optional potted plants, $20 each, paid from savings/checking
   maxPlants: 3,

@@ -105,3 +105,62 @@
 }
 .dz-mate-body { display: flex; flex-direction: column; gap: 4px; }
 .dz-effects { margin: var(--sp-2) 0 0; font-size: .85rem; }
+
+/* Blueprint editor (07 §5, task 39). Prefix bp-. The plan is always drawn on light "paper", whatever the theme. */
+.bp-stage { background: #eef1ec; }
+.bp-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: default;
+  font-family: var(--font-sans, system-ui, sans-serif); user-select: none; }
+.bp-svg:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.bp-stage[data-tool="draw"] .bp-svg { cursor: crosshair; }
+.bp-stage[data-tool="pan"] .bp-svg { cursor: grab; }
+.bp-room { cursor: move; }
+.bp-handle { cursor: pointer; }
+.bp-handle-n, .bp-handle-s { cursor: ns-resize; }
+.bp-handle-e, .bp-handle-w { cursor: ew-resize; }
+.bp-handle-ne, .bp-handle-sw { cursor: nesw-resize; }
+.bp-handle-nw, .bp-handle-se { cursor: nwse-resize; }
+.bp-toolbar {
+  position: absolute; top: var(--sp-3); left: var(--sp-3); display: flex; flex-wrap: wrap; gap: var(--sp-1); align-items: center;
+  padding: var(--sp-1); border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow); max-width: calc(100% - 2 * var(--sp-3));
+}
+.bp-toolbar .btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+.bp-sep { width: 1px; align-self: stretch; background: var(--line); margin: 0 2px; }
+.bp-status {
+  position: absolute; left: var(--sp-3); right: var(--sp-3); bottom: var(--sp-3); display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4);
+  padding: 6px 12px; border-radius: var(--r-md); background: var(--surface); box-shadow: var(--shadow); font-size: .88rem; color: var(--ink-2);
+}
+.bp-status .bp-bad { color: var(--st-red-ink); font-weight: 600; margin-left: auto; }
+.bp-status .bp-good { color: var(--st-green-ink); font-weight: 600; margin-left: auto; }
+.bp-popover {
+  position: absolute; z-index: 5; width: 300px; padding: var(--sp-3); border-radius: var(--r-md); background: var(--surface);
+  border: 1px solid var(--line-2); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: var(--sp-2);
+}
+.bp-popover-title { margin: 0; font-weight: 600; font-size: .92rem; }
+.bp-popover-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.bp-type-btn {
+  display: flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid var(--line); border-radius: var(--r-sm);
+  background: var(--surface-2); color: var(--ink); font: inherit; font-size: .86rem; text-align: left; cursor: pointer;
+}
+.bp-type-btn:hover, .bp-type-btn:focus-visible { border-color: var(--accent); background: var(--accent-wash); }
+.bp-popover-cancel { align-self: flex-end; }
+.bp-swatch { width: 14px; height: 14px; border-radius: 3px; flex: none; border: 1px solid rgba(0, 0, 0, .25); }
+.bp-sw-bedroom { background: #cfe3f5; } .bp-sw-living { background: #f6e3b4; } .bp-sw-dining { background: #f3d2ae; }
+.bp-sw-office { background: #ddd4f1; } .bp-sw-hallway { background: #e7e7e2; } .bp-sw-closet { background: #dcd6cc; }
+.bp-sw-laundry { background: #cdeef0; } .bp-sw-kitchen { background: #f6c9c0; } .bp-sw-bathroom { background: #c0e6d6; }
+.bp-sw-garage { background: #d6dade; } .bp-sw-lanai { background: #e2ecc9; }
+.bp-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; margin: 0 0 var(--sp-2); }
+.bp-row select { padding: 5px 8px; border-radius: var(--r-sm); border: 1px solid var(--field-line); background: var(--field); color: var(--ink); font: inherit; }
+.bp-room-name { margin: 0 0 var(--sp-2); font-weight: 600; }
+.bp-help { margin: 0; font-size: .82rem; }
+.bp-templates { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--sp-2); }
+.bp-template {
+  display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-md);
+  background: var(--surface-2); color: var(--ink); font: inherit; text-align: left; cursor: pointer;
+}
+.bp-template span { font-size: .84rem; color: var(--ink-2); }
+.bp-template:hover, .bp-template:focus-visible { border-color: var(--accent); background: var(--accent-wash); }
+.bp-checks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.bp-check { padding: 6px 10px; border-radius: var(--r-sm); font-size: .86rem; border-left: 4px solid; margin: 0; }
+.bp-check.is-error { background: var(--st-red-bg); border-color: var(--st-red); color: var(--st-red-ink); }
+.bp-check.is-warn { background: var(--st-yellow-bg); border-color: var(--st-yellow); color: var(--st-yellow-ink); }
+.bp-check.is-ok { background: var(--st-green-bg); border-color: var(--st-green); color: var(--st-green-ink); }

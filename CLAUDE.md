@@ -74,7 +74,7 @@ app/src/three/                 scene.js sky.js terrain.js landmarks.js materials
                                character.js · styles.js styleParts.js styleSwatch.js · buildingGen.js buildingParts.js · houseGen.js houseYard.js
                                (browser only, import() lazily; see 3D scene)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
-app/src/phases/<phase>/        one screen per phase (placeholders until their tasks)
+app/src/phases/<phase>/        one screen per phase (placeholders until their tasks); design/blueprint/ = the build editor
                                paperwork/: paperworkScreen.js · flow.js (pure) · steps/ (index.js registry, one module per step)
 app/src/accounts/              provider.js (AccountError, validation, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
                                ui/login.js (welcome screen: Log in / Create account tabs)
@@ -433,7 +433,7 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 
 ## Phase 3: Design (07, `app/src/phases/design/`)
 - `designScreen.js` routes by `home.kind`: apartment/condo → `apartmentPicker.js`, house → `housePicker.js`, shared →
-  `sharedPicker.js`; build shows a placeholder (task 41 adds it to `PICKERS`).
+  `sharedPicker.js`, build → `blueprint/editor.js` (task 39; the 3D split view comes in task 41).
 - Apartment/condo picker (task 36, 07 §2): pure `apartmentModel.js` `buildingOptions(state)` → 3 × `{index, seed
   (seedFor(meta.seed, 'building', i)), name, plan, form, formLabel, amenities, floors}`; `unitTraits(locId, option, floor,
   unit)` → `{view, noise −1…1, sun, stairs (flights), lotsOfStairs}`; `lifestyleFor`, `traitNotes`, `unitLabel` ("Unit 4B" /
@@ -464,6 +464,16 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `createHouseView(stage, {location, variant})` → `{show({seed, palette, extras, sqft, bedrooms, pin}), info, current,
   firstFrame, dispose}` and `pickerParts.js` (pickerShell, section, chips, stepper, rerender). Seeds `design-house-katy`,
   `design-shared-honolulu`; e2e `tests/e2e/design-house.json`, `design-shared.json`.
+- Blueprint editor (task 39, 07 §5; `phases/design/blueprint/`): pure `model.js` (feet, origin front-left, y toward the
+  back; every edit returns a NEW blueprint and prunes openings off their wall): `createBlueprint(lot, {solarKw,
+  catchmentGallons})`, `lotOf(loc)`, `editWindow` (120 ft window), `buildArea(bp)` (setbacks ∩ window on the 2 ft grid),
+  `addRoom/moveRoom/resizeRoom/removeRoom/setRoomType`, `wallsOf/sharedWalls/exteriorWalls/adjacency`,
+  `toggleOpening(bp, {kind, x, y})`, `roomName` ("Bedroom 2"), `footprintArea`, `weightedArea` (Σ area × multiplier),
+  `findFreeSpot`. `validate.js` `validateBlueprint(bp)` → `{errors, warnings}` `[{code, message, roomIds}]`. `templates.js`
+  `TEMPLATES`, `applyTemplate(bp, id)`, `templateBlueprint(id, lot, opts)`. `tools.js` (pure drag/keys/history),
+  `canvas.js` (SVG strings; street at the bottom, so SVG y = depth − y). `editor.js` mounts it; the draft is
+  `state.home.blueprint`. Room types + limits in `config.BLUEPRINT`. Seeds `design-build-pahoa` (empty),
+  `design-build-template` (Cozy); e2e `tests/e2e/design-build.json` (synthetic pointer drags via `window.__drag`).
 - `scene.setPanLimits({half, yMax})` widens the pan clamp (default ±`SCENE3D.lotHalf`, look-at y ≤ 40).
 
 ## Gotchas

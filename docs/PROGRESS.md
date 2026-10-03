@@ -1369,3 +1369,43 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     costs are NOT added yet (07 §3 "later"): add them when the month sim lands.
   - `window.__design = {sel, info(), house()}` in both pickers for e2e.
   - The ʻokina spacing open item shows in roommate names ("Ke ʻala") on the shared cards.
+
+## Task 39 — Blueprint model and editor core
+- attempt started 2026-10-02T15:41:48-10:00
+- done 2026-10-02T15:53:43-10:00
+- Files: `phases/design/blueprint/model.js` (pure: createBlueprint, lotOf, snap, editWindow, buildArea, roomArea,
+  footprintArea, weightedArea, overlaps, inside, roomAt, roomName, add/move/resize/remove room, setRoomType, nextType,
+  wallsOf, sharedWalls, exteriorWalls, adjacency, openingSegments, pruneOpenings, toggleOpening, findFreeSpot),
+  `validate.js` (pure: required rooms, overlaps, setbacks, small-room warnings; problemRoomIds), `templates.js` (Tiny /
+  Cozy / Family with doors + windows; applyTemplate, templateBlueprint), `tools.js` (pure: moveRect, resizeRect, drawRect,
+  keyAction, applyRoomAction, zoomView, createHistory), `canvas.js` (pure SVG strings: lotMarkup, roomsMarkup, fitView,
+  roomsView, ROOM_COLORS), `editor.js` (screen); `config.js` BLUEPRINT; `designScreen.js` (build → editor);
+  `dev/designSeeds.js` (design-build-pahoa, design-build-template); `styles/design.css` (bp-); `tools/smoke.txt`;
+  `tests/unit/blueprint.test.js` (7 tests); `tests/e2e/design-build.json`.
+- Verified: `node --test tests/unit/blueprint.test.js` (7/7), `bash tools/check.sh` OK (179 files, smoke 60/60). e2e
+  `node tools/shoot.mjs --path "/index.html?seed=design-build-pahoa&theme=light" --steps tests/e2e/design-build.json
+  --wait-ready --out tools/shots/t39/5-final.png` OK: draws a 12 × 12 bedroom, resizes it to 16 × 16 with the NE handle,
+  undo → 12, redo → 16, drags it, arrow-moves it, T → living, Delete, undo, applies Cozy (confirm), selects a room. Shots
+  in tools/shots/t39/ (read):
+  - 1-empty.png: Pāhoa 150 × 290 lot, hatched setbacks, the 120 ft window with the 2 ft grid and 10 ft major lines,
+    street at the bottom, "lot continues 170 ft back"; panel with Add a room, templates, 4 red checks.
+  - 2-template.png (first pass, before roomsView): Cozy placed but small in the 120 ft window → added `roomsView` framing.
+  - 3-editing.png: the drawn bedroom selected with 8 white handles, "16 × 16 ft" label, panel "Bedroom · 16 × 16 ft · 256
+    sq ft", type select, Delete; status "1 room" (pluralized after this shot), "3 to fix".
+  - 4-template-selected.png: Cozy framed close-up: rooms colored by type with names + areas, brown interior doors,
+    orange exterior doors, blue windows; living room selected; front setback and street labels; status "Plan OK".
+  - smoke-design-build-template.png (dark theme): same plan on light paper; dark panel readable, green "Everything checks out".
+- Deviations: template sizes, build window/grid, editor extras (DEVIATIONS.md).
+- Notes for later tasks:
+  - Task 40: `toggleOpening(bp, {kind, x, y})` already exists (door on shared or exterior walls, window exterior only,
+    3 ft door / 4 ft window, 3 ft on short walls, refuses overlaps) and `pruneOpenings` runs after every room edit; the
+    door/window tools just need a click → lot point (`toLot(ev)` in editor.js) → `commit(toggleOpening(...))`. Add the
+    reachability / bedroom-window / catchment / budget rules to `validateBlueprint` (it takes only bp now: add an
+    options arg `{location, budgetCents}`). Templates' openings are designed so every room is reachable and every
+    bedroom has a window; check Tiny's budget at Pāhoa (catchment + solar water heater) first: weighted area is 528 of 660.
+    The panel note "Doors, windows, the roof…" in `fillPanel` should go when the panels land.
+  - Task 41: the editor root is `.dz.bp` (stage left, panel right); the split view can replace the panel layout or
+    add a third column. `window.__blueprint = {bp, sel, history, toClient(x, y), result()}`. The blueprint draft lives
+    in `state.home.blueprint` (saved without checkpoint on every commit); Move in (`.dz-movein`) is disabled for now.
+  - e2e pointer drags: `tests/e2e/design-build.json` defines `window.__drag(startLot, endLot)` that dispatches synthetic
+    PointerEvents (shoot's `click` can't click SVG elements: they have no `.click()`).

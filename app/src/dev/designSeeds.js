@@ -3,6 +3,9 @@
 // seeds.js calls addDesignSeeds(seeds) at the end (a function, not an import of seeds.js, to avoid an import cycle).
 import { decide, homeApproved } from '../finance/underwriting.js';
 import { commitPaperwork } from '../phases/paperwork/commit.js';
+import { byId } from '../data/locations/index.js';
+import { lotOf } from '../phases/design/blueprint/model.js';
+import { templateBlueprint } from '../phases/design/blueprint/templates.js';
 
 /** Commit `from`'s ready state; when its draw denies, try save seeds 1, 2, … until the home is approved. */
 function designFrom(seeds, from) {
@@ -34,4 +37,16 @@ export function addDesignSeeds(seeds) {
   seeds['design-shared-honolulu'] = { phase: 'design',
     description: 'Honolulu room approved: pick a shared house, a room, and meet the roommates.',
     build: designFrom(seeds, 'paperwork-ready-shared') };
+  seeds['design-build-pahoa'] = { phase: 'design',
+    description: 'Pāhoa build approved (Cozy budget): the blueprint editor on an empty lot.',
+    build: designFrom(seeds, 'paperwork-ready-build') };
+  seeds['design-build-template'] = { phase: 'design',
+    description: 'Pāhoa build approved (Cozy budget) with the Cozy template already placed.',
+    build: (now) => {
+      const s = seeds['design-build-pahoa'].build(now);
+      const site = s.paperwork.options?.siteUtilities ?? {};
+      s.home.blueprint = templateBlueprint('cozy', lotOf(byId[s.home.locationId]),
+        { solarKw: site.solarKw ?? 0, catchmentGallons: site.catchmentGallons ?? 0 });
+      return s;
+    } };
 }
