@@ -68,3 +68,4 @@ life-month1-shared /index.html?seed=life-month1-shared
 life-month1-condo /index.html?seed=life-month1-condo
 life-month1-house /index.html?seed=life-month1-house&theme=light
 life-month1-build /index.html?seed=life-month1-build&theme=light
+life-plan-filled /index.html?seed=life-plan-filled&theme=light

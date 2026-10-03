@@ -1,0 +1,17 @@
+[
+  {"click": ".life-go"},
+  {"waitFor": ".tb"},
+  {"click": "[data-question=exercise] [data-value='7']"},
+  {"click": "[data-question=extraWork] [data-value='32']"},
+  {"click": "[data-question=social] [data-value='20']"},
+  {"click": "[data-question=deepPractice] [data-value='7']"},
+  {"assert": "document.querySelector('.tb').dataset.rating === 'overbooked'"},
+  {"assert": "!document.querySelector('.tb-over').hidden"},
+  {"assert": "document.querySelector('.tb-over-text').textContent.startsWith('−')"},
+  {"assert": "!document.querySelector('.life-go').disabled"},
+  {"assert": "document.documentElement.scrollHeight <= innerHeight + 1"},
+  {"eval": "({free: document.querySelector('.tb-free').textContent, label: document.querySelector('.tb-bracket-label').textContent, panelScroll: document.querySelector('.life-panel').scrollHeight + '/' + document.querySelector('.life-panel').clientHeight})"},
+  {"shot": "tools/shots/t43/4-overbooked.png"},
+  {"eval": "document.querySelector('.tb').scrollIntoView(); 1"},
+  {"shot": "tools/shots/t43/5-overbooked-bar.png"}
+]

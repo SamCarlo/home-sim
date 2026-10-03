@@ -1516,3 +1516,40 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Task 46: `view.setLiving(state.home)` shows wilted plants / departed animals. Fruit trees are generator-drawn, so
     they don't wilt yet.
   - Chickens are small and white next to the coop; the coop/beds sit behind houses, so the default angle often hides them.
+
+## Task 43 — Month questions and the time-budget bar
+- attempt started 2026-10-02T18:45:46-10:00
+- done 2026-10-02T18:57:07-10:00
+- Files: new pure `life/timeBudget.js` (SEGMENTS, timeBudget, freeTimeRating, commuteHours, choresHours, hasYard,
+  hoursText, hourlyNetCents, overtimePayCents, socialCostCents, homeGardenOptions), `phases/life/questions.js` (QUESTIONS
+  exact wording, radio toggle groups, money hints), `phases/life/timeBudgetView.js` (bar, legend, bracket, overflow,
+  footnote); changed `phases/life/lifeScreen.js` (plan panel built once per month, `onUpdate` hook; budget + Live
+  button in a sticky footer), `life/monthFlow.js` (defaultChoices resets homeGarden to 'none'), `config.js` (LIFE
+  personalCareHours 16, defaults.homeGarden, freeTime notes), `styles/life.css` (lq-/tb- styles, --tb-* colors),
+  `dev/lifeSeeds.js` (life-plan-filled), `tools/smoke.txt`; tests `tests/unit/time-budget.test.js` (7); e2e
+  `tests/e2e/life-plan.json` (on life-plan-filled), `tests/e2e/life-plan-overbooked.json` (on life-month1-house).
+- Verified: `bash tools/check.sh` OK (196 files, smoke 69/69); `node --test tests/unit/time-budget.test.js
+  tests/unit/life-flow.test.js` 14/14; life-plan.json (keyboard: ArrowRight/Home move focus + answer; stretched by
+  clicks; cleared answers → Adrift + Live disabled; no page scroll); life-plan-overbooked.json; task 42 life-flow.json still OK.
+  Shots in tools/shots/t43/ (read):
+  - 1-balanced.png: Hilo plan, Regular / A few shifts (+$291 pay) / Some (about $379/mo) checked with ✓; pinned footer
+    "Waking hours per week available: 112", "Free time left: 26.2 h" in green, green bracket "Balanced: good for your
+    mental health" over the pale-green free segment, legend with hours, italic footnote, Live this month.
+  - 2-stretched.png: Training hard / A few shifts / Lots / Yes every day → 7.2 h, orange "Stretched thin" bracket.
+  - 3-adrift.png: no core answers → 43 h free, orange "Adrift — too much empty time" bracket, Live button disabled,
+    the optional home & garden question (Not now) visible.
+  - 4-overbooked.png (Katy house): all maximums → "−8.1 h" in red, the bar ends at 112 h and a red striped overflow
+    sticks out past it, labeled "−8.1 h"; red bracket "Overbooked — something has to give: cutting into sleep".
+  - 6-dark.png: dark theme readable, checked buttons green-outlined.
+- Deviations: personal care 16 h instead of 14 so the maximum still overbooks; free-time notes; home & garden
+  visibility (DEVIATIONS.md).
+- Notes for later tasks:
+  - Task 44: `timeBudget(state, choices)` → `hours` in planMonth; `rating.mentalDelta/physicalDelta` feed wellbeing.
+    Charge overtime with `overtimePayCents(state, choices.extraWork)` and social with `socialCostCents(state,
+    choices.social)` so the money matches the button hints. `choices.homeGarden` is 'garden' | 'cat' | 'chickens' |
+    'none' (prices `LIFE.adoptCents`/`petMonthlyCents`/`gardenMonthlyCents`); add the plant/animal to `home` in
+    finalizeMonth. chores already count a pending cat/chickens/garden bed for the month.
+  - lifeScreen panels can now register `onUpdate(fn)` (gets every later store change for the same stage/month) instead
+    of being rebuilt; only the plan panel uses it. Budget + Live sit in `.life-plan-foot` (sticky); put task 48's
+    investment block above it in the scrolling part.
+  - The panel is `aria-live="polite"`, so in-place budget text changes are announced.

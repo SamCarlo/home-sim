@@ -237,3 +237,16 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   character reached 157 draw calls (08 §5 budget 150) because every prop mesh is drawn again in the shadow pass. Plant and
   animal props in the Phase 4 view don't cast shadows (the character still does); the house is 130 calls. Where:
   `three/homeRender.js`.
+- 2026-10-02, task 43, personal care hours: 09 §4's worked example (112 − 40 job − 5 commute − 14 care − 10 chores = 43)
+  can't make "the maximum of everything overbooks" true: the maximum answers add 7 + 32 ÷ 4.33 + 20 + 7 = 41.4 h, which
+  leaves 1.6 h (Burnout risk). The spec says to keep the defaults tuned so the three outcomes hold, so
+  `LIFE.personalCareHours` (marked "config") is 16: the example now has 41 discretionary hours, the default answers
+  leave 23 (Balanced), no answers leave 41 (Adrift) and the maximum leaves −0.4 (Overbooked). Where: `config.js`, tested in
+  `tests/unit/time-budget.test.js`.
+- 2026-10-02, task 43, time budget details: each free-time rating has a short `note` for the bracket label
+  ("Balanced: good for your mental health", "Overbooked — something has to give: cutting into sleep", …). Missing answers
+  count as 0 h. The home & garden question shows when the home has no plants, no animals, or a dead plant / departed
+  animal; a cat or hens already at home aren't offered again; chickens only for houses and builds; the answer resets to
+  "Not now" every month (it's a purchase). A pending cat/chickens/garden bed counts toward this month's chores (pots in an
+  apartment don't). The budget and Live button are pinned to the bottom of the right panel so the bar stays in view while
+  the questions scroll. Where: `life/timeBudget.js`, `phases/life/questions.js`, `lifeScreen.js`.

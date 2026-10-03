@@ -35,10 +35,13 @@ export function lastMonth(state) {
   return state.life?.history?.at(-1) ?? null;
 }
 
-/** Choices to pre-select in the plan stage: last month's answers, else `LIFE.defaults` (09 §2). */
+/**
+ * Choices to pre-select in the plan stage: last month's answers, else `LIFE.defaults` (09 §2). The home & garden answer
+ * is a one-time purchase, so it always starts at 'none'.
+ */
 export function defaultChoices(state) {
   const prev = lastMonth(state)?.choices;
-  return { ...LIFE.defaults, ...(prev ?? {}) };
+  return { ...LIFE.defaults, ...(prev ?? {}), homeGarden: 'none' };
 }
 
 /** True once all four core questions have an answer (09 §2). */

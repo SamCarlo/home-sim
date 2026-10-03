@@ -139,7 +139,7 @@ export const UNDERWRITING = {
  *  animation (09 §9) and care minigame (09 §10). */
 export const LIFE = {
   wakingHoursPerWeek: 112,
-  personalCareHours: 14,
+  personalCareHours: 16,                 // 09 §4 says 14; 16 keeps "maximum = Overbooked" true (see DEVIATIONS, task 43)
   weeksPerMonth: 4.33,
   chores: {
     base: 10,
@@ -155,14 +155,14 @@ export const LIFE = {
     social: [3, 7, 12, 20],              // h/week
     deepPractice: [7, 4, 0],             // h/week
   },
-  defaults: { exercise: 4, extraWork: 0, social: 7, deepPractice: 7 },
+  defaults: { exercise: 4, extraWork: 0, social: 7, deepPractice: 7, homeGarden: 'none' },
   freeTime: [                            // first match wins
-    { key: 'overbooked', below: 0, label: 'Overbooked — something has to give', color: 'red', mentalDelta: -8, physicalDelta: -2 },
-    { key: 'burnout', below: 5, label: 'Burnout risk', color: 'red', mentalDelta: -6, physicalDelta: 0 },
-    { key: 'stretched', below: 12, label: 'Stretched thin', color: 'orange', mentalDelta: -2, physicalDelta: 0 },
-    { key: 'balanced', atMost: 30, label: 'Balanced', color: 'green', mentalDelta: 3, physicalDelta: 0 },
-    { key: 'restless', atMost: 40, label: 'Restless', color: 'yellow', mentalDelta: -1, physicalDelta: 0 },
-    { key: 'adrift', atMost: Infinity, label: 'Adrift — too much empty time', color: 'orange', mentalDelta: -4, physicalDelta: 0 },
+    { key: 'overbooked', below: 0, label: 'Overbooked — something has to give', color: 'red', mentalDelta: -8, physicalDelta: -2, note: 'cutting into sleep' },
+    { key: 'burnout', below: 5, label: 'Burnout risk', color: 'red', mentalDelta: -6, physicalDelta: 0, note: 'bad for your mental health' },
+    { key: 'stretched', below: 12, label: 'Stretched thin', color: 'orange', mentalDelta: -2, physicalDelta: 0, note: 'a little hard on your mental health' },
+    { key: 'balanced', atMost: 30, label: 'Balanced', color: 'green', mentalDelta: 3, physicalDelta: 0, note: 'good for your mental health' },
+    { key: 'restless', atMost: 40, label: 'Restless', color: 'yellow', mentalDelta: -1, physicalDelta: 0, note: 'a little too much downtime' },
+    { key: 'adrift', atMost: Infinity, label: 'Adrift — too much empty time', color: 'orange', mentalDelta: -4, physicalDelta: 0, note: 'bad for your mental health' },
   ],
   overtimeMultiplier: 1.5,
   paydays: [1, 15],

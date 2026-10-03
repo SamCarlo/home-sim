@@ -83,7 +83,7 @@ app/src/letters/               types.js send.js score.js text.js allowlist.js sp
                                (pure) · model.json (task 27) · loadSpeller.js (browser, lazy dictionary)
 app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
                                locations/{hawaii,cities,towns,index}.js (pure)
-app/src/life/                  monthFlow.js homeDescription.js (pure; Phase 4 rules, more from task 43)
+app/src/life/                  monthFlow.js homeDescription.js timeBudget.js (pure; Phase 4 rules)
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
@@ -521,6 +521,17 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   is a checkpoint ('life-plan', 'life-live', 'life-summary', 'life-month'). CSS `styles/life.css` (`life-`; the money items
   use `m-<key>` because `.card` is a global class). Seeds `life-month1-{apartment,shared,condo,house,build}` in
   `dev/lifeSeeds.js` (design seeds run through their real Move in). e2e `tests/e2e/life-month1.json`, `life-flow.json`.
+  A panel may call `onUpdate(fn)` to get later store changes in place instead of being rebuilt (plan does, so focus survives).
+- Time budget (task 43, 09 §3–§4): pure `life/timeBudget.js` `timeBudget(state, choices)` → `{waking 112, segments [{key,
+  label, hours, color 'tb-*'}], usedHours, freeHours, rating {key, label, color, mentalDelta, physicalDelta, note}, chores}`
+  (missing answers = 0 h); `freeTimeRating(h)` (`LIFE.freeTime`), `commuteHours(loc, type)`, `choresHours(home, choices)`
+  → `{hours, parts}`, `hoursText` ("25 h", "−3 h"), `hourlyNetCents`, `overtimePayCents(state, monthlyHours)`,
+  `socialCostCents(state, weeklyHours)` (planMonth must charge these), `homeGardenOptions(home)` ([] = question hidden).
+  `phases/life/questions.js` `renderQuestions({state, choices, onChoose})` → `{el, update(choices)}` (`QUESTIONS` = exact
+  wording; `.lq[data-question=<key>] .lq-opt[data-value=<v>]` role=radio, arrows/Home/End answer); `timeBudgetView.js`
+  `renderTimeBudget(budget)` → `{el, update(budget)}` (`.tb[data-rating][data-color]`, `.tb-over` overflow). Choice keys
+  exercise / extraWork (h per month) / social / deepPractice / homeGarden ('garden'|'cat'|'chickens'|'none', reset monthly).
+  Seed `life-plan-filled` (Hilo, plan stage answered); e2e `tests/e2e/life-plan.json`, `life-plan-overbooked.json`.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

@@ -1,18 +1,24 @@
 // Phase 4: Life (09 §1–§2, task 42). Money strip on top; the student's home in rotatable 3D on the left with the
 // wellbeing card over it; the right panel runs the month state machine (life/monthFlow.js): welcome → plan → live →
-// summary → next month. Each stage change saves a checkpoint. The plan questions + time budget (task 43), the "Live this
+// summary → next month. Each stage change saves a checkpoint. The plan stage holds the questions + time budget (task 43, questions.js + timeBudgetView.js); the "Live this
 // month" animation + care game (tasks 45–46) and the summary (task 47) mount into the panel/stage slots marked below.
 import { h } from '../../ui/dom.js';
 import { byId } from '../../data/locations/index.js';
 import { monthLabel, monthName } from '../../util/dates.js';
 import { describeHome } from '../../life/homeDescription.js';
 import {
-  currentStage, welcomeTitle, recap, canLive, startPlan, startLive, finishLive, nextMonth,
+  currentStage, welcomeTitle, recap, canLive, startPlan, setChoice, startLive, finishLive, nextMonth,
 } from '../../life/monthFlow.js';
 import { renderWellbeingCard } from './wellbeingCard.js';
 import { renderMoneyStrip } from './moneyStrip.js';
+import { renderQuestions } from './questions.js';
+import { renderTimeBudget } from './timeBudgetView.js';
+import { timeBudget } from '../../life/timeBudget.js';
 
-/** The panel for each stage: `(ctx) → Node[]`. ctx = {state, go(fn, checkpoint)}. */
+/**
+ * The panel for each stage: `(ctx) → Node[]`. ctx = {state, go(fn, checkpoint), store, onUpdate(fn)}. A panel that
+ * registers `onUpdate(fn)` is built once per stage/month and gets `fn(state)` on every later store change.
+ */
 const PANELS = {
   welcome({ state, go }) {
     const mi = state.life.monthIndex;
@@ -27,18 +33,26 @@ const PANELS = {
       h('button', { class: 'btn btn-primary btn-lg life-go', type: 'button', onClick: () => go(startPlan, 'life-plan') }, 'Plan my month'),
     ];
   },
-  plan({ state, go }) {
+  plan({ state, go, store, onUpdate }) {
     const mi = state.life.monthIndex;
-    const ready = canLive(state.life.current?.choices);
+    const choices = state.life.current?.choices ?? {};
+    const questions = renderQuestions({ state, choices,
+      onChoose: (key, value) => store.update((s) => { setChoice(s, key, value); }) });
+    const budget = renderTimeBudget(timeBudget(state, choices));
+    const live = h('button', { class: 'btn btn-primary btn-lg life-go', type: 'button', disabled: !canLive(choices),
+      onClick: () => go(startLive, 'life-live') }, 'Live this month');
+    onUpdate((s) => {
+      const c = s.life.current?.choices ?? {};
+      questions.update(c);
+      budget.update(timeBudget(s, c));
+      live.disabled = !canLive(c);
+    });
     return [
       h('p', { class: 'life-eyebrow' }, `Plan · ${monthLabel(mi)}`),
       h('h1', { class: 'life-title' }, welcomeTitle(mi)),
-      // Task 43 replaces this slot with the four questions (+ home & garden) and the time budget bar.
-      h('div', { class: 'life-slot', dataset: { slot: 'questions' } },
-        h('p', { class: 'muted' }, 'How you spend your time this month: exercise, extra work, friends and family, and a deep practice.'),
-        h('p', { class: 'muted' }, 'For now, last month\'s plan (or a balanced starting plan) is already chosen.')),
-      h('button', { class: 'btn btn-primary btn-lg life-go', type: 'button', disabled: !ready,
-        onClick: () => go(startLive, 'life-live') }, 'Live this month'),
+      questions.el,
+      // The bar and the button stay pinned at the bottom of the panel so the bar is in view while answering.
+      h('div', { class: 'life-plan-foot' }, budget.el, live),
     ];
   },
   live({ state, go }) {
@@ -92,7 +106,7 @@ export async function mount(container, { store }) {
       panel));
   container.append(root);
 
-  let shownStage = null, shownMonth = null;
+  let shownStage = null, shownMonth = null, panelUpdate = null;
   function go(fn, checkpoint) {
     store.update((s) => { fn(s); }, { checkpoint });
   }
@@ -102,11 +116,13 @@ export async function mount(container, { store }) {
     wb.update(s);
     const st = currentStage(s);
     root.dataset.stage = st;
-    if (st === shownStage && s.life.monthIndex === shownMonth && st !== 'plan') return;
-    const changed = st !== shownStage || s.life.monthIndex !== shownMonth;
-    shownStage = st; shownMonth = s.life.monthIndex;
-    panel.replaceChildren(...PANELS[st]({ state: s, go }).filter(Boolean));
-    if (changed) panel.scrollTop = 0;
+    if (st === shownStage && s.life.monthIndex === shownMonth) {
+      panelUpdate?.(s);
+      return;
+    }
+    shownStage = st; shownMonth = s.life.monthIndex; panelUpdate = null;
+    panel.replaceChildren(...PANELS[st]({ state: s, go, store, onUpdate: (fn) => { panelUpdate = fn; } }).filter(Boolean));
+    panel.scrollTop = 0;
   }
   render(state);
   const unsub = store.subscribe((s) => render(s));

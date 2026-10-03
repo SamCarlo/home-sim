@@ -6,6 +6,7 @@ import { moveInHouse } from '../phases/design/houseModel.js';
 import { sharedOptions, moveInShared } from '../phases/design/sharedModel.js';
 import { moveInBuild } from '../phases/design/blueprint/moveIn.js';
 import { addYardItem } from '../phases/design/blueprint/yard.js';
+import { startPlan, setChoice } from '../life/monthFlow.js';
 
 /** Fail loudly when a seed's Move in refuses (a seed that silently stays in design would hide bugs). */
 function ok(result, name) {
@@ -53,6 +54,15 @@ export function addLifeSeeds(seeds) {
       let bp = s.home.blueprint;
       for (const kind of ['garden-bed', 'garden-bed', 'coop']) bp = addYardItem(bp, kind);
       ok(moveInBuild(s, bp), 'life-month1-build');
+      return s;
+    } };
+  seeds['life-plan-filled'] = { phase: 'life',
+    description: 'Hilo apartment, January 2033 plan stage with every question answered (4 h exercise, a few shifts, '
+      + 'some socializing, most days of deep practice).',
+    build: (now) => {
+      const s = seeds['life-month1-apartment'].build(now);
+      startPlan(s);
+      for (const [k, v] of Object.entries({ exercise: 4, extraWork: 8, social: 7, deepPractice: 4, homeGarden: 'none' })) setChoice(s, k, v);
       return s;
     } };
 }
