@@ -1477,3 +1477,42 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     (X = x + w/2 − lot width/2, Z = 46 − (y + h/2)). `plantSpots` = bed centers, `animalSpots` = coops (+5 z), by the door, the side yard.
   - The narrower plan column wraps the editor toolbar onto two rows at 1366 px; still usable.
   - Yard items sit behind the house by default, so the front 3D angle often hides them behind the house/tree.
+
+## Task 42 — Phase 4 screen and month state machine
+- attempt started 2026-10-02T17:59:52-10:00
+- done 2026-10-02T18:10:55-10:00
+- Files: new `three/homeRender.js` (renderHome → 08 §5 contract + plants/animals/character, setLiving), pure
+  `life/monthFlow.js` (stages, welcomeTitle, recap, defaultChoices, canLive, startPlan/setChoice/startLive/finishLive/
+  nextMonth, wellbeingBars, moneyStrip), pure `life/homeDescription.js` (describeHome, livingThings),
+  `phases/life/lifeScreen.js` (replaces the placeholder), `lifeView.js`, `wellbeingCard.js`, `moneyStrip.js`,
+  `styles/life.css` (+ link in index.html), `dev/lifeSeeds.js` (+ seeds.js hook), `config.js` LIFE3D; tests
+  `tests/unit/life-flow.test.js` (7); e2e `tests/e2e/life-month1.json`, `tests/e2e/life-flow.json`; 5 smoke lines.
+- Verified: `bash tools/check.sh` OK (193 files, smoke 68/68); `node --test tests/unit/life-flow.test.js` 7/7; each seed
+  shot with `node tools/shoot.mjs --path "/index.html?seed=life-month1-<kind>&theme=light" --steps tests/e2e/life-month1.json
+  --wait-ready` (asserts no page scroll at 1366×768, the welcome title, 5 wellbeing rows); `life-flow.json` on the house
+  seed rotates the camera (azimuth 0.50 → 1.60) and walks welcome → plan → live → summary → "Welcome to February, 2033."
+  with history length 1 and no scroll. Shots in tools/shots/t42/ (read):
+  - apartment.png: Hilo 4-story plantation walk-up, red roof, unit 3A glowing blue; 79 calls / 35k tris.
+  - shared.png: Honolulu two-story modern house with block walls, carport, character at the door; 106 calls.
+  - condo.png: Miami 27-story glass tower framed on floor 15 with the unit glowing; 34 calls.
+  - house.png: Katy two-story brick house, garage, car, garden bed and coop behind (visible after rotating); 130 calls
+    (157 before props stopped casting shadows).
+  - build.png: Pāhoa Cozy blueprint home, metal roofs, lānai, catchment tank, character at the side door; 113 calls.
+  - All: money strip (Checking · Savings · Credit card owed · Net worth on the right), "Domains of personal wellbeing"
+    card top-right of the 3D (5 colored bars, 60 each), panel "January 2033 / Welcome to January, 2033." + recap + Plan my month.
+  - flow-0-rotated.png: house from the side, coop + hens and bed in view; flow-3-february.png: "Welcome to February,
+    2033." with "January is behind you."; smoke-life-month1-shared.png (dark): panel and card readable.
+- Deviations: homeRender props skip the shadow pass (DEVIATIONS.md).
+- Notes for later tasks:
+  - Task 43: replace the `[data-slot=questions]` block in lifeScreen PANELS.plan with the questions + time budget; record
+    answers with `monthFlow.setChoice(s, key, value)` (store.update without checkpoint), the Live button already follows
+    `canLive(choices)`. PANELS.plan re-renders on every store change (other stages only on stage/month change).
+  - Task 44: run planMonth inside `startLive` (store `current.plan`) and finalizeMonth inside `finishLive` (store
+    `current.result`); `nextMonth` already pushes `{monthIndex, choices, result}` to history, and `recap` / `wellbeingBars`
+    read `result.{incomeCents, expenseCents, warnings, wellbeingBefore, wellbeingAfter}` from the last entry.
+  - Task 45: `window.__life.view()` → `{scene, home {character, path, exit, door, plants, animals}, refreshNight,
+    setLiving}`; the `.life-daybar` element (hidden) is the day label slot. The scene isn't rebuilt on month change: call
+    `scene.setSeason(monthIndex)` there. Remove the "Finish the month" button once the animation drives finishLive.
+  - Task 46: `view.setLiving(state.home)` shows wilted plants / departed animals. Fruit trees are generator-drawn, so
+    they don't wilt yet.
+  - Chickens are small and white next to the coop; the coop/beds sit behind houses, so the default angle often hides them.

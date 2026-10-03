@@ -55,7 +55,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 ## Folder map
 ```
 app/index.html admin.html      entry pages (import map: three → vendor/, firebase/* → gstatic 12.19.0)
-app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css forms.css paperwork.css letters.css design.css)
+app/styles/                    tokens.css base.css components.css (+ one file per area: login.css intake.css plan.css portfolio.css forms.css paperwork.css letters.css design.css life.css)
 app/src/main.js                boot (01 §5); error boundary; ?theme=light|dark
 app/src/config.js              all tunables · firebase-config.js placeholder · types.js typedefs
 app/src/util/                  escape.js format.js rng.js dates.js (pure)
@@ -69,9 +69,9 @@ app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScre
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · designSeeds.js (design-* seeds, addDesignSeeds) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles) · buildingsGallery.js (?dev=buildings) · housesGallery.js (?dev=houses) · blueprint3dGallery.js (?dev=blueprint3d)
+                               seeds.js (fixtures) · designSeeds.js (design-* seeds, addDesignSeeds) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles) · buildingsGallery.js (?dev=buildings) · housesGallery.js (?dev=houses) · blueprint3dGallery.js (?dev=blueprint3d) · lifeSeeds.js (life-* seeds, addLifeSeeds)
 app/src/three/                 scene.js sky.js terrain.js landmarks.js materials.js · props.js propKit.js animals.js yard.js
-                               character.js · styles.js styleParts.js styleSwatch.js · buildingGen.js buildingParts.js · houseGen.js houseYard.js · blueprintTo3d.js
+                               character.js · styles.js styleParts.js styleSwatch.js · buildingGen.js buildingParts.js · houseGen.js houseYard.js · blueprintTo3d.js · homeRender.js
                                (browser only, import() lazily; see 3D scene)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks); design/blueprint/ = the build editor
@@ -83,6 +83,7 @@ app/src/letters/               types.js send.js score.js text.js allowlist.js sp
                                (pure) · model.json (task 27) · loadSpeller.js (browser, lazy dictionary)
 app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
                                locations/{hawaii,cities,towns,index}.js (pure)
+app/src/life/                  monthFlow.js homeDescription.js (pure; Phase 4 rules, more from task 43)
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
@@ -500,6 +501,26 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `?dev=blueprint3d&template=tiny|cozy|family&loc=&yard=0|1&roof=&siding=&t=&month=` (`window.__bp3d`); e2e
   `tests/e2e/design-build-3d.json` (template → rebuild → camera kept → Move in with a cat → phase life).
 - `scene.setPanLimits({half, yMax})` widens the pan clamp (default ±`SCENE3D.lotHalf`, look-at y ≤ 40).
+
+## Phase 4: Life (09, `app/src/phases/life/`, task 42+)
+- `three/homeRender.js` `renderHome(state, {season, nightFactor})` → 08 §5 contract (bounds = the generator's framing box)
+  + `{generator, plants [{id, object}], animals [{id, object}], character, setLiving(home), info}`: apartments/condos via
+  buildingGen (setUnit + highlight the unit), houses via houseGen with the listing's sqftTarget/bedrooms (`listings(state)`),
+  shared via houseGen `variant: 'shared'`, builds via blueprintTo3d (seed `seedFor(meta.seed, 'build')`). Pots at
+  plantSpots, a vegetable plant per garden bed, chickens around the coop spot, pets in the yard; fruit trees are the
+  generator's. Props don't cast shadows (draw-call budget). Tunables `config.LIFE3D`.
+- `phases/life/lifeView.js` `createLifeView(container, {state})` → `{scene, home, info, refreshNight, setLiving, firstFrame,
+  dispose}` (towers > 80 ft frame the student's floor). `window.__life = {view(), info(), description()}`.
+- Pure `life/monthFlow.js`: `STAGES`, `CORE_CHOICES`, `WELLBEING_DOMAINS`, `currentStage`, `welcomeTitle(mi)` ("Welcome to
+  January, 2033."), `recap(state)` → `{line, warnings}`, `defaultChoices` (last month's or `LIFE.defaults`), `canLive`,
+  transitions `startPlan / setChoice / startLive / finishLive / nextMonth` (mutate a draft; nextMonth pushes `{monthIndex,
+  choices, result}` to `life.history`), `wellbeingBars` (change = last result's wellbeingAfter − wellbeingBefore),
+  `moneyStrip`. Pure `life/homeDescription.js` `describeHome(state)` (the sr-only 3D description), `livingThings(home)`.
+- `lifeScreen.js`: money strip (`moneyStrip.js`) on top; 3D stage with the wellbeing card (`wellbeingCard.js`) over it; the
+  right panel = `PANELS[stage]` with `[data-slot=questions|live|summary]` placeholders for tasks 43/45/47; each stage change
+  is a checkpoint ('life-plan', 'life-live', 'life-summary', 'life-month'). CSS `styles/life.css` (`life-`; the money items
+  use `m-<key>` because `.card` is a global class). Seeds `life-month1-{apartment,shared,condo,house,build}` in
+  `dev/lifeSeeds.js` (design seeds run through their real Move in). e2e `tests/e2e/life-month1.json`, `life-flow.json`.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

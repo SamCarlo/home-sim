@@ -63,3 +63,8 @@ design-build-template /index.html?seed=design-build-template
 blueprint3d-tiny /index.html?dev=blueprint3d&template=tiny&loc=pahoa
 blueprint3d-cozy /index.html?dev=blueprint3d&template=cozy&loc=pahoa
 blueprint3d-family /index.html?dev=blueprint3d&template=family&loc=pahoa
+life-month1-apartment /index.html?seed=life-month1-apartment&theme=light
+life-month1-shared /index.html?seed=life-month1-shared
+life-month1-condo /index.html?seed=life-month1-condo
+life-month1-house /index.html?seed=life-month1-house&theme=light
+life-month1-build /index.html?seed=life-month1-build&theme=light

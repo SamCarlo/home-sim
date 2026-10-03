@@ -424,3 +424,5 @@ seeds['results-denied-apartment'] = { phase: 'paperwork',
 // Task 36+ design seeds (07 §6) live in designSeeds.js.
 import { addDesignSeeds } from './designSeeds.js';
 addDesignSeeds(seeds);
+import { addLifeSeeds } from './lifeSeeds.js';
+addLifeSeeds(seeds);

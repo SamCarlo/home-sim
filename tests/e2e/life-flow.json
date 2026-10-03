@@ -1,0 +1,22 @@
+[
+  {"assert": "window.__life.view().scene.controls.enableRotate === true"},
+  {"eval": "(() => { const sc = window.__life.view().scene, c = sc.controls; const a0 = c.getAzimuthalAngle(); const off = sc.camera.position.clone().sub(c.target); off.applyAxisAngle({x:0,y:1,z:0, isVector3:true}, 1.1); sc.camera.position.copy(c.target).add(off); c.update(); sc.requestRender(); return {before: a0, after: c.getAzimuthalAngle()}; })()"},
+  {"wait": 400},
+  {"shot": "tools/shots/t42/flow-0-rotated.png"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=plan]"},
+  {"assert": "document.querySelector('.life-go').textContent === 'Live this month' && !document.querySelector('.life-go').disabled"},
+  {"shot": "tools/shots/t42/flow-1-plan.png"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=live]"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=summary]"},
+  {"assert": "document.querySelector('.life-title').textContent === 'January 2033 — how it went'"},
+  {"shot": "tools/shots/t42/flow-2-summary.png"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=welcome]"},
+  {"assert": "document.querySelector('.life-title').textContent === 'Welcome to February, 2033.'"},
+  {"assert": "window.__homesim.getState().life.history.length === 1 && window.__homesim.getState().life.monthIndex === 1"},
+  {"assert": "document.documentElement.scrollHeight <= innerHeight + 1"},
+  {"shot": "tools/shots/t42/flow-3-february.png"}
+]

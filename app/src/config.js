@@ -492,6 +492,18 @@ export const CHARACTER3D = {
   swing: 0.55,                  // max leg swing in radians (arms swing 80% of it)
 };
 
+/** Phase 4 3D home (09 §1, 08 §5; three/homeRender.js, phases/life/lifeView.js). */
+export const LIFE3D = {
+  idleTimeOfDay: 0.42,          // time of day shown outside "Live this month" (mid-morning)
+  potScale: 1.6,                // potted plants read better a bit larger than life at framing distance
+  bedPlantScale: 1.8,           // vegetable plant on a garden bed
+  potSpacing: 1.6,              // ft between pots sharing a balcony/porch spot
+  characterDoorOffset: 1.5,     // ft in front of the door where the character waits
+  framePadding: 0.95,           // scene.frame padding for houses and builds
+  buildingFramePadding: 0.9,    // apartments/condos (whole building)
+  towerFramePadding: 1.25,      // towers over 80 ft: the student's floor ±40 ft, with room to see the top
+};
+
 export const PROPS3D = {
   budget: { tree: 300, animal: 400 }, // 08 §5 triangles per prop
 };

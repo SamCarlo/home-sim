@@ -233,3 +233,7 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   the 340 px panel (plan and 3D stack beside the panel from 900–1199 px, all stack under 900 px). The optional pet is a
   select above Move in; it's adopted from savings at the house picker's prices (`DESIGN.house.petCents`) and Move in
   refuses with the shortfall if cash is short. Where: `phases/design/blueprint/editor.js`, `view3d.js`, `moveIn.js`.
+- 2026-10-02, task 42, life props and shadows: a Katy house with a coop, three hens, a cat, a garden plant and the
+  character reached 157 draw calls (08 §5 budget 150) because every prop mesh is drawn again in the shadow pass. Plant and
+  animal props in the Phase 4 view don't cast shadows (the character still does); the house is 130 calls. Where:
+  `three/homeRender.js`.

@@ -1,0 +1,6 @@
+[
+  {"assert": "document.documentElement.scrollHeight <= innerHeight + 1"},
+  {"assert": "document.querySelector('.life-title').textContent === 'Welcome to January, 2033.'"},
+  {"assert": "document.querySelectorAll('.life-wb-row').length === 5"},
+  {"eval": "({info: window.__life.info(), desc: window.__life.description(), money: document.querySelector('.life-money').textContent})"}
+]
