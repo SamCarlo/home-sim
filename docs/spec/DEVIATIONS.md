@@ -332,3 +332,18 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   `{"offline": bool}` step (CDP `Network.emulateNetworkConditions`). (6) `flush()` now resolves after the follow-up save
   a pending change triggers, not just the write already in flight.
   Where: app/src/persistence/firestore.js, app/src/state/persistence.js, app/src/main.js, tools/shoot.mjs.
+
+## 2026-10-03, task 52: Admin console
+- **Local-mode class codes** live in `homesim:v1:classCodes` (admin/dataSource.js `LOCAL_CODES_KEY`); the local provider
+  accepts the active ones (default `LOCAL_CLASS_CODES` = DEMO until the local console saves a list). The local provider now
+  refuses paused (`disabled`) accounts, and local "Delete class data" also removes the local accounts (they are the local
+  sign-ins). Why: 11 §3 asks for a local console that works without Firebase; without these, its actions did nothing.
+- **Transfer rewrites `state.account`** (username, classCode) to the receiving account and keeps `meta.seed`, so the
+  header and summary show the new username and the game stays the same game. Where: `adminModel.planTransfer`.
+- **Admin sees letter reports** even before the student's own reveal (the console is for the teacher). The detail is a wide
+  modal, not a page. Where: `admin/studentDetail.js`.
+- **Popup → redirect fallback** on `auth/popup-blocked`, `auth/operation-not-supported-in-this-environment` and
+  `auth/cancelled-popup-request`. `?localAdmin=1` (dev) opens the local console without the button press (smoke line).
+- **CSV**: money columns in dollars (numbers), last active as ISO time, plus a Status column (active/paused/transferred);
+  text cells starting with = + - @ get a leading apostrophe so spreadsheets don't run them. Where: `admin/csv.js`.
+- **Admin e2e** runs from `tests/firebase/admin.test.js` under `npm run test:firebase` (still no separate `test:e2e:emulator`).

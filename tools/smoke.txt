@@ -2,6 +2,7 @@
 # Every new screen adds a line (01 §7). Run: node tools/shoot.mjs --smoke tools/smoke.txt
 login /index.html
 admin /admin.html
+admin-local /admin.html?localAdmin=1&theme=light
 vendor /index.html?dev=vendor
 fresh /index.html?seed=fresh
 devpanel /index.html?seed=plan-comfortable&dev=1

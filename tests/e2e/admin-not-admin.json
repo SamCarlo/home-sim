@@ -1,0 +1,6 @@
+[
+  { "waitReady": true },
+  { "assert": "document.querySelector('.adm-signin-title').textContent === \"This account isn't the admin\" && document.querySelector('.adm-not-admin').textContent.includes('kid@gmail.com')" },
+  { "assert": "!document.querySelector('.adm-students') && !window.__admin" },
+  { "shot": "tools/shots/t52/5-not-admin.png" }
+]

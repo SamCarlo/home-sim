@@ -1861,3 +1861,39 @@ life-month1-house · seed 7 · income $4,300/mo
   - `{"offline": true}` in a step file cuts the page's network too: don't trigger lazy `import()`s of new screens while
     offline (same-origin failures fail the run). Firestore offline logs nothing that fails shoot.
   - Node tests: `createFirestoreAdapter({db: p.db, firestore: p.sdk.firestore, storage, now})` on a registered provider.
+
+## Task 52 — Admin console (single Google admin)
+- attempt started 2026-10-03T01:39:49-10:00
+- done 2026-10-03T01:50:23-10:00
+- Files: new `app/src/admin/{adminModel,dataSource,actions,classCodes,studentTable,studentDetail,csv}.js`,
+  `app/styles/admin.css`, `tests/unit/admin.test.js` (8), `tests/firebase/admin.test.js` (2),
+  `tests/e2e/admin-flow.json`, `admin-not-admin.json`; rewrote `admin/adminMain.js`; changed `app/admin.html` (plan,
+  forms, portfolio, letters, admin CSS), `accounts/local.js` (local class codes, paused accounts refused),
+  `tools/smoke.txt` (admin-local), CLAUDE.md, DEVIATIONS.
+- Verified: `node --test tests/unit/admin.test.js` 8/8 (CSV escaping/defusing, toCsv, rowFor, filter/search/sort with
+  blanks last, checkNewCode, planReset valid state, planTransfer + targets, local source end to end with the local provider).
+  `mise exec java@temurin-21 -- npm run test:firebase` → 38/38 (rules 25, accounts 6, saves 5, admin 2): fake admin creates
+  AD-P1 → adkid1 registers + intake, adkid2 registers → admin sees both (code count 2) → transfers adkid1 → adkid2; REST
+  confirms players/adkid1 {disabled, transferredTo}, adkid2 summary phase plan, saves/adkid2 has adkid1's job; adkid1 login
+  refused "paused", adkid2 logs in to the Plan phase. kid@gmail.com sees "This account isn't the admin"; the SDK as that
+  Google user is denied players list, classCodes list and a save get; the admin credential lists players.
+  `bash tools/check.sh` OK (222 files, smoke 77/77).
+  Shots (tools/shots/t52/):
+  - 1-table: Students card (2 of 2, sortable headers, Username ▲), adkid1 Plan $8,000 / adkid2 Intake $0; Class codes card
+    with AD-P1 "Period 1 Life Skills", 2 students, Active chip, Deactivate / Delete code / Delete class data; create form.
+    (First shot had a full-width class select and the header tools beside the title; fixed in admin.css and re-shot.)
+  - 2-detail: adkid1 modal: Active chip, Transfer save / Pause / Reset game (red); Current home kv (Dental assistant
+    $3,200/mo, Plan, Not chosen yet), no months/letters yet; read-only portfolio tabs on Accounts ($8,000 savings).
+  - 3-transfer-dialog: "Transfer adkid1's save", explanation, New username select = adkid2 (AD-P1), Cancel / Transfer save.
+  - 4-after-transfer: adkid1 greyed with a "Transferred" chip, adkid2 now Plan $8,000, toast confirming the transfer.
+  - 5-not-admin: centered card "This account isn't the admin", signed in as kid@gmail.com, Sign out.
+  - smoke-admin: dark local card with the "Local admin (dev only)" button.
+- Deviations: see DEVIATIONS 2026-10-03 task 52 (local codes/pause, transfer rewrites account, letter reports, CSV shape).
+- Notes for later tasks:
+  - `window.__admin` (dev) = {source, codes, players, rows, reload}; `body[data-detail-ready="1"]` once a detail's save loads.
+  - Data sources share one interface (`createFirestoreSource({db, fs})`, `createLocalSource(storage)`); actions write
+    the summary themselves (02 §5). Admin uses its own Firebase app named 'admin', so it never clobbers a student session.
+  - Task 53 (DEPLOY): the console URL is /admin.html (cleanUrls → /admin); the Firebase console Auth → Users is where to
+    delete Auth accounts after "Delete class data"; Google sign-in must be enabled as a provider.
+  - Not covered by e2e: Reset game, Pause/Unpause and Delete class data run through the same source methods the transfer
+    uses (unit-tested locally); task 56/57 could add an emulator run of them.

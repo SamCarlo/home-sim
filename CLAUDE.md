@@ -93,7 +93,8 @@ app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js hom
                                locations/{hawaii,cities,towns,index}.js (pure)
 app/src/life/                  monthFlow.js homeDescription.js timeBudget.js events.js wellbeing.js market.js planMonth.js
                                finalizeMonth.js (pure; Phase 4 rules)
-app/src/admin/adminMain.js     placeholder (task 52)
+app/src/admin/                 adminMain.js (sign-in by mode, console) · adminModel.js (pure: COLUMNS, rowFor, filter/sort, planReset/planTransfer)
+                               dataSource.js (Firestore + local sources) · actions.js · classCodes.js · studentTable.js · studentDetail.js · csv.js
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
 tests/e2e/                     shoot.mjs step scripts (example, persist, register, intake, plan-keys, choose-home, paperwork-flow …)
@@ -651,6 +652,16 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `Authorization: Bearer owner` (skips rules); reset with `DELETE …/emulator/v1/projects/demo-home-sim/accounts` and
   `…/databases/(default)/documents`. Node providers need a unique `appName` each and `deleteApp` in `after()`, or the
   test process never exits (emulators:exec then hangs).
+
+## Admin console (11 §3, task 52; `app/admin.html`)
+- Sign-in: Firebase mode → Google popup (redirect fallback); `?emulator=1&fakeAdmin=<email>` signs in with a fake Google
+  credential (emulator only); local mode → "Local admin (dev only)" (`?localAdmin=1` skips the button). Its Firebase app is
+  named 'admin'. Email ≠ `ADMIN_EMAIL` → "This account isn't the admin"; the rules are the real lock.
+- `dataSource.js`: one interface (`listCodes createCode setCodeActive deleteCode listPlayers loadSave writeSave(uid, state,
+  summary, extra?) updatePlayer deleteClass`). Local codes live in `homesim:v1:classCodes` and the local provider uses them.
+- Every action confirms (`actions.js`); delete class data needs the typed code. Actions write the summary themselves.
+- Tests: `tests/unit/admin.test.js`; emulator `tests/firebase/admin.test.js` (shoot `tests/e2e/admin-flow.json`,
+  `admin-not-admin.json`). Dev: `window.__admin`, `body[data-detail-ready]`.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

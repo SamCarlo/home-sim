@@ -18,7 +18,7 @@ export function createLocalProvider(opts = {}) {
     local = globalThis.localStorage,
     session = globalThis.sessionStorage,
     crypto = globalThis.crypto,
-    classCodes = LOCAL_CLASS_CODES,
+    classCodes = null, // null = the admin console's local codes (homesim:v1:classCodes), else LOCAL_CLASS_CODES
     iterations = ACCOUNTS.pbkdf2Iterations,
   } = opts;
   const listeners = new Set();
@@ -33,6 +33,16 @@ export function createLocalProvider(opts = {}) {
     const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
     const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations }, key, 256);
     return hex(bits);
+  }
+
+  /** Active class codes: the given list, or the ones the local admin console keeps (task 52). */
+  function activeCodes() {
+    if (classCodes) return classCodes.map((c) => c.toUpperCase());
+    try {
+      const saved = JSON.parse(local.getItem(`${STORAGE_PREFIX}classCodes`) || 'null');
+      if (Array.isArray(saved)) return saved.filter((c) => c.active).map((c) => c.code);
+    } catch { /* fall through */ }
+    return LOCAL_CLASS_CODES.map((c) => c.toUpperCase());
   }
 
   async function uidFor(username) {
@@ -56,7 +66,8 @@ export function createLocalProvider(opts = {}) {
       for (const store of [session, local]) {
         try {
           const saved = JSON.parse(store.getItem(SESSION_KEY) || 'null');
-          if (saved?.uid && readAccounts()[saved.username]?.uid === saved.uid) { user = saved; break; }
+          const acct = readAccounts()[saved?.username];
+          if (saved?.uid && acct?.uid === saved.uid && !acct.disabled) { user = saved; break; }
         } catch { /* ignore a corrupt session */ }
       }
       return user;
@@ -65,7 +76,7 @@ export function createLocalProvider(opts = {}) {
     /** Create an account and sign in (session only). Throws AccountError. */
     async register(input) {
       const { username, password, classCode } = assertRegistration(input);
-      if (!classCodes.map((c) => c.toUpperCase()).includes(classCode)) {
+      if (!activeCodes().includes(classCode)) {
         throw new AccountError('class-code', MESSAGES.classCodeUnknown, 'classCode');
       }
       const all = readAccounts();
@@ -88,6 +99,7 @@ export function createLocalProvider(opts = {}) {
       if (!acct || !password || (await hashPassword(password, unhex(acct.salt))) !== acct.hash) {
         throw new AccountError('invalid-credential', MESSAGES.badLogin);
       }
+      if (acct.disabled) throw new AccountError('disabled', 'Your account is paused. Ask your teacher.');
       const next = { uid: acct.uid, username: name, classCode: acct.classCode };
       setUser(next, remember);
       return next;
