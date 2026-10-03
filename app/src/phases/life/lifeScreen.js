@@ -2,14 +2,14 @@
 // wellbeing card over it; the right panel runs the month state machine (life/monthFlow.js): welcome → plan → live →
 // summary → next month. Each stage change saves a checkpoint. The plan stage holds the questions + time budget (task 43,
 // questions.js + timeBudgetView.js); the live stage plays "Live this month" (task 45, animation.js) over the 3D view and
-// runs finishLive when it ends, with the water-and-feed button's counts (careButton.js, task 46); the summary (task 47)
-// mounts into the slot marked below (it holds the care notes for now).
+// runs finishLive when it ends, with the water-and-feed button's counts (careButton.js, task 46); the summary and, after
+// each December, the year in review come from summary.js and yearReview.js (task 47).
 import { h } from '../../ui/dom.js';
 import { byId } from '../../data/locations/index.js';
 import { monthLabel, monthName } from '../../util/dates.js';
 import { describeHome } from '../../life/homeDescription.js';
 import {
-  currentStage, welcomeTitle, recap, canLive, startPlan, setChoice, startLive, finishLive, nextMonth,
+  currentStage, welcomeTitle, recap, canLive, startPlan, setChoice, startLive, finishLive, nextMonth, isYearEnd, finishReview,
 } from '../../life/monthFlow.js';
 import { renderWellbeingCard } from './wellbeingCard.js';
 import { renderMoneyStrip } from './moneyStrip.js';
@@ -18,7 +18,8 @@ import { renderTimeBudget } from './timeBudgetView.js';
 import { timeBudget } from '../../life/timeBudget.js';
 import { createAnimation } from './animation.js';
 import { createCareGame } from './careButton.js';
-import { careNotes } from '../../life/care.js';
+import { renderSummary } from './summary.js';
+import { renderYearReview } from './yearReview.js';
 import { getFlag } from '../../dev/flags.js';
 
 /**
@@ -76,15 +77,14 @@ const PANELS = {
     return [
       h('p', { class: 'life-eyebrow' }, 'Month summary'),
       h('h1', { class: 'life-title' }, `${monthLabel(mi)} — how it went`),
-      // Task 47 fills this slot from current.result (money, card, events, wellbeing, plants & animals, a tip).
-      h('div', { class: 'life-slot', dataset: { slot: 'summary' } },
-        h('p', { class: 'muted' }, 'Your income, bills, events and wellbeing changes for the month appear here.'),
-        state.life.current.result ? h('ul', { class: 'life-care-notes', role: 'list' },
-          ...careNotes(state.home, state.life.current.result, !!state.life.current.plan?.care?.needed)
-            .map((n) => h('li', { class: `life-care-note ${n.kind}`, dataset: { kind: n.kind } }, n.text))) : null),
-      h('button', { class: 'btn btn-primary btn-lg life-go', type: 'button', onClick: () => go(nextMonth, 'life-month') },
-        `Continue to ${monthName(mi + 1)}`),
+      h('div', { class: 'life-summary', dataset: { slot: 'summary' } }, ...renderSummary(state)),
+      h('div', { class: 'life-plan-foot' },
+        h('button', { class: 'btn btn-primary btn-lg life-go', type: 'button', onClick: () => go(nextMonth, 'life-month') },
+          isYearEnd(mi) ? 'See your year in review' : `Continue to ${monthName(mi + 1)}`)),
     ];
+  },
+  review({ state, go }) {
+    return renderYearReview(state, { onContinue: (text) => go((s) => finishReview(s, text, Date.now()), 'life-month') });
   },
 };
 

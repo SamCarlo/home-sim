@@ -1,0 +1,23 @@
+[
+  {"waitFor": "[data-stage=plan]"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=live]"},
+  {"waitFor": "[data-stage=summary]"},
+  {"assert": "document.querySelector('.life-title').textContent === 'January 2033 — how it went'"},
+  {"assert": "(() => { const r = window.__homesim.getState().life.current.result; const n = (s) => Number(document.querySelector(s).textContent.replace(/[^0-9]/g, '')); return n('.life-sum-bar[data-key=in] .life-sum-bar-num') === Math.round(r.incomeCents / 100) && n('.life-sum-bar[data-key=out] .life-sum-bar-num') === Math.round(r.expenseCents / 100) && Number(document.querySelector('.life-sum-net').dataset.net) === r.incomeCents - r.expenseCents; })()"},
+  {"assert": "document.querySelectorAll('.life-sum-wb li').length === 5 && !!document.querySelector('.life-tip') && !!document.querySelector('.life-care-note[data-kind=rate]')"},
+  {"assert": "document.querySelector('.life-plan-foot .life-go').textContent === 'Continue to February'"},
+  {"click": ".life-plan-foot .life-go"},
+  {"waitFor": "[data-stage=welcome]"},
+  {"assert": "window.__homesim.getState().life.monthIndex === 1 && window.__homesim.getState().life.history.length === 1"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=plan]"},
+  {"click": ".life-plan-foot .life-go"},
+  {"waitFor": "[data-stage=live]"},
+  {"waitFor": "[data-stage=summary]"},
+  {"assert": "document.querySelector('.life-title').textContent === 'February 2033 — how it went'"},
+  {"assert": "window.__homesim.getState().life.current.result.careRate === null || window.__homesim.getState().life.current.result.careRate === 1"},
+  {"click": ".life-plan-foot .life-go"},
+  {"waitFor": "[data-stage=welcome]"},
+  {"assert": "window.__homesim.getState().life.monthIndex === 2 && window.__homesim.getState().life.history.length === 2"}
+]

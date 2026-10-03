@@ -571,6 +571,19 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `window.__life.care()`. e2e `tests/e2e/life-care-{hit,miss}.json` (`?seed=life-live-house&theme=light&speed=20&care=…`),
   `life-care-play.json` (`?seed=life-live-house&theme=light`, real buttons at 4×).
 
+- Summary & year in review (task 47, 09 §11): pure `life/monthReport.js` `moneyRows(result, plan)` → `{income, expenses,
+  incomeCents, expenseCents, netCents}` (rows always sum to the result; `EXPENSE_GROUPS`), `wellbeingRows(result)` (before →
+  after + reason chips), `housingNotice(result, lateHousingStreak, homeKind)` → `{level first|final, title, text, tryNext}`,
+  `isHousingWarning`, `yearReview(history, year)` → totals, net worth start/end (`result.netWorthBeforeCents`), best/worst
+  month, 13-point `trends`, `sparkPoints`. `content/tips.js` `TIPS` (24) + `tipFor(mi)`. `phases/life/summary.js`
+  `renderSummary(state)` (sections `.life-sum-sec[data-sec=money|bills|events|wellbeing|care|invest]`, `.life-notice[data-level]`
+  on top, `.life-tip`; careNotes kept); `yearReview.js` `renderYearReview(state, {onContinue(text)})` (`.life-yr-spark` ×5,
+  counselor line, `.life-yr-text`). Stage 'review' follows every December's summary (`isYearEnd(mi)`), then
+  `finishReview(s, text, now)` → `life.reflections`. The summary/review buttons live in `.life-plan-foot .life-go`.
+  Seeds `life-summary` (Katy, January summary), `life-overdue` (Hilo, February summary, final notice), `life-year-review`
+  (Hilo, 12 months lived, review stage). e2e `tests/e2e/life-two-months.json` (`?seed=life-plan-filled&theme=light&speed=20&care=hit`),
+  `life-year-review.json`.
+
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
 - `main.js`: `?seed=` → `local-dev` user + fixture (saved at once, no login); otherwise `accounts.current()` or the login

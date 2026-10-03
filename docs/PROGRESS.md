@@ -1699,3 +1699,36 @@ life-month1-house · seed 7 · income $4,300/mo
   - Small animals (chickens, cat) are hard to see in the default front view of houses; the e2e check visibility via
     `window.__life.view().home.animals[].object.visible` and plants via `object.userData.healthy`.
   - `window.__life.care().showNext()` opens the next button immediately (screenshots); pause first to keep it up.
+## Task 47 — Month summary and year in review
+- attempt started 2026-10-02T21:49:46-10:00
+- done 2026-10-02T21:59:19-10:00
+- Files: new `app/src/life/monthReport.js` (pure: EXPENSE_GROUPS, moneyRows, wellbeingRows, housingNotice, isHousingWarning,
+  yearReview, sparkPoints), `app/src/content/tips.js` (24 tips, tipFor), `app/src/phases/life/summary.js` (renderSummary),
+  `app/src/phases/life/yearReview.js` (renderYearReview), `tests/unit/month-report.test.js` (8), e2e
+  `tests/e2e/life-two-months.json`, `life-year-review.json`; changed `state/schema.js` (stage 'review', reflections must be an
+  array), `life/monthFlow.js` (isYearEnd, nextMonth → 'review' after December, finishReview), `life/finalizeMonth.js`
+  (`result.netWorthBeforeCents`), `config.js` (`LIFE.reflectionMax`), `lifeScreen.js` (summary + review panels, sticky
+  Continue button), `dev/lifeSeeds.js` (liveMonths helper; seeds life-summary, life-overdue, life-year-review),
+  `styles/life.css`, `tools/smoke.txt` (+3).
+- Verified: `node --test tests/unit/month-report.test.js` 8/8 (money rows sum to the result over 12 months on 3 homes);
+  `bash tools/check.sh` OK (210 files, smoke 73/73); e2e life-two-months (2 months at speed 20 with ?care=hit, summary
+  numbers match the result object), life-year-review (reflection typed → saved to life.reflections), plus regressions
+  life-live, life-flow, life-care-hit, life-care-miss all OK.
+  Shots (tools/shots/t47/):
+  - life-summary: Katy house January summary; Money in $6,000 / Money out $5,614 bars, paycheck + 6 expense rows, "You
+    kept $386". -2: loan line, credit 670 → 673 ▲3, flat tire and birthday event cards, wellbeing rows with green chips.
+    -3: Plants & animals notes (100%, happy and healthy), the cream "Tip for February 2033" box; Continue pinned at the bottom.
+  - life-overdue: Hilo February; red "Final notice" box at the top (2 rent payments missed, one more loses the home, you
+    still have your job) with three things to try next. -2: "$8 was left, but some bills went unpaid", the went-without
+    warning, card statement and carried balance, credit 530 → 445.
+  - life-year-review: "Your 2033 in review", 4 stat tiles (in $50,808, out $42,296, kept $8,512, net worth $25,322),
+    net worth up from $16,810, best April / hardest October, five colored sparklines 60 → 76/81/76/59/76. -2: the
+    counselor line, the reflection box, "Continue to January".
+- Deviations (DEVIATIONS.md): the 'review' stage; summary expense grouping ("Interest & late fees" for debt payments,
+  events pulled out of their category, "Other" for the rest); the housing notice sits at the top; netWorthBeforeCents.
+- Notes for later tasks:
+  - Task 48 (investments): the summary's `investSection` shows `result.investment` once startCents > 0; the year review
+    has no investment line yet (add one to `yearReview` if wanted).
+  - The year in review reads `life.history` by calendar year, so it works after an eviction gap too. Reflections are
+    `life.reflections [{year, monthIndex, text, savedAt}]` for the admin console (task 52).
+  - Sparklines use a 0–100 scale, so a year of small drifts looks flat; that's honest, not a bug.

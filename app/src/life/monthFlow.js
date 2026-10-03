@@ -133,11 +133,35 @@ export function finishLive(s) {
   return result;
 }
 
-/** summary → next month's welcome: pushes `{monthIndex, choices, result}` onto history. Mutates a store draft. */
+/** True when monthIndex is a December (09 §11: the year in review follows it). */
+export function isYearEnd(monthIndex) {
+  return monthIndex % 12 === 11;
+}
+
+/**
+ * summary → next month's welcome: pushes `{monthIndex, choices, result}` onto history. After a December the next stage
+ * is 'review' (the year in review, 09 §11), already in the new month. Mutates a store draft.
+ */
 export function nextMonth(s) {
   if (currentStage(s) !== 'summary') throw new Error('nextMonth outside the summary stage');
   const c = s.life.current;
-  s.life.history.push({ monthIndex: s.life.monthIndex, choices: { ...(c.choices ?? {}) }, result: c.result ?? null });
+  const finished = s.life.monthIndex;
+  s.life.history.push({ monthIndex: finished, choices: { ...(c.choices ?? {}) }, result: c.result ?? null });
   s.life.monthIndex += 1;
+  s.life.current = { stage: isYearEnd(finished) ? 'review' : 'welcome' };
+}
+
+/**
+ * review → welcome: saves the optional reflection (09 §11) to `life.reflections` as `{year, monthIndex, text, savedAt}`
+ * when it isn't blank (trimmed, at most `LIFE.reflectionMax` characters). Mutates a store draft.
+ */
+export function finishReview(s, text = '', now = 0) {
+  if (currentStage(s) !== 'review') throw new Error('finishReview outside the review stage');
+  const clean = String(text ?? '').trim().slice(0, LIFE.reflectionMax);
+  const mi = s.life.monthIndex - 1;
+  if (clean) {
+    s.life.reflections ??= [];
+    s.life.reflections.push({ year: yearMonth(mi).year, monthIndex: mi, text: clean, savedAt: now });
+  }
   s.life.current = { stage: 'welcome' };
 }

@@ -235,3 +235,56 @@
   .life-main { grid-template-columns: 1fr; }
   .life-stage-wrap { height: 60vh; }
 }
+
+/* Month summary + year in review (09 §11, task 47). */
+.life-summary { display: flex; flex-direction: column; gap: var(--sp-4); }
+.life-sum-sec { display: flex; flex-direction: column; gap: var(--sp-2); }
+.life-sum-h { margin: 0; font-size: 1rem; color: var(--ink); border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.life-sum-line, .life-sum-net { margin: 0; }
+.life-sum-net { font-weight: 600; }
+.life-sum-net.down { color: var(--danger-ink); }
+.life-sum-bars { display: flex; flex-direction: column; gap: 6px; }
+.life-sum-bar { display: grid; grid-template-columns: 6.5em 1fr 5em; align-items: center; gap: var(--sp-2); font-size: .9rem; }
+.life-sum-bar-track { height: 12px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+.life-sum-bar-fill { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--st-green); }
+.life-sum-bar[data-key=out] .life-sum-bar-fill { background: var(--sunset); }
+.life-sum-bar-num { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.life-sum-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.life-sum-table th { text-align: left; font-weight: 400; color: var(--ink-2); padding: 2px 0; }
+.life-sum-table td { text-align: right; font-variant-numeric: tabular-nums; padding: 2px 0; }
+.life-sum-table tfoot th, .life-sum-table tfoot td { font-weight: 600; color: var(--ink); border-top: 1px solid var(--line); padding-top: 4px; }
+.life-sum-list { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: .92rem; }
+.life-sum-events { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.life-sum-events li { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--sp-2); padding: 6px 10px; background: var(--surface-2); border-radius: var(--r-sm); }
+.life-sum-ev-label { font-weight: 600; }
+.life-sum-ev-amt { font-variant-numeric: tabular-nums; }
+.life-sum-ev-amt.down { color: var(--danger-ink); }
+.life-sum-ev-amt.up { color: var(--st-green-ink); }
+.life-sum-ev-msg { grid-column: 1 / -1; font-size: .88rem; color: var(--ink-2); }
+.life-sum-wb { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.life-sum-wb li { display: grid; grid-template-columns: 1fr auto; gap: 4px var(--sp-2); }
+.life-sum-wb-label { font-weight: 600; }
+.life-sum-wb-nums { font-variant-numeric: tabular-nums; }
+.life-sum-chips { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
+.life-chip { font-size: .8rem; padding: 2px 8px; border-radius: var(--r-pill); border: 1px solid var(--st-green-line); background: var(--st-green-bg); color: var(--st-green-ink); }
+.life-chip.down { border-color: var(--st-red-line); background: var(--st-red-bg); color: var(--st-red-ink); }
+.life-notice { padding: var(--sp-3) var(--sp-4); border-radius: var(--r-sm); border: 1px solid var(--st-yellow-line); background: var(--st-yellow-bg); color: var(--st-yellow-ink); }
+.life-notice.final { border: 2px solid var(--st-red-line); background: var(--st-red-bg); color: var(--st-red-ink); }
+.life-notice p { margin: 0 0 6px; }
+.life-notice-title { font-weight: 700; font-size: 1.05rem; }
+.life-notice-try { font-weight: 600; }
+.life-notice ul { margin: 0; padding-left: 1.2em; }
+.life-tip { display: flex; flex-direction: column; gap: 2px; padding: var(--sp-3) var(--sp-4); border-radius: var(--r-sm); background: var(--plumeria); border: 1px solid var(--plumeria-line); color: var(--lava); }
+.life-tip-k { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.life-yr-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-2); }
+.life-yr-stat { display: flex; flex-direction: column; padding: var(--sp-2) 10px; background: var(--surface-2); border-radius: var(--r-sm); }
+.life-yr-k { font-size: .8rem; color: var(--ink-2); }
+.life-yr-v { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.life-yr-reflect { display: flex; flex-direction: column; gap: 6px; }
+.life-yr-trends { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.life-yr-trends li { display: grid; grid-template-columns: 1fr 120px 5.5em; align-items: center; gap: var(--sp-2); font-size: .9rem; }
+.life-yr-tnums { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.life-yr-mid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 3; }
+.life-yr-care { margin: 0; font-size: .9rem; color: var(--ink-2); }
+.life-yr-q { font-weight: 600; }
+.life-yr-text { width: 100%; resize: vertical; font: inherit; padding: 6px 8px; border: 1px solid var(--field-line); border-radius: var(--r-sm); background: var(--field); color: var(--ink); }

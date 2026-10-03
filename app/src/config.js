@@ -197,6 +197,7 @@ export const LIFE = {
   careWindowMs: 2500,
   careWindowLongMs: 5000,                // "longer care window" setting
   careSurviveRate: 0.5,
+  reflectionMax: 1000,                   // 09 §11 year-in-review reflection, characters kept
   housingCategories: ['housing'],        // 09 §6 payment order groups, by recurring category
   utilityCategories: ['utilities', 'insurance'],
   solarSeasonalCut: 0.40,                // solar trims the seasonal heat/cool extra (the base line already has it)

@@ -1,0 +1,10 @@
+[
+  {"waitFor": "[data-stage=review]"},
+  {"assert": "document.querySelector('.life-title').textContent === 'Your 2033 in review' && document.querySelectorAll('.life-yr-spark').length === 5"},
+  {"assert": "document.querySelector('.life-yr-care').textContent.includes('school counselor')"},
+  {"type": [".life-yr-text", "Keep more in savings before the holidays."]},
+  {"click": ".life-plan-foot .life-go"},
+  {"waitFor": "[data-stage=welcome]"},
+  {"assert": "(() => { const l = window.__homesim.getState().life; return l.monthIndex === 12 && l.reflections.length === 1 && l.reflections[0].text === 'Keep more in savings before the holidays.' && l.reflections[0].year === 2033; })()"},
+  {"assert": "document.querySelector('.life-title').textContent === 'Welcome to January, 2034.'"}
+]

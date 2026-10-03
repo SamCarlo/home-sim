@@ -8,7 +8,7 @@ export const STATE_VERSION = 1;
 /** Valid values of state.phase. */
 export const PHASES = ['intake', 'plan', 'paperwork', 'design', 'life'];
 /** Valid values of state.life.current.stage (09 §2). */
-export const LIFE_STAGES = ['welcome', 'plan', 'live', 'summary'];
+export const LIFE_STAGES = ['welcome', 'plan', 'live', 'summary', 'review'];
 const WELLBEING_KEYS = ['physical', 'purpose', 'financial', 'social', 'mental'];
 
 /** A fresh paperwork attempt (02 §2), used by a new save and by choosing a home (04 §6). */
@@ -116,6 +116,7 @@ export function validateState(state) {
       errs.push(`life.current must be null or have stage ${LIFE_STAGES.join('|')}`);
     }
     if (!Array.isArray(life.history)) errs.push('life.history must be an array');
+    if (life.reflections !== undefined && !Array.isArray(life.reflections)) errs.push('life.reflections must be an array');
     for (const k of WELLBEING_KEYS) if (!isNum(life.wellbeing?.[k])) errs.push(`life.wellbeing.${k} must be a number`);
   }
   if (!isObj(settings)) errs.push('settings missing');

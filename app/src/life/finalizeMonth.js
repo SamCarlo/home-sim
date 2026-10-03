@@ -97,7 +97,7 @@ export function finalizeMonth(state, plan, choices, { careShown = 0, careHits = 
   const s = state, f = s.finances, mi = plan.monthIndex, end = plan.days;
   const location = byId[s.home?.locationId];
   const creditBefore = f.credit.score, wellbeingBefore = { ...s.life.wellbeing }, savingsBefore = f.savingsCents;
-  const cardStart = f.creditCard?.balanceCents ?? 0;
+  const cardStart = f.creditCard?.balanceCents ?? 0, netWorthBeforeCents = netWorth(s);
   const missed = [], warnings = [];
 
   // 1. Income → checking (two paychecks, overtime on the last day, money events on their day)
@@ -215,7 +215,7 @@ export function finalizeMonth(state, plan, choices, { careShown = 0, careHits = 
     monthIndex: mi, label: monthName(mi),
     incomeCents: totals.incomeCents, expenseCents: totals.expenseCents, byCategory: totals.byCategory,
     events: plan.events, card, loanPayments, missed, wentWithout, warnings, evicted: !!evicted,
-    savingsDeltaCents: f.savingsCents - savingsBefore, cashAfterCents: cash(s), netWorthCents: netWorth(s),
+    savingsDeltaCents: f.savingsCents - savingsBefore, cashAfterCents: cash(s), netWorthBeforeCents, netWorthCents: netWorth(s),
     creditBefore, creditAfter: f.credit.score,
     wellbeingBefore, wellbeingAfter: { ...s.life.wellbeing }, deltas,
     careRate, plantsSurvived: careOut.plantsSurvived, animalsStayed: careOut.animalsStayed,

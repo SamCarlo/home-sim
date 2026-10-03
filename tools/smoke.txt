@@ -70,3 +70,6 @@ life-month1-house /index.html?seed=life-month1-house&theme=light
 life-month1-build /index.html?seed=life-month1-build&theme=light
 life-plan-filled /index.html?seed=life-plan-filled&theme=light
 life-live-house /index.html?seed=life-live-house&theme=light&speed=4
+life-summary /index.html?seed=life-summary&theme=light
+life-overdue /index.html?seed=life-overdue&theme=light
+life-year-review /index.html?seed=life-year-review&theme=light

@@ -280,3 +280,16 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   (`anim.holdEnd`) until open buttons close, so a window is never cut short. Pausing freezes an open button's timer.
   A `seek()` (tests/screenshots only) skips the appearances it jumps over instead of counting them as missed.
   Where: life/care.js, phases/life/careButton.js, phases/life/animation.js.
+- 2026-10-02, task 47, year-in-review stage: 09 §2's stage list has no slot for the review, so `LIFE_STAGES` gains
+  'review'. After a December, `nextMonth` pushes the month to history, advances `monthIndex` and sets stage 'review';
+  `finishReview(s, text, now)` saves a non-blank reflection `{year, monthIndex, text, savedAt}` (trimmed, at most
+  `LIFE.reflectionMax` chars) to `life.reflections` and moves on to the welcome. December's summary button reads
+  "See your year in review". Where: state/schema.js, life/monthFlow.js, phases/life/yearReview.js.
+- 2026-10-02, task 47, summary expense rows: 09 §11 lists housing, utilities, food, transportation, lifestyle, events,
+  debt payments. Mortgage payments are already in housing and card payments are transfers (not spending), so "debt
+  payments" is shown as "Interest & late fees"; insurance sits with utilities (its 09 §6 bill group); pets and garden
+  sit with lifestyle; paid event costs are pulled out of their ledger category into "Surprises & events"; anything
+  left lands in "Other", so the rows always add up to `result.expenseCents`. A missed housing payment shows as a notice
+  box at the top of the summary (first miss or final notice, with "Here's what you can try next") rather than in the
+  bills list. `result.netWorthBeforeCents` was added to finalizeMonth so the year review's starting net worth is exact.
+  Where: life/monthReport.js, life/finalizeMonth.js, phases/life/summary.js.

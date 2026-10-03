@@ -6,7 +6,7 @@ import { moveInHouse } from '../phases/design/houseModel.js';
 import { sharedOptions, moveInShared } from '../phases/design/sharedModel.js';
 import { moveInBuild } from '../phases/design/blueprint/moveIn.js';
 import { addYardItem } from '../phases/design/blueprint/yard.js';
-import { startPlan, setChoice, startLive } from '../life/monthFlow.js';
+import { startPlan, setChoice, startLive, finishLive, nextMonth } from '../life/monthFlow.js';
 
 /** Fail loudly when a seed's Move in refuses (a seed that silently stays in design would hide bugs). */
 function ok(result, name) {
@@ -22,6 +22,18 @@ function unitMoveIn(seeds, from, name, plants) {
     ok(moveIn(s, { index: 0, floor, unit: 0, plants }), name);
     return s;
   };
+}
+
+/** Live `n` whole months with the default answers and `care` counts; stops in the last month's summary. */
+function liveMonths(s, n, care = { shown: 4, hits: 4 }) {
+  for (let i = 0; i < n; i++) {
+    if (i) nextMonth(s);
+    startPlan(s);
+    startLive(s);
+    s.life.current.care = { ...care };
+    finishLive(s);
+  }
+  return s;
 }
 
 /** Register the life-phase seeds on the seeds registry. */
@@ -73,6 +85,26 @@ export function addLifeSeeds(seeds) {
       startPlan(s);
       for (const [k, v] of Object.entries({ exercise: 4, extraWork: 0, social: 7, deepPractice: 4, homeGarden: 'none' })) setChoice(s, k, v);
       startLive(s);
+      return s;
+    } };
+  seeds['life-summary'] = { phase: 'life',
+    description: 'Katy house, January 2033 summary: one month lived with the default answers and every care button hit.',
+    build: (now) => liveMonths(seeds['life-month1-house'].build(now), 1) };
+  seeds['life-overdue'] = { phase: 'life',
+    description: 'Hilo apartment, February 2033 summary after two missed rent payments in a row (income cut to $500, no '
+      + 'savings): the final notice.',
+    build: (now) => {
+      const s = seeds['life-month1-apartment'].build(now);
+      s.player.netMonthlyIncomeCents = 50000;
+      s.finances.checkingCents = 0;
+      s.finances.savingsCents = 0;
+      return liveMonths(s, 2);
+    } };
+  seeds['life-year-review'] = { phase: 'life',
+    description: 'Hilo apartment, December 2033 just finished: twelve months lived, the year in review is up.',
+    build: (now) => {
+      const s = liveMonths(seeds['life-month1-apartment'].build(now), 12);
+      nextMonth(s);
       return s;
     } };
 }
