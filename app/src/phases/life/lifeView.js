@@ -7,7 +7,7 @@ import { LIFE3D } from '../../config.js';
 
 const TALL_FT = 80; // buildings taller than this frame the student's floor instead of the whole tower
 
-/** createLifeView(container, {state}) → Promise<{scene, home, info, refreshNight, setLiving, firstFrame, dispose}> | null. */
+/** createLifeView(container, {state}) → Promise<{scene, home, info, refreshNight, setLiving, syncHome, firstFrame, dispose}> | null. */
 export async function createLifeView(container, { state }) {
   const [THREE, { renderHome }, { createScene }, { byId }] = await Promise.all([
     import('three'), import('../../three/homeRender.js'), import('../../three/scene.js'), import('../../data/locations/index.js')]);
@@ -23,8 +23,10 @@ export async function createLifeView(container, { state }) {
     if (decor) decor.visible = false;
   }
 
-  const home = renderHome(state, { season: sc.season ?? 'summer', nightFactor: sc.nightFactor });
+  let home = renderHome(state, { season: sc.season ?? 'summer', nightFactor: sc.nightFactor });
   sc.add(home.object);
+  const ids = (s) => [...(s.home?.plants ?? []), ...(s.home?.animals ?? [])].map((x) => x.id).join(',');
+  let shownIds = ids(state);
   sc.scene.updateMatrixWorld(true);
 
   const box = home.bounds.clone();
@@ -44,12 +46,25 @@ export async function createLifeView(container, { state }) {
 
   return {
     scene: sc,
-    home,
+    get home() { return home; },
     get info() { return sc.info; },
     /** Re-apply window glow after a time-of-day change. */
     refreshNight() { home.setNight(sc.nightFactor); sc.requestRender(); },
     /** Show wilted plants / departed animals from a home record. */
     setLiving(h2) { home.setLiving(h2); sc.requestRender(); },
+    /** Match the 3D home to a state: setLiving, or rebuild the home when plants/animals were added (not mid-animation). */
+    syncHome(s) {
+      if (!s.home) return;
+      if (ids(s) !== shownIds) {
+        sc.remove(home.object);
+        home.dispose();
+        home = renderHome(s, { season: sc.season ?? 'summer', nightFactor: sc.nightFactor });
+        sc.add(home.object);
+        shownIds = ids(s);
+      }
+      home.setLiving(s.home);
+      sc.requestRender();
+    },
     firstFrame: () => sc.firstFrame(),
     dispose() { home.dispose(); sc.dispose(); },
   };

@@ -186,6 +186,46 @@
 .tb-swatch-free { background: color-mix(in srgb, var(--tb-c) 22%, var(--surface)); border: 1.5px solid var(--tb-c); }
 .tb-foot { margin: 0; font-size: .78rem; color: var(--muted); }
 
+/* Water-and-feed button (task 46, 09 §10): pops up over the 3D view; ≥ 48 px target; W also counts. */
+.life-care-layer { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+.life-care-btn {
+  position: absolute; pointer-events: auto; min-height: 56px; padding: 10px 16px; border: 3px solid #fff;
+  border-radius: 16px; background: #1f6fb2; color: #fff; font: inherit; font-size: 1rem; font-weight: 800; line-height: 1.25;
+  text-align: center; cursor: pointer; box-shadow: 0 6px 22px rgba(10, 30, 60, .45); animation: life-care-in .22s ease-out;
+}
+.life-care-btn::before { content: "💧 "; }
+.life-care-btn:hover { background: #185d96; }
+.life-care-btn:focus-visible { outline: 4px solid #ffd54a; outline-offset: 2px; }
+.life-care-splash { position: absolute; width: 300px; height: 80px; display: grid; place-items: center; }
+.life-care-done {
+  padding: 6px 14px; border-radius: var(--r-pill); background: var(--surface); color: var(--st-green-ink); font-weight: 800;
+  box-shadow: var(--shadow); animation: life-care-in .2s ease-out;
+}
+.life-care-drop {
+  position: absolute; left: 50%; top: 50%; width: 10px; height: 14px; border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+  background: #4fb3ff; animation: life-care-drop .7s ease-out forwards; transform: rotate(calc(var(--i) * 60deg)) translateY(-10px);
+}
+@keyframes life-care-in { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes life-care-drop {
+  to { transform: rotate(calc(var(--i) * 60deg)) translateY(-60px); opacity: 0; }
+}
+:root[data-reduced-motion] .life-care-btn, :root[data-reduced-motion] .life-care-done { animation: none; }
+:root[data-reduced-motion] .life-care-drop { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .life-care-btn, .life-care-done { animation: none; }
+  .life-care-drop { display: none; }
+}
+.life-care {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin-top: var(--sp-3); padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--line); border-radius: var(--r-sm, 6px); background: var(--surface-2); font-size: .9rem;
+}
+.life-care-num { font-variant-numeric: tabular-nums; }
+.life-care-key { flex-basis: 100%; font-size: .8rem; }
+.life-care-notes { list-style: none; margin: var(--sp-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.life-care-note { padding: 8px 12px; border-radius: var(--r-sm, 6px); border-left: 5px solid var(--accent-line); background: var(--surface-2); }
+.life-care-note.wilted, .life-care-note.neighbor { border-left-color: #c58a2b; }
+.life-care-note.rate { border-left-color: #4f9bd9; }
+
 @media (max-width: 1100px) {
   .life-main { grid-template-columns: minmax(0, 1fr) 380px; }
   .life-wb { width: 220px; }

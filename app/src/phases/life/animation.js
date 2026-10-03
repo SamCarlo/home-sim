@@ -1,8 +1,8 @@
 // "Live this month" (09 §9, task 45). Plays the month planned by planMonth day by day: per-day `setTimeOfDay`, the
 // character leaving and coming home (weekday/weekend routine from life/timeline.js), a calendar strip + day label over
 // the 3D view, event toasts on their day, 1×/2×/4× and Pause, and the reduced-motion calendar grid (no sun or camera
-// motion; one day fills in every `LIFE.reducedMotionDayMs`). Hooks: `onDay(fn)` (care game, task 46) and `onTick(fn)`
-// (investment ticker, task 48). Calls `onEnd()` once after the last day; the screen then runs finishLive.
+// motion; one day fills in every `LIFE.reducedMotionDayMs`). Hooks: `onDay(fn)`, `onTick(fn)` (care game, task 46;
+// investment ticker, task 48), `onSeek(fn)` and `holdEnd(fn)` (the care game keeps the month open while a button is up). Calls `onEnd()` once after the last day; the screen then runs finishLive.
 import { h } from '../../ui/dom.js';
 import { LIFE, LIFE3D } from '../../config.js';
 import { buildTimeline, momentAt, placeAt } from '../../life/timeline.js';
@@ -24,7 +24,7 @@ export function createAnimation({ plan, choices = {}, view = null, wrap, dayBar,
   let mult = LIFE.speeds.includes(speed) ? speed : 1;
   let paused = false, ms = 0, last = 0, raf = 0, shown = -1, ended = false, disposed = false, realS = 0;
   let moment = momentAt(tl, 0, dayMs);
-  const dayHooks = new Set(), tickHooks = new Set();
+  const dayHooks = new Set(), tickHooks = new Set(), seekHooks = new Set(), holds = new Set();
 
   // ── Overlays: day label + calendar strip, toasts, reduced-motion grid ──
   const label = h('span', { class: 'life-daylabel' });
@@ -145,7 +145,7 @@ export function createAnimation({ plan, choices = {}, view = null, wrap, dayBar,
     bar.style.width = `${Math.min(100, (ms / (dayMs * n)) * 100)}%`;
     if (view && !reduced) drive3d(moment, gameDt / 1000);
     for (const fn of tickHooks) fn({ ...moment, ms, paused, plan });
-    if (moment.done && !ended) {
+    if (moment.done && !ended && ![...holds].some((f) => f())) {
       ended = true;
       cancelAnimationFrame(raf);
       restore3d();
@@ -159,6 +159,9 @@ export function createAnimation({ plan, choices = {}, view = null, wrap, dayBar,
     get paused() { return paused; },
     get moment() { return moment; },
     get speed() { return mult; },
+    /** Game ms per real ms (speed × ?speed flag); 0 while paused. */
+    get rate() { return paused ? 0 : mult * flag; },
+    dayMs,
     /** 1 | 2 | 4 (LIFE.speeds). */
     setSpeed(s) {
       if (!LIFE.speeds.includes(s)) return;
@@ -167,13 +170,20 @@ export function createAnimation({ plan, choices = {}, view = null, wrap, dayBar,
       onSpeed?.(s);
     },
     /** Jump forward to `t` (0..1) of `day` (tests and screenshots; earlier days' events still fire on the way). */
-    seek(day, t = 0) { ms = Math.max(ms, ((day - 1) + t) * dayMs); },
+    seek(day, t = 0) {
+      ms = Math.max(ms, ((day - 1) + t) * dayMs);
+      for (const fn of seekHooks) fn(ms);
+    },
     pause() { paused = true; pauseBtn.textContent = 'Play'; el.dataset.paused = '1'; },
     resume() { paused = false; pauseBtn.textContent = 'Pause'; delete el.dataset.paused; },
     /** fn(dayEntry, index) at the start of each day. Returns unsubscribe. */
     onDay(fn) { dayHooks.add(fn); return () => dayHooks.delete(fn); },
     /** fn({index, day, t, done, ms, paused, plan}) every frame (investment ticker). Returns unsubscribe. */
     onTick(fn) { tickHooks.add(fn); return () => tickHooks.delete(fn); },
+    /** fn(ms) after a seek (the care game skips what was jumped over). Returns unsubscribe. */
+    onSeek(fn) { seekHooks.add(fn); return () => seekHooks.delete(fn); },
+    /** While any `fn()` returns true the month doesn't end (a care button still up). Returns unsubscribe. */
+    holdEnd(fn) { holds.add(fn); return () => holds.delete(fn); },
     dispose() {
       if (disposed) return;
       disposed = true;
@@ -183,7 +193,7 @@ export function createAnimation({ plan, choices = {}, view = null, wrap, dayBar,
       grid?.remove();
       dayBar.replaceChildren();
       dayBar.hidden = true;
-      dayHooks.clear(); tickHooks.clear();
+      dayHooks.clear(); tickHooks.clear(); seekHooks.clear(); holds.clear();
     },
   };
   raf = requestAnimationFrame(frame);

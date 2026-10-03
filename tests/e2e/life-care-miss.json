@@ -1,0 +1,20 @@
+[
+  {"waitFor": "[data-stage=live]"},
+  {"waitFor": ".life-care[data-auto=miss]"},
+  {"assert": "document.querySelector('.life-care-num').textContent === '0 of 8'"},
+  {"waitFor": "[data-stage=summary]"},
+  {"assert": "(() => { const s = window.__homesim.getState(); return s.life.current.result.careRate === 0 && s.home.plants.every((p) => p.alive === false) && s.home.animals.every((a) => a.present === false); })()"},
+  {"assert": "(() => { const h = window.__life.view().home; return h.plants.length > 0 && h.plants.every((p) => p.object.userData.healthy === false) && h.animals.length > 0 && h.animals.every((a) => !a.object.visible); })()"},
+  {"assert": "[...document.querySelectorAll('.life-care-note[data-kind=neighbor]')].some((li) => li.textContent.includes('went to live with Auntie Noe next door, who has more time for them'))"},
+  {"assert": "!!document.querySelector('.life-care-note[data-kind=wilted]')"},
+  {"assert": "!document.querySelector('.life-care-layer')"},
+  {"shot": "tools/shots/t46/2-summary-miss.png"},
+  {"eval": "(() => { const v = window.__life.view(), sc = v.scene, t = sc.controls.target, p = sc.camera.position; p.set(2 * t.x - p.x, p.y, 2 * t.z - p.z); sc.controls.update(); sc.requestRender(); return true; })()"},
+  {"wait": 400},
+  {"shot": "tools/shots/t46/2b-backyard-miss.png"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=welcome]"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=plan]"},
+  {"assert": "!!document.querySelector('.lq[data-question=homeGarden]')"}
+]

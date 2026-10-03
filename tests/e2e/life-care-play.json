@@ -1,0 +1,15 @@
+[
+  {"waitFor": ".life-care"},
+  {"assert": "document.querySelector('.life-care-num').textContent === '0 of 0' && !document.querySelector('.life-care').dataset.auto"},
+  {"eval": "window.__life.animation().setSpeed(4)"},
+  {"waitFor": ".life-care-btn"},
+  {"assert": "document.querySelector('.life-care-btn').textContent === 'Click here to water your plants and feed your animals!'"},
+  {"assert": "document.querySelector('.life-care-btn').getBoundingClientRect().height >= 48"},
+  {"assert": "/Click here to water/.test(document.querySelector('.life-stage-wrap [role=status].sr-only').textContent)"},
+  {"press": "w"},
+  {"assert": "document.querySelector('.life-care-num').textContent.startsWith('1 of')"},
+  {"assert": "!!document.querySelector('.life-care-splash')"},
+  {"waitFor": "[data-stage=summary]"},
+  {"assert": "(() => { const c = window.__homesim.getState().life.current; return c.care.shown === 8 && c.care.hits === 1 && c.result.careRate === 1 / 8; })()"},
+  {"assert": "!document.querySelector('.life-care-btn')"}
+]

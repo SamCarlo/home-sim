@@ -2,7 +2,8 @@
 // wellbeing card over it; the right panel runs the month state machine (life/monthFlow.js): welcome → plan → live →
 // summary → next month. Each stage change saves a checkpoint. The plan stage holds the questions + time budget (task 43,
 // questions.js + timeBudgetView.js); the live stage plays "Live this month" (task 45, animation.js) over the 3D view and
-// runs finishLive when it ends (care game: task 46); the summary (task 47) mounts into the slot marked below.
+// runs finishLive when it ends, with the water-and-feed button's counts (careButton.js, task 46); the summary (task 47)
+// mounts into the slot marked below (it holds the care notes for now).
 import { h } from '../../ui/dom.js';
 import { byId } from '../../data/locations/index.js';
 import { monthLabel, monthName } from '../../util/dates.js';
@@ -16,6 +17,8 @@ import { renderQuestions } from './questions.js';
 import { renderTimeBudget } from './timeBudgetView.js';
 import { timeBudget } from '../../life/timeBudget.js';
 import { createAnimation } from './animation.js';
+import { createCareGame } from './careButton.js';
+import { careNotes } from '../../life/care.js';
 import { getFlag } from '../../dev/flags.js';
 
 /**
@@ -75,7 +78,10 @@ const PANELS = {
       h('h1', { class: 'life-title' }, `${monthLabel(mi)} — how it went`),
       // Task 47 fills this slot from current.result (money, card, events, wellbeing, plants & animals, a tip).
       h('div', { class: 'life-slot', dataset: { slot: 'summary' } },
-        h('p', { class: 'muted' }, 'Your income, bills, events and wellbeing changes for the month appear here.')),
+        h('p', { class: 'muted' }, 'Your income, bills, events and wellbeing changes for the month appear here.'),
+        state.life.current.result ? h('ul', { class: 'life-care-notes', role: 'list' },
+          ...careNotes(state.home, state.life.current.result, !!state.life.current.plan?.care?.needed)
+            .map((n) => h('li', { class: `life-care-note ${n.kind}`, dataset: { kind: n.kind } }, n.text))) : null),
       h('button', { class: 'btn btn-primary btn-lg life-go', type: 'button', onClick: () => go(nextMonth, 'life-month') },
         `Continue to ${monthName(mi + 1)}`),
     ];
@@ -109,7 +115,7 @@ export async function mount(container, { store }) {
       panel));
   container.append(root);
 
-  let shownStage = null, shownMonth = null, panelUpdate = null, anim = null, viewReady = false, view = null;
+  let shownStage = null, shownMonth = null, panelUpdate = null, anim = null, care = null, viewReady = false, view = null;
   /** Start the month's animation once the live panel and the 3D view (or its failure) are both ready. */
   function startAnimation(s) {
     if (anim || !viewReady || currentStage(s) !== 'live' || !s.life.current.plan) return;
@@ -120,12 +126,16 @@ export async function mount(container, { store }) {
       plan: s.life.current.plan, choices: s.life.current.choices, view, wrap: stage.parentElement, dayBar: dayLabel, reduced,
       speed: s.settings?.animationSpeed ?? 1, speedFlag: Number(getFlag('speed')) || 1,
       onSpeed: (sp) => store.update((d) => { d.settings.animationSpeed = sp; }),
-      onEnd: () => go(finishLive, 'life-summary'),
+      onEnd: () => go((d) => { d.life.current.care = care.result(); finishLive(d); }, 'life-summary'),
     });
+    care = createCareGame({ plan: s.life.current.plan, anim, wrap: stage.parentElement, settings: s.settings,
+      seed: s.meta.seed, flag: getFlag('care') });
     root.dataset.anim = reduced ? 'calendar' : '3d';
-    slot.replaceChildren(anim.el);
+    slot.replaceChildren(...[anim.el, care.el].filter(Boolean));
   }
   function stopAnimation() {
+    care?.dispose();
+    care = null;
     anim?.dispose();
     anim = null;
     delete root.dataset.anim;
@@ -146,6 +156,7 @@ export async function mount(container, { store }) {
     if (s.life.monthIndex !== shownMonth && shownMonth !== null) view?.scene.setSeason(s.life.monthIndex);
     shownStage = st; shownMonth = s.life.monthIndex; panelUpdate = null;
     stopAnimation();
+    if (st !== 'live') view?.syncHome(s); // wilted plants, departed or new animals (care game, home & garden answer)
     panel.replaceChildren(...PANELS[st]({ state: s, go, store, onUpdate: (fn) => { panelUpdate = fn; } }).filter(Boolean));
     panel.scrollTop = 0;
     startAnimation(s);
@@ -163,7 +174,9 @@ export async function mount(container, { store }) {
   stage.querySelector('.life-loading')?.remove();
   if (view) await view.firstFrame();
   viewReady = true;
-  window.__life = { view: () => view, info: () => view?.info, description: () => desc.textContent, animation: () => anim };
+  window.__life = { view: () => view, info: () => view?.info, description: () => desc.textContent, animation: () => anim,
+    care: () => care };
+  if (view && currentStage(store.getState()) !== 'live') view.syncHome(store.getState());
   startAnimation(store.getState());
   document.body.dataset.ready = '1';
   return () => {

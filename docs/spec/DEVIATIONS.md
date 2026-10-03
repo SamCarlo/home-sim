@@ -273,3 +273,10 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   transit or mixed; hurricane events need the hurricane hazard, state HI/FL/TX and a hurricane month; floods need the
   flood add-on to be insured and so do Hawaiʻi hurricanes (where hurricane coverage is a separate add-on); December's
   sure holiday event fills a cap slot first. Numbers live in config EVENTS. Where: life/events.js.
+- 2026-10-02, task 46, care windows at high speed: 09 §10 wants each button up for 2.5 s (5 s long) of real time at
+  any speed, but a reduced-motion month at 4× lasts 2.3 s and a `?speed=` flag shortens any month further. `careWindows`
+  fits every window inside the month whenever the month has room for one (always true at 1×/2×/4× in the 3D view) and
+  avoids overlap when they all fit; otherwise buttons may overlap, and the animation holds on its last day
+  (`anim.holdEnd`) until open buttons close, so a window is never cut short. Pausing freezes an open button's timer.
+  A `seek()` (tests/screenshots only) skips the appearances it jumps over instead of counting them as missed.
+  Where: life/care.js, phases/life/careButton.js, phases/life/animation.js.

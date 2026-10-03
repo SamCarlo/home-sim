@@ -559,6 +559,18 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   Seed `life-live-house` (plays on load); e2e `tests/e2e/life-live.json` (`?seed=life-plan-filled&speed=20`),
   `life-live-reduced.json`. In e2e, skip a month with `{"eval": "window.__life.animation().seek(31, 0.98)"}`.
 
+- Care minigame (task 46, 09 §10): pure `life/care.js` `CARE_TEXT`, `careWindows({items [{index, gameMs}], nowGameMs,
+  monthGameMs, rate, windowMs, busyUntil})` → real-ms windows `[{index, start, end}]` from now (recomputed every frame =
+  re-timing), `careWindowMs(settings)` (`longCareWindow`), `careAutoResult(flag, count)`, `careSpot(rng)`, `careNotes(home,
+  result, needed)` → `[{kind rate|kept|wilted|neighbor|tip, text}]` (12 §7 wording, Auntie Noe). `phases/life/careButton.js`
+  `createCareGame({plan, anim, wrap, settings, seed, flag})` → `{el (tally), result() → {shown, hits}, showNext(), dispose}`;
+  buttons `.life-care-btn` in `.life-care-layer`, W key, sr-only status announcement, `.life-care-splash`. lifeScreen writes
+  `result()` into `current.care` just before finishLive and shows careNotes in the summary slot; `view.syncHome(state)`
+  (lifeView) applies alive/present and rebuilds the home when plants/animals were added. animation.js extras: `rate`,
+  `dayMs`, `onSeek(fn)`, `holdEnd(fn)` (month waits while a button is up). `?care=hit|miss|half` skips the buttons.
+  `window.__life.care()`. e2e `tests/e2e/life-care-{hit,miss}.json` (`?seed=life-live-house&theme=light&speed=20&care=…`),
+  `life-care-play.json` (`?seed=life-live-house&theme=light`, real buttons at 4×).
+
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
 - `main.js`: `?seed=` → `local-dev` user + fixture (saved at once, no login); otherwise `accounts.current()` or the login

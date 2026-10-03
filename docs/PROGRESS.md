@@ -1670,3 +1670,32 @@ life-month1-house · seed 7 · income $4,300/mo
   - `?speed=N` multiplies the 1×/2×/4× choice (persisted in `settings.animationSpeed`). Reduced motion = settings
     `reducedMotion` or the OS media query, read when the month starts.
   - The live panel is mostly empty below the controls; room for the care tally (46) and investments (48).
+
+## Task 46 — Water-and-feed button minigame
+- attempt started 2026-10-02T21:03:47-10:00
+- done 2026-10-02T21:12:57-10:00
+- Files: new `app/src/life/care.js` (pure: CARE_TEXT, careWindows, careWindowMs, careAutoResult, careSpot, careNotes),
+  `app/src/phases/life/careButton.js` (createCareGame), `tests/unit/care.test.js` (8), e2e `tests/e2e/life-care-hit.json`,
+  `life-care-miss.json` (both on `?seed=life-live-house&theme=light&speed=20&care=hit|miss`), `life-care-play.json`
+  (`?seed=life-live-house&theme=light`, real buttons at 4×, W key); changed `phases/life/animation.js` (getters `rate`,
+  `dayMs`; hooks `onSeek(fn)`, `holdEnd(fn)`), `lifeScreen.js` (care game next to the animation, counts written into
+  `current.care` right before finishLive, care notes in the summary slot, `view.syncHome(s)` on every non-live stage,
+  `window.__life.care()`), `lifeView.js` (`home` is a getter; `syncHome(state)` = setLiving, or rebuild the home when
+  plant/animal ids changed, e.g. after the home & garden answer adds a cat), `styles/life.css` (button, splash, tally, notes).
+- Verified: `node --test tests/unit/care.test.js` 8/8; `bash tools/check.sh` OK (206 files, smoke 70/70); e2e
+  life-care-miss, life-care-hit, life-care-play, life-live (life-plan-filled speed 20), life-live-reduced, life-flow all OK.
+  Shots (tools/shots/t46/):
+  - 1-button: Sun Jan 9, paused, the blue "💧 Click here to water your plants and feed your animals!" button upper left of
+    the 3D house, clear of the day bar and wellbeing card; panel tally "0 of 1" with the W hint.
+  - 1b-splash: a second button up, W pressed: "Watered and fed!" pill with blue drops where the first was, tally "1 of 2".
+  - 2-summary-miss: summary lists "You watered and fed 0%…", "Your plant wilted…", "Your chickens went to live with Auntie
+    Noe next door…", "Your cat Nala went to live with…"; 2b (back yard): brown wilted garden-bed plant, coop empty.
+  - 3-summary-hit: "100%" + "Your plants and animals are happy and healthy…"; 3b (back yard): green plant in the bed.
+- Deviations (DEVIATIONS.md): the month holds on its last day while a care button is still up; a paused game freezes an
+  open button's timer; a seek skips the appearances it jumps over (not counted as shown).
+- Notes for later tasks:
+  - Task 47 (summary): replace the summary slot's placeholder paragraph but keep `careNotes(home, result, plan.care.needed)`
+    (`.life-care-note[data-kind=rate|kept|wilted|neighbor|tip]`); the e2e life-care-* assert on those.
+  - Small animals (chickens, cat) are hard to see in the default front view of houses; the e2e check visibility via
+    `window.__life.view().home.animals[].object.visible` and plants via `object.userData.healthy`.
+  - `window.__life.care().showNext()` opens the next button immediately (screenshots); pause first to keep it up.
