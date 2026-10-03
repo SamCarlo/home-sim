@@ -548,6 +548,17 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `monthRng(state, mi, stream)` (streams events, care, care-loss, adopt). Check balance changes with
   `node tools/sim-months.mjs <life seed> 12 <meta.seed> [--income $] [--savings $] [--choices json]`.
 
+- Live this month (task 45, 09 §9): pure `life/timeline.js` `buildTimeline(plan, choices)` → `{monthIndex, days [{day, label
+  "Tue, January 14", weekday, weekend, out [t0,t1]|null, events [{…, toast "Car repair −$450"}], care [{index, day,
+  fraction}]}]}`, `routineFor`, `momentAt(tl, ms, dayMs)` → `{index, day, t, done}`, `placeAt(day, t)` → inside|home|yard|out
+  (tunables `LIFE.routine`, `LIFE.toastMs`, `LIFE3D.yardOffset`). `phases/life/animation.js` `createAnimation({plan, choices,
+  view, wrap, dayBar, reduced, speed, speedFlag, onSpeed, onEnd})` → `{el (speed buttons + Pause + progress), timeline,
+  setSpeed, pause, resume, seek(day, t), paused, moment, speed, onDay(fn), onTick(fn), dispose}`; lifeScreen starts it when
+  the live panel and the 3D view are both ready and runs finishLive in onEnd. `window.__life.animation()` is the handle.
+  `?speed=N` multiplies the speed; reduced motion (setting or OS) shows the `.life-calgrid` instead of moving the sun.
+  Seed `life-live-house` (plays on load); e2e `tests/e2e/life-live.json` (`?seed=life-plan-filled&speed=20`),
+  `life-live-reduced.json`. In e2e, skip a month with `{"eval": "window.__life.animation().seek(31, 0.98)"}`.
+
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
 - `main.js`: `?seed=` → `local-dev` user + fixture (saved at once, no login); otherwise `accounts.current()` or the login

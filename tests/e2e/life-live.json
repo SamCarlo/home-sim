@@ -1,0 +1,18 @@
+[
+  {"waitFor": "[data-stage=plan]"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=live]"},
+  {"waitFor": ".life-anim"},
+  {"assert": "document.querySelector('.life').dataset.anim === '3d' && !document.querySelector('.life-daybar').hidden"},
+  {"assert": "document.querySelectorAll('.life-strip-day').length === 31 && document.querySelector('.life-speed[aria-pressed=true]').dataset.speed === '1'"},
+  {"assert": "!document.querySelector('.life-go')"},
+  {"waitFor": "[data-stage=summary]"},
+  {"assert": "!!window.__homesim.getState().life.current.result && window.__homesim.getState().life.current.stage === 'summary'"},
+  {"assert": "document.querySelector('.life-daybar').hidden && !document.querySelector('.life-toasts') && !document.querySelector('.life').dataset.anim"},
+  {"assert": "window.__life.view().home.character.object.visible"},
+  {"assert": "document.querySelector('.life-title').textContent === 'January 2033 — how it went'"},
+  {"shot": "tools/shots/t45/5-summary.png"},
+  {"click": ".life-go"},
+  {"waitFor": "[data-stage=welcome]"},
+  {"assert": "window.__homesim.getState().life.monthIndex === 1"}
+]

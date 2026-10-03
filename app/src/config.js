@@ -185,6 +185,14 @@ export const LIFE = {
   dayMs: 1200,                           // one game day at 1×
   speeds: [1, 2, 4],
   reducedMotionDayMs: 300,
+  routine: {                             // 09 §9 character routine, as fractions of the day (0.25 sunrise, 0.75 sunset)
+    wake: 0.26, bed: 0.86,               // steps out the door / goes in for the night
+    leave: 0.30, home: 0.72,             // weekdays: leaves for work, comes home
+    weekendOut: 0.55, weekendHome: 0.85, // weekends with social ≥ socialOutHours: out with friends
+    socialOutHours: 7,
+    walkDay: 0.08,                       // a walk between the door and the exit takes this share of a day
+  },
+  toastMs: 2600,                         // real-time ms an event toast stays up
   careAppearances: 8,
   careWindowMs: 2500,
   careWindowLongMs: 5000,                // "longer care window" setting
@@ -558,6 +566,7 @@ export const LIFE3D = {
   bedPlantScale: 1.8,           // vegetable plant on a garden bed
   potSpacing: 1.6,              // ft between pots sharing a balcony/porch spot
   characterDoorOffset: 1.5,     // ft in front of the door where the character waits
+  yardOffset: [5, 0, 5],        // ft from the door spot where the character spends a weekend at home (09 §9)
   framePadding: 0.95,           // scene.frame padding for houses and builds
   buildingFramePadding: 0.9,    // apartments/condos (whole building)
   towerFramePadding: 1.25,      // towers over 80 ft: the student's floor ±40 ft, with room to see the top

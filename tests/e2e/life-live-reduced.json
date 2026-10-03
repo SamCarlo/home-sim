@@ -1,0 +1,17 @@
+[
+  {"waitFor": "[data-stage=plan]"},
+  {"eval": "window.__homesim.update((s) => { s.settings.reducedMotion = true; })"},
+  {"click": ".life-go"},
+  {"waitFor": ".life-calgrid"},
+  {"assert": "document.querySelector('.life').dataset.anim === 'calendar' && document.querySelectorAll('.life-calgrid-day').length === 31"},
+  {"eval": "(() => { const a = window.__life.animation(); a.pause(); a.seek(18, 0.5); return a.moment; })()"},
+  {"wait": 300},
+  {"assert": "document.querySelectorAll('.life-calgrid-day.filled').length === 18 && document.querySelector('.life-calgrid-day.today').dataset.day === '18'"},
+  {"eval": "(() => { const v = window.__life.view(); return {t: v.scene.sky?.timeOfDay ?? null, night: v.scene.nightFactor}; })()"},
+  {"shot": "tools/shots/t45/4-reduced.png"},
+  {"click": ".life-speed[data-speed='4']"},
+  {"assert": "window.__homesim.getState().settings.animationSpeed === 4"},
+  {"click": ".life-pause"},
+  {"waitFor": "[data-stage=summary]"},
+  {"assert": "!document.querySelector('.life-calgrid')"}
+]

@@ -29,9 +29,57 @@
   background: var(--surface); color: var(--ink-2); font-size: .82rem; box-shadow: var(--shadow);
 }
 .life-daybar {
-  position: absolute; left: 50%; top: var(--sp-3); transform: translateX(-50%); padding: 4px 14px;
-  border-radius: var(--r-pill); background: var(--surface); box-shadow: var(--shadow); font-weight: 600;
+  position: absolute; left: var(--sp-3); top: var(--sp-3); max-width: calc(100% - 300px); padding: 6px 14px;
+  border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow); font-weight: 600;
+  display: flex; flex-direction: column; gap: 6px;
 }
+.life-daybar[hidden] { display: none; }
+.life-daylabel { font-size: 1.05rem; }
+
+/* "Live this month" (task 45): calendar strip, toasts, reduced-motion grid, controls. */
+.life-strip { list-style: none; margin: 0; padding: 0; display: flex; gap: 2px; }
+.life-strip-day { width: 9px; height: 12px; border-radius: 2px; background: var(--line); }
+.life-strip-day.weekend { background: color-mix(in srgb, var(--line) 55%, var(--surface)); }
+.life-strip-day.past { background: var(--accent-line); }
+.life-strip-day.today { background: var(--accent); transform: scaleY(1.35); }
+.life-strip-day.has-event { box-shadow: inset 0 -3px 0 var(--danger); }
+.life-toasts {
+  position: absolute; left: 50%; bottom: 56px; transform: translateX(-50%); display: flex; flex-direction: column;
+  align-items: center; gap: 6px; pointer-events: none; z-index: 2;
+}
+.life-toast {
+  padding: 8px 16px; border-radius: var(--r-pill); background: var(--surface); color: var(--ink); font-weight: 700;
+  box-shadow: var(--shadow); border-left: 5px solid var(--accent-line); animation: life-toast-in .25s ease-out;
+}
+.life-toast.cost { border-left-color: var(--danger); }
+.life-toast.gain { border-left-color: var(--accent); }
+@keyframes life-toast-in { from { opacity: 0; transform: translateY(8px); } }
+:root[data-reduced-motion] .life-toast { animation: none; }
+@media (prefers-reduced-motion: reduce) { .life-toast { animation: none; } }
+.life-calgrid {
+  position: absolute; left: var(--sp-3); right: 290px; top: 64px; bottom: 52px; padding: var(--sp-3);
+  display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: auto; grid-auto-rows: 1fr; gap: 4px;
+  background: color-mix(in srgb, var(--surface) 96%, transparent); border-radius: var(--r-lg); box-shadow: var(--shadow);
+}
+.life-calgrid-head { font-size: .78rem; font-weight: 700; color: var(--ink-2); text-align: center; align-self: end; }
+.life-calgrid-day, .life-calgrid-pad { border-radius: var(--r-sm, 6px); min-height: 0; overflow: hidden; }
+.life-calgrid-day {
+  border: 1px solid var(--line); padding: 3px 5px; display: flex; flex-direction: column; gap: 2px; font-size: .74rem;
+  color: var(--ink-2);
+}
+.life-calgrid-day.filled { background: var(--accent-wash); border-color: var(--accent-line); color: var(--ink); }
+.life-calgrid-day.today { outline: 2px solid var(--accent); }
+.life-calgrid-num { font-weight: 700; }
+.life-calgrid-ev { font-weight: 600; line-height: 1.15; }
+.life-calgrid-ev.cost { color: var(--danger-ink); }
+.life-anim { display: flex; flex-direction: column; gap: var(--sp-2); margin-top: var(--sp-3); }
+.life-anim-row { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+.life-anim-speeds { display: inline-flex; gap: 4px; }
+.life-speed[aria-pressed="true"] { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+.life-anim-progress { height: 8px; border-radius: var(--r-pill); background: var(--line); overflow: hidden; }
+.life-anim-fill { display: block; height: 100%; width: 0; background: var(--accent); }
+.life-anim-day { font-weight: 600; color: var(--ink-2); }
+.life[data-anim] .life-hint { display: none; }
 
 /* Wellbeing card: floats over the top-right of the 3D view. */
 .life-wb {

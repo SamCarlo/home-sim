@@ -6,7 +6,7 @@ import { moveInHouse } from '../phases/design/houseModel.js';
 import { sharedOptions, moveInShared } from '../phases/design/sharedModel.js';
 import { moveInBuild } from '../phases/design/blueprint/moveIn.js';
 import { addYardItem } from '../phases/design/blueprint/yard.js';
-import { startPlan, setChoice } from '../life/monthFlow.js';
+import { startPlan, setChoice, startLive } from '../life/monthFlow.js';
 
 /** Fail loudly when a seed's Move in refuses (a seed that silently stays in design would hide bugs). */
 function ok(result, name) {
@@ -63,6 +63,16 @@ export function addLifeSeeds(seeds) {
       const s = seeds['life-month1-apartment'].build(now);
       startPlan(s);
       for (const [k, v] of Object.entries({ exercise: 4, extraWork: 8, social: 7, deepPractice: 4, homeGarden: 'none' })) setChoice(s, k, v);
+      return s;
+    } };
+  seeds['life-live-house'] = { phase: 'life',
+    description: 'The house seed in the live stage of January 2033 (plan answered, planMonth run): "Live this month" '
+      + 'plays on load. Add ?speed=20 to run the month in about two seconds.',
+    build: (now) => {
+      const s = seeds['life-month1-house'].build(now);
+      startPlan(s);
+      for (const [k, v] of Object.entries({ exercise: 4, extraWork: 0, social: 7, deepPractice: 4, homeGarden: 'none' })) setChoice(s, k, v);
+      startLive(s);
       return s;
     } };
 }

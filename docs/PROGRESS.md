@@ -1636,3 +1636,37 @@ life-month1-house · seed 7 · income $4,300/mo
     design phase's moveIn, which sets life month 0 again: decide whether to keep `life.monthIndex` (history keeps the months).
   - Task 48: holdings are multiplied by `plan.market[key][days]` in finalizeMonth; buy/sell must happen outside live.
   - `tools/sim-months.mjs` is the quick way to sanity-check any balance change.
+
+## Task 45 — Live this month animation
+- attempt started 2026-10-02T20:17:54-10:00
+- done 2026-10-02T20:27:08-10:00
+- Files: new `app/src/life/timeline.js` (pure: buildTimeline, routineFor, momentAt, placeAt, shortDayLabel, eventToast),
+  `app/src/phases/life/animation.js` (createAnimation), `tests/unit/timeline.test.js` (6), e2e `tests/e2e/life-live.json`
+  (full month at ?speed=20 → summary → February) and `life-live-reduced.json`; changed `lifeScreen.js` (live panel has no
+  "Finish the month" button any more; startAnimation/stopAnimation; setSeason on month change; `window.__life.animation()`),
+  `config.js` (`LIFE.routine`, `LIFE.toastMs`, `LIFE3D.yardOffset`), `styles/life.css` (strip, toasts, calendar grid,
+  controls), `dev/lifeSeeds.js` (seed `life-live-house`), `tools/smoke.txt` (+1 line), `tests/e2e/life-flow.json` (seeks to the
+  end of the month instead of clicking the removed button).
+- Verified: `node --test tests/unit/timeline.test.js` 6/6; `bash tools/check.sh` OK (204 files, smoke 70/70);
+  `life-live.json` on `life-plan-filled&speed=20` OK (month plays through to the summary, no console errors, character
+  visible at the door afterwards); `life-live-reduced.json` OK; `life-flow.json` on life-month1-house OK.
+  Shots (tools/shots/t45/, steps pause + `seek(day, t)`):
+  - 1-morning: Thu Jan 20 t 0.31, pink dawn sky, long shadows, the character walking down the front path toward the
+    street, "Flat tire −$158" toast, calendar strip with day 20 lit and event days underlined red.
+  - 2-noon: Sat Jan 22 t 0.5, blue sky, short shadows, the character on the front lawn by the door (weekend at home).
+  - 3-night: Sun Jan 23 t 0.92, navy sky with stars, every window glowing, character inside, birthday toast.
+  - 4-reduced: Hilo apartment, calendar grid filled through day 18 (today outlined), "Doctor visit −$226" written in
+    day 6, no sun motion; Play shown while paused.
+  - 5-summary: the summary placeholder after the animation, hint back, wellbeing bars updated.
+- Deviations: none from 09 §9. Weekend "home" time is on the front lawn (`LIFE3D.yardOffset`) rather than at a plant
+  spot, because plant spots often sit behind the house or up on a balcony and the character would vanish from view.
+- Notes for later tasks:
+  - Task 46 (care): `anim.onDay((dayEntry, i) => …)`; `dayEntry.care [{index, day, fraction}]` are the scheduled
+    appearances for that day (fraction of the month → `anim.moment`/`onTick` gives `{day, t, ms}` for exact timing).
+    Count shown/hits into `life.current.care` before onEnd fires (finishLive reads it). `anim.speed`, `anim.paused`
+    for re-timing. Mount the button into `.life-stage-wrap` (toasts sit at z-index 2, bottom centre).
+  - Task 48 (ticker): `anim.onTick(({index, t, ms, paused, plan}) => …)` every frame; `plan.market[key][day]`.
+  - `anim.seek(day, t)` jumps forward (events on skipped days still fire); e2e use it to skip to the end.
+  - `?speed=N` multiplies the 1×/2×/4× choice (persisted in `settings.animationSpeed`). Reduced motion = settings
+    `reducedMotion` or the OS media query, read when the month starts.
+  - The live panel is mostly empty below the controls; room for the care tally (46) and investments (48).

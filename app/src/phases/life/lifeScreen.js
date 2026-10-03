@@ -1,7 +1,8 @@
 // Phase 4: Life (09 §1–§2, task 42). Money strip on top; the student's home in rotatable 3D on the left with the
 // wellbeing card over it; the right panel runs the month state machine (life/monthFlow.js): welcome → plan → live →
-// summary → next month. Each stage change saves a checkpoint. The plan stage holds the questions + time budget (task 43, questions.js + timeBudgetView.js); the "Live this
-// month" animation + care game (tasks 45–46) and the summary (task 47) mount into the panel/stage slots marked below.
+// summary → next month. Each stage change saves a checkpoint. The plan stage holds the questions + time budget (task 43,
+// questions.js + timeBudgetView.js); the live stage plays "Live this month" (task 45, animation.js) over the 3D view and
+// runs finishLive when it ends (care game: task 46); the summary (task 47) mounts into the slot marked below.
 import { h } from '../../ui/dom.js';
 import { byId } from '../../data/locations/index.js';
 import { monthLabel, monthName } from '../../util/dates.js';
@@ -14,6 +15,8 @@ import { renderMoneyStrip } from './moneyStrip.js';
 import { renderQuestions } from './questions.js';
 import { renderTimeBudget } from './timeBudgetView.js';
 import { timeBudget } from '../../life/timeBudget.js';
+import { createAnimation } from './animation.js';
+import { getFlag } from '../../dev/flags.js';
 
 /**
  * The panel for each stage: `(ctx) → Node[]`. ctx = {state, go(fn, checkpoint), store, onUpdate(fn)}. A panel that
@@ -59,10 +62,10 @@ const PANELS = {
     return [
       h('p', { class: 'life-eyebrow' }, `Living · ${monthLabel(state.life.monthIndex)}`),
       h('h1', { class: 'life-title' }, `Living ${monthName(state.life.monthIndex)}…`),
-      // Task 45 plays the month over the 3D view and calls finishLive when it ends.
-      h('div', { class: 'life-slot', dataset: { slot: 'live' } },
-        h('p', { class: 'muted' }, 'The month plays out day by day over your home.')),
-      h('button', { class: 'btn btn-primary btn-lg life-go', type: 'button', onClick: () => go(finishLive, 'life-summary') }, 'Finish the month'),
+      h('p', { class: 'muted life-note' }, 'Watch your month play out day by day. Bills, paychecks and surprises land on '
+        + 'their day; the summary comes at the end.'),
+      // The animation's controls mount here once the 3D view is ready (startAnimation below).
+      h('div', { class: 'life-slot', dataset: { slot: 'live' } }),
     ];
   },
   summary({ state, go }) {
@@ -106,7 +109,27 @@ export async function mount(container, { store }) {
       panel));
   container.append(root);
 
-  let shownStage = null, shownMonth = null, panelUpdate = null;
+  let shownStage = null, shownMonth = null, panelUpdate = null, anim = null, viewReady = false, view = null;
+  /** Start the month's animation once the live panel and the 3D view (or its failure) are both ready. */
+  function startAnimation(s) {
+    if (anim || !viewReady || currentStage(s) !== 'live' || !s.life.current.plan) return;
+    const slot = panel.querySelector('[data-slot=live]');
+    if (!slot) return;
+    const reduced = !!s.settings?.reducedMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    anim = createAnimation({
+      plan: s.life.current.plan, choices: s.life.current.choices, view, wrap: stage.parentElement, dayBar: dayLabel, reduced,
+      speed: s.settings?.animationSpeed ?? 1, speedFlag: Number(getFlag('speed')) || 1,
+      onSpeed: (sp) => store.update((d) => { d.settings.animationSpeed = sp; }),
+      onEnd: () => go(finishLive, 'life-summary'),
+    });
+    root.dataset.anim = reduced ? 'calendar' : '3d';
+    slot.replaceChildren(anim.el);
+  }
+  function stopAnimation() {
+    anim?.dispose();
+    anim = null;
+    delete root.dataset.anim;
+  }
   function go(fn, checkpoint) {
     store.update((s) => { fn(s); }, { checkpoint });
   }
@@ -120,14 +143,16 @@ export async function mount(container, { store }) {
       panelUpdate?.(s);
       return;
     }
+    if (s.life.monthIndex !== shownMonth && shownMonth !== null) view?.scene.setSeason(s.life.monthIndex);
     shownStage = st; shownMonth = s.life.monthIndex; panelUpdate = null;
+    stopAnimation();
     panel.replaceChildren(...PANELS[st]({ state: s, go, store, onUpdate: (fn) => { panelUpdate = fn; } }).filter(Boolean));
     panel.scrollTop = 0;
+    startAnimation(s);
   }
   render(state);
   const unsub = store.subscribe((s) => render(s));
 
-  let view = null;
   stage.append(h('p', { class: 'life-loading muted' }, 'Loading your home…'));
   try {
     const { createLifeView } = await import('./lifeView.js');
@@ -137,10 +162,13 @@ export async function mount(container, { store }) {
   }
   stage.querySelector('.life-loading')?.remove();
   if (view) await view.firstFrame();
-  window.__life = { view: () => view, info: () => view?.info, description: () => desc.textContent };
+  viewReady = true;
+  window.__life = { view: () => view, info: () => view?.info, description: () => desc.textContent, animation: () => anim };
+  startAnimation(store.getState());
   document.body.dataset.ready = '1';
   return () => {
     unsub();
+    stopAnimation();
     view?.dispose();
     delete window.__life;
     delete document.body.dataset.ready;
