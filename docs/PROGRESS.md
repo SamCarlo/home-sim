@@ -2014,3 +2014,38 @@ life-month1-house · seed 7 · income $4,300/mo
 - Notes for later tasks:
   - term() is a <button>: don't put it inside another button/label-wrapped control; use wordsToKnow() beside it.
   - The Fraunces kahakō item (task 21) still looks fine in the t55 smoke shot of paperwork-pahoa-house-options; task 57 can close it after a check with web fonts loaded.
+
+## Task 56 — End-to-end playthroughs for every home type
+- attempt started 2026-10-03T04:43:50-10:00
+- done 2026-10-03T04:56:48-10:00
+- Files: new `tools/e2e/genPlaythroughs.mjs` (writes the play files), `tools/e2e/playHelper.js` (window.__play: fill/answer/
+  waitStep/errors/tap, + window.__errs stacks), `tools/e2e/run.mjs` (runner, two browsers at a time, `--emulator`, `--only`),
+  `tests/e2e/play-{apartment-hilo,shared-honolulu,condo-miami,house-katy,build-pahoa}.json` (generated, 145–219 steps);
+  package.json `test:e2e` + `test:e2e:emulator`; deleted the stale `tests/e2e/paperwork-flow.json` (task 54 note); CLAUDE.md.
+- Each play: register (DEMO) → intake (Kai Mana, income/savings sized for the cell) → `meta.seed` fixed → choose the cell →
+  every paperwork step with real input (letters typed with SAMPLE_LETTERS, quiz questions answered by trying choices,
+  insurance Basic, standard inspector, first allowed loan option, rate error flagged at closing, Bid B, card accepted) →
+  results → design → 3 months at ?speed=20&care=hit (careRate 1 each month) → March summary → April welcome.
+  Apartment (seed 7) sends a weak cover letter first: denied (47%, draw 78), back to planning, same cell again, strong
+  letter: approved (82%). That covers the retry path.
+- Verified: `npm run test:e2e` 5/5 twice in a row (~80 s each); `mise exec java@temurin-21 -- npm run test:e2e:emulator`
+  apartment path on ?emulator=1 ✓; `bash tools/check.sh` OK (syntax 230 · tests · data 11 · contrast · copy · smoke 77/77 · lazy-plan).
+  Shots (tools/shots/t56/apartment-*):
+  - 1-intake: intake form, name prefilled from the username, help card on the right.
+  - 2-plan: grid with $4,200/mo and $12,000; Hilo apartment Stretch, shared Comfortable, buys Can't afford.
+  - 3-paperwork: Rental application, step 1 of 7, checklist with 6 locked steps; Hawaiʻi renders with a tight ʻokina.
+  - 4a-results-denied: "Not approved this time", 47% chance, letter Needs work (1/100), draw 78; card still opens.
+  - 4-results: "Approved! The apartment in Hilo is yours", 82%, Excellent letter (93/100), cash you pay now.
+  - 4b-design: walk-up 3D, Unit 2B Mālama Terrace chosen, 2 plants, Move in enabled.
+  - 5-life-plan: Welcome to January 2033, exercise/extra-work questions, time budget bar, wellbeing card.
+  - 6-life-live: Living January day 23 of 31, night scene, care 8 of 8, investing panel.
+  - 7-summary: March 2033 summary, in $4,200 / out $4,111, kept $89, wellbeing up.
+- Bugs found: none in the game. All five paths, the denial/retry and the emulator path worked on the first run once the
+  scripts were right. Script-side fixes only: condo design uses the apartment picker (pick a floor before a unit), the
+  Cozy template asks no confirm on an empty lot, and the emulator needs an active `classCodes/DEMO` doc (run.mjs seeds
+  it). No logic bugs, so no new unit tests.
+- Deviations: none.
+- Notes for later tasks:
+  - Seen again in shot 4b: the Fraunces kahakō item in OPEN_ITEMS (the "ā" in "Mālama" in the design title looks off). Still open for task 57.
+  - The header often says "Saving…" in mid-flow shots (checkpoints within 5 s are queued). Not wrong, but task 57 may want to look.
+  - To add a path: add a PLAYS entry and, if needed, a recipe for a new step id in genPlaythroughs.mjs.

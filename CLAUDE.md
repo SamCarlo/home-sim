@@ -16,6 +16,14 @@ changing rules, adding a location). Keep their commands, labels and paths true w
 - Contrast: `node tools/contrast.mjs [--quiet]` checks every text/background token pair in tokens.css (+ life.css time-budget
   ink) in both themes against WCAG AA. Add a pair to its `PAIRS` when you add a text or surface token.
 - Shoot: `node tools/shoot.mjs --path /index.html --out tools/shots/x.png --wait-ready` (see Verification below)
+- Playthroughs: `npm run test:e2e` (~80 s) runs `tests/e2e/play-{apartment-hilo,shared-honolulu,condo-miami,house-katy,build-pahoa}.json`
+  (register → intake → cell → every paperwork step → results → design → 3 months at `?speed=20&care=hit` → summary), two
+  browsers at a time; `--only <name>` runs one. The JSON is generated: edit `tools/e2e/genPlaythroughs.mjs` and rerun
+  `node tools/e2e/genPlaythroughs.mjs`. Each play fixes `meta.seed` right after intake, so draws are stable; the apartment
+  sends a weak cover letter first (seed 7 → denied), then retries with `SAMPLE_LETTERS`. Forms are filled by
+  `window.__play.fill(prefs)` (playHelper.js, injected by the first eval; quiz questions are answered by trying choices).
+  Emulator: `mise exec java@temurin-21 -- npm run test:e2e:emulator` runs the apartment path on `?emulator=1` (resets the
+  emulators and seeds `classCodes/DEMO`). Not part of `check.sh` (too slow); run it before task 57-style reviews.
 - Rules tests (Firestore emulator, needs Java): `mise exec java@temurin-21 -- npm run test:rules` (~30 s). Java is a
   user-level mise install (`mise install java@temurin-21`, no sudo); always run the emulators through `mise exec`.
   `HOMESIM_FIREBASE=1 bash tools/check.sh` adds them to the check; the default check stays fast. `npm run test:firebase`
@@ -101,7 +109,8 @@ app/src/admin/                 adminMain.js (sign-in by mode, console) · adminM
                                dataSource.js (Firestore + local sources) · actions.js · classCodes.js · studentTable.js · studentDetail.js · csv.js
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
-tests/e2e/                     shoot.mjs step scripts (example, persist, register, intake, plan-keys, choose-home, paperwork-flow …)
+tests/e2e/                     shoot.mjs step scripts (example, persist, register, intake, plan-keys, choose-home …) · play-*.json playthroughs (generated)
+tools/e2e/                     genPlaythroughs.mjs (writes play-*.json) · playHelper.js (window.__play) · run.mjs (npm run test:e2e)
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
 tools/sim-months.mjs           12-month simulation printout (task 44)
@@ -293,7 +302,7 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 - `steps/index.js` `STEPS`/`step(id)`; each `steps/<id>.js` default-exports `{id, title, kind, upfrontKey?, schema?, mount?,
   complete?}`. Placeholders come from `steps/placeholder.js` ("Mark done" only with `?dev=1`). The screen renders
   'form' + `schema` with `renderForm` (drafts on change, read-only when done), otherwise `mount(container, {store, config,
-  state, status, values, onDone, onDraft})`. e2e `tests/e2e/paperwork-flow.json`.
+  state, status, values, onDone, onDraft})`. e2e: the `play-*.json` playthroughs (task 56).
 - A step's `complete(s, values, now)` pays its own fees (`payFee`/`completeStep`), calls `setStep(s, id, 'done', …)` and
   returns `{ok, shortfallCents}`. Signed documents: store `docType: <step id>` + full `terms` on the agreement and register
   the schema builder in `phases/paperwork/docs.js` (the portfolio imports it), so the doc rebuilds from the agreement alone.
