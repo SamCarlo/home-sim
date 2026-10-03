@@ -277,6 +277,7 @@ export const INVEST = {
 export const SAVE = {
   draftIntervalMs: 30000,
   checkpointMinGapMs: 5000,
+  logoutFlushMs: 3000,        // task 51: logout waits at most this long for a Firestore write (offline it queues)
 };
 
 /** Letters (06 §2–§3; D10). */

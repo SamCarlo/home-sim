@@ -1,4 +1,4 @@
-// Game boot (01 §5): account provider → login → save → store + local persistence → phase screen.
+// Game boot (01 §5): account provider → login → save → store + persistence (local or Firestore) → phase screen.
 import * as config from './config.js';
 import { FIREBASE_ENABLED, firebaseConfig } from './firebase-config.js';
 import { h, clear } from './ui/dom.js';
@@ -12,6 +12,7 @@ import { migrate } from './state/migrate.js';
 import { createStore } from './state/store.js';
 import { attach } from './state/persistence.js';
 import { createLocalAdapter } from './persistence/local.js';
+import { createFirestoreAdapter } from './persistence/firestore.js';
 import { selectProvider, chooseMode } from './accounts/provider.js';
 import { applySettings } from './ui/portfolio/settings.js';
 
@@ -45,7 +46,9 @@ async function boot() {
 
   const accounts = await selectProvider({ firebaseMode, emulator, config: firebaseConfig });
   await accounts.init();
-  const adapter = createLocalAdapter(); // Firebase mode too, until persistence/firestore.js (task 51)
+  // Firebase mode saves to Firestore (11 §6, task 51); local mode and seeds use localStorage.
+  const remoteAdapter = accounts.kind === 'firebase' ? createFirestoreAdapter({ db: accounts.db, firestore: accounts.sdk.firestore }) : null;
+  const localAdapter = createLocalAdapter();
   let game = null; // { store, persistence, unsubscribe, devPanel, user }
 
   /** No one signed in: show the welcome screen; accounts.onChange picks up the sign-in. */
@@ -59,7 +62,9 @@ async function boot() {
     const g = game;
     game = null;
     if (g) {
-      await g.persistence.flush();
+      // Offline, a Firestore write waits for the network: don't hold the logout for it (the cache keeps it queued).
+      await Promise.race([g.persistence.flush(), new Promise((r) => setTimeout(r, config.SAVE.logoutFlushMs))]);
+      if (g.persistence.status.get() === 'saved') g.adapter.forget?.(g.user.uid);
       g.persistence.detach();
       g.unsubscribe();
       g.devPanel?.();
@@ -72,11 +77,15 @@ async function boot() {
 
   /** Load or create the player's save, then render their phase. fixture = seed state (dev). */
   const startGame = async (user, fixture = null) => {
+    const adapter = (!fixture && remoteAdapter) || localAdapter;
     const loaded = fixture ? null : await adapter.load(user.uid);
     const state = fixture ?? (loaded ? migrate(loaded) : createInitialState({ ...user, now: Date.now() }));
     const store = createStore(state);
-    const persistence = attach(store, adapter, { uid: user.uid });
+    const pushCopy = adapter.takePendingPush?.() === true;
+    // A save from the server already has its summary (02 §5); a pushed local copy may not.
+    const persistence = attach(store, adapter, { uid: user.uid, summarized: !!loaded && adapter.remote === true && !pushCopy });
     if (!loaded) await persistence.saveNow(fixture ? `seed:${params.get('seed')}` : 'account-created');
+    else if (pushCopy) persistence.saveNow('local-copy-newer').catch(showError);
     const ctx = { store, accounts, persistence, config, user, dev };
     let shownPhase = null;
     let header = null;
@@ -106,9 +115,9 @@ async function boot() {
       applySettings(s.settings, { themeOverride });
       render().catch(showError);
     });
-    game = { store, persistence, user, unsubscribe: () => { unsub(); header?.destroy(); } };
+    game = { store, persistence, user, adapter, unsubscribe: () => { unsub(); header?.destroy(); } };
     if (devAllowed) {
-      window.__homesim = { store, getState: store.getState, update: store.update, seeds, version: STATE_VERSION, persistence, accounts, user };
+      window.__homesim = { store, getState: store.getState, update: store.update, seeds, version: STATE_VERSION, persistence, adapter, accounts, user };
     }
     await render();
     rescoreLetters(store).catch((err) => console.warn('Letters were not rescored.', err));

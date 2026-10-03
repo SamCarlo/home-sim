@@ -47,7 +47,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
     `--smoke <file>`.
   - Steps (JSON array): `{"click":css}` (real mouse at the center; `el.click()` when covered/zero-size), `{"type":[css,text]}`,
     `{"press":"Enter"}`, `{"wait":ms}`, `{"waitFor":css}`, `{"waitReady":true}`, `{"eval":js}` (prints JSON),
-    `{"assert":js}`, `{"shot":png}`, `{"goto":path}`. `tests/e2e/example.json` uses every one.
+    `{"assert":js}`, `{"shot":png}`, `{"goto":path}`, `{"offline":bool}` (CDP network emulation; cuts same-origin too). `tests/e2e/example.json` uses every one.
   - Relative `--out`/`shot` paths resolve against the cwd; smoke shots always go to `HS/tools/shots/smoke-<name>.png`.
 - **Readiness**: shoot waits for `body[data-ready="1"]` with `--wait-ready`, `waitReady` and in every smoke line. A screen
   that never sets it times out.
@@ -69,6 +69,7 @@ app/src/finance/               money.js loans.js costs.js affordability.js grid.
                                ledgerTotals.js) creditScore.js loanOptions.js buying.js build.js insurance.js creditCard.js underwriting.js (pure; see Finance helpers, Plan numbers, Ledger)
 app/src/state/                 schema.js migrate.js summary.js (pure) · store.js · persistence.js (save policy)
 app/src/persistence/local.js   localStorage adapter (homesim:v1:save:<uid>, …summary:<uid>)
+app/src/persistence/firestore.js  Firestore adapter (saves/{uid} + players/{uid}.summary, homesim:v1:cloudcopy:<uid>; task 51)
 app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScreen, renderPhase) · header.js · saveStatus.js ·
                                letterReport.js (renderLetterReport) · modal.js (openModal, confirmDialog) · icons.js · drawer.js (openDrawer) ·
                                portfolio/ (index.js openPortfolio + tabs; portfolioModel.js pure; settings.js applySettings;
@@ -631,7 +632,20 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `getDoc` → createUser → `players/{uid}` (summary `{phase:'intake', monthIndex:0}`) → `deleteUser` on a failed write.
   Login/init read `players/{uid}`: disabled → "Your account is paused…", missing → refused; both sign out. Persistence:
   session, or local when "keep me logged in". The provider exposes `db`/`auth` getters for task 51's adapter.
-- **Saves still go to the local adapter in Firebase mode** until `persistence/firestore.js` (task 51) is wired in main.js.
+
+## Firestore saves (11 §4, §6, task 51)
+- main.js picks `createFirestoreAdapter({db: accounts.db, firestore: accounts.sdk.firestore})` when the provider is
+  Firebase (seeds stay local). The provider opens Firestore with `persistentLocalCache` + multi-tab manager in the browser.
+- `save(uid, state, summary)`: writes the localStorage copy, then one `writeBatch` (saves doc with exactly
+  `stateJson/version/updatedAt/saveCount`; `players/{uid}` `{summary, updatedAt}` only when the policy passes a summary).
+  `batch.commit()` resolves on server ack, so offline the one in-flight write waits and the policy `stash`es newer states.
+  `stats = {commits, docWrites}`. Over 899,999 chars → `{ok:false, code:'too-big'}`.
+- `load(uid)`: server (or cache) vs local copy via pure `pickNewer`; a newer copy sets `takePendingPush()` and main.js
+  pushes it with `saveNow('local-copy-newer')`. `forget(uid)` on logout when saved.
+- Policy with `adapter.remote`: status "offline" on the `offline` event and while a write waits offline; `online` →
+  "saving"/flush/"saved". `attach(…, {summarized})` skips the first summary; `summaryKeyFor(state)` = `phase|monthIndex`.
+- Tests: `tests/firebase/saves.test.js` (adapter on the emulator + `firebase-saves.json`, `firebase-offline.json`);
+  `tests/unit/firestoreAdapter.test.js` (fake firestore module with a `gate` promise to simulate an offline commit).
 - Emulator tests: `tests/firebase/accounts.test.js` (Node provider tests + shoot runs of `tests/e2e/firebase-register.json`
   and `firebase-errors.json` on `/index.html?emulator=1&theme=light`). Seed the emulator over REST with
   `Authorization: Bearer owner` (skips rules); reset with `DELETE …/emulator/v1/projects/demo-home-sim/accounts` and

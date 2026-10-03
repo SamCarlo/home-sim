@@ -319,3 +319,16 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   emulator)" in emulator mode. (6) No separate `test:e2e:emulator` script: `npm run test:firebase` runs the shoot step
   files from `tests/firebase/accounts.test.js` (shoot's own server; the page talks to the emulators on 9099/8080).
   Where: app/src/accounts/{firebase,provider}.js, app/src/accounts/ui/login.js, app/src/main.js, tests/firebase/accounts.test.js.
+- 2026-10-03, task 51, Firestore saves: (1) the conflict-check copy lives in localStorage under
+  `homesim:v1:cloudcopy:<uid>` as `{updatedAt, state}`, written on every save and, while a write is still in flight,
+  by the policy's `adapter.stash` (so a reload or failed flush keeps the newest state); logout drops it when the status is
+  "Saved" so shared Chromebooks keep nothing. (2) The summary goes in the same `writeBatch` as `saves/{uid}` (one commit
+  in flight, 2 document writes) with `summary.updatedAt` = the save time; after a save loads from the server the first
+  save skips the summary (`attach(…, {summarized: true})`) because nothing changed since it was written; a pushed newer
+  local copy re-sends it. (3) In Firebase mode the header shows "Offline — will sync" whenever the browser is offline,
+  not only with unsaved changes. (4) Logout waits at most `SAVE.logoutFlushMs` (3 s) for the flush (offline, the write
+  stays queued in the persistent cache). (5) Still no `test:e2e:emulator` script: `npm run test:firebase` runs
+  `tests/firebase/saves.test.js`, which drives `firebase-saves.json`/`firebase-offline.json`; `tools/shoot.mjs` gains an
+  `{"offline": bool}` step (CDP `Network.emulateNetworkConditions`). (6) `flush()` now resolves after the follow-up save
+  a pending change triggers, not just the write already in flight.
+  Where: app/src/persistence/firestore.js, app/src/state/persistence.js, app/src/main.js, tools/shoot.mjs.

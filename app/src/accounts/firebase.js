@@ -51,6 +51,20 @@ async function loadSdk() {
 }
 
 /**
+ * Firestore with the persistent multi-tab cache in the browser (11 §6: offline writes queue and sync later); memory
+ * cache in Node. Falls back to the existing instance when this app already initialized Firestore.
+ */
+function openFirestore(fs, app, browser) {
+  if (!browser) return fs.getFirestore(app);
+  try {
+    return fs.initializeFirestore(app, { localCache: fs.persistentLocalCache({ tabManager: fs.persistentMultipleTabManager() }) });
+  } catch (err) {
+    console.warn('firestore cache', err?.code || err);
+    return fs.getFirestore(app);
+  }
+}
+
+/**
  * Create the Firebase provider. opts: config (firebaseConfig), emulator (bool: connect to the local emulators with the
  * demo project), appName (Node tests run several providers side by side), sdk (injected modules), browser (use
  * session/local persistence; defaults to "window exists").
@@ -100,7 +114,7 @@ export function createFirebaseProvider(opts = {}) {
       const name = appName ?? '[DEFAULT]';
       const app = getApps().some((a) => a.name === name) ? getApp(name) : initializeApp(config, name);
       auth = sdk.auth.getAuth(app);
-      db = sdk.firestore.getFirestore(app);
+      db = openFirestore(sdk.firestore, app, browser);
       if (emulator) {
         sdk.auth.connectAuthEmulator(auth, EMULATOR.authUrl, { disableWarnings: true });
         sdk.firestore.connectFirestoreEmulator(db, EMULATOR.firestoreHost, EMULATOR.firestorePort);
@@ -175,8 +189,9 @@ export function createFirebaseProvider(opts = {}) {
     /** Listen for sign-in/sign-out; returns unsubscribe. */
     onChange(cb) { listeners.add(cb); return () => listeners.delete(cb); },
 
-    /** Firestore handle for the save adapter (task 51) and tests. */
+    /** Firestore handle and the loaded SDK modules for the save adapter (task 51) and tests. */
     get db() { return db; },
+    get sdk() { return sdk; },
     get auth() { return auth; },
   };
 }

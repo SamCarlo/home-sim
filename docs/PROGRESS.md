@@ -1829,3 +1829,35 @@ life-month1-house · seed 7 · income $4,300/mo
   - Task 52: `?fakeAdmin=` (11 §7) isn't built yet; reuse `EMULATOR` and `chooseMode` for admin.html.
   - Node tests of the provider: `createFirebaseProvider({emulator: true, appName: unique, browser: false})`, inject `sdk` to
     fake failures, and `deleteApp` everything in `after()` or the run hangs.
+
+## Task 51 — Saving games to Firestore
+- attempt started 2026-10-03T00:54:00-10:00
+- done 2026-10-03T01:04:50-10:00
+- Files: new `app/src/persistence/firestore.js` (createFirestoreAdapter, pickNewer, saveDoc, copyKey, MAX_STATE_JSON),
+  `tests/firebase/saves.test.js` (3 Node adapter tests + 2 shoot runs), `tests/e2e/firebase-saves.json`,
+  `firebase-offline.json`, `tests/unit/firestoreAdapter.test.js` (6); changed `state/persistence.js` (remote adapters:
+  offline status, `stash` while a write is in flight, `summarized` option, `summaryKeyFor`, flush() now waits for the
+  follow-up save), `accounts/firebase.js` (persistentLocalCache + multi-tab manager in the browser, `sdk` getter),
+  `main.js` (adapter by mode, push a newer local copy, logout flush capped and local copy dropped when saved,
+  `__homesim.adapter`), `config.js` (`SAVE.logoutFlushMs`), `tools/shoot.mjs` (`{"offline": bool}` step), CLAUDE.md, DEVIATIONS.
+- Verified: `mise exec java@temurin-21 -- npm run test:firebase` → 35/36 on the first full run (the reload e2e compared the
+  wrong saveCount, fixed), then `saves.test.js` alone 5/5: adapter writes the 4 save keys, summary only when given, newer
+  local copy loaded + flagged once, older ignored, another student's save denied by the rules; register → intake → reload
+  (local copy deleted first, so it came from Firestore) restores phase/job/name; offline → edit → online syncs and the
+  server stateJson has the offline edit (checked over REST). Rules 25/25 and accounts 6/6 still pass in the same run.
+  `node --test tests/unit/firestoreAdapter.test.js` 6/6, persistence.test.js 4/4. `bash tools/check.sh` OK (215 files,
+  smoke 76/76). Local e2e `persist.json`, `register.json` OK.
+  - **Write count (quota check)**: register → intake → reload → open a cell → choose a home = **8 writes** (players doc 1,
+    4 save commits, 3 of them with the summary = 2 docs each). 30 students × 6 periods × ~40 writes ≈ 7,200/day, inside 20k.
+  Shots (tools/shots/t51/):
+  - 1-restored-after-reload: Plan table after a reload for fbsave1, $3,600/mo and $12,000, header "Saved ✓".
+  - 2-offline-will-sync: Pāhoa shared room detail open, header "Offline — will sync" in amber, edit made offline.
+  - 3-back-online-saved: same view after going online, header "Saved ✓".
+- Deviations (DEVIATIONS.md): local copy key/shape and logout cleanup; summary in the same batch; first save after a
+  server load skips the summary; offline label whenever offline; logout flush capped at 3 s; shoot `offline` step.
+- Notes for later tasks:
+  - Task 52 (admin): `saves/{uid}.saveCount` is the policy's running count; `players/{uid}.summary.updatedAt` = save time.
+    Admin reset/transfer should write the summary itself (02 §5 admin actions).
+  - `{"offline": true}` in a step file cuts the page's network too: don't trigger lazy `import()`s of new screens while
+    offline (same-origin failures fail the run). Firestore offline logs nothing that fails shoot.
+  - Node tests: `createFirestoreAdapter({db: p.db, firestore: p.sdk.firestore, storage, now})` on a registered provider.

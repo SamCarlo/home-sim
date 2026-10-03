@@ -165,8 +165,15 @@ async function runStep(page, env, step, log) {
     case 'click': return click(page, arg, log);
     case 'type': return type(page, arg[0], arg[1]);
     case 'press': return press(page, arg);
+    case 'offline': return setOffline(page, !!arg, log);
     default: throw new Error(`unknown step ${JSON.stringify(step)}`);
   }
+}
+
+/** Emulate losing or regaining the network (CDP Network.emulateNetworkConditions; fires offline/online events). */
+async function setOffline(page, offline, log) {
+  await page.send('Network.emulateNetworkConditions', { offline, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+  log.push({ kind: 'net', text: offline ? 'offline' : 'online' });
 }
 
 /** Scroll into view, then a real mouse click at the center if the element is hit there; else el.click(). */
