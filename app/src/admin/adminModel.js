@@ -4,6 +4,7 @@ import { createInitialState } from '../state/schema.js';
 import { summarize } from '../state/summary.js';
 import { monthLabel } from '../util/dates.js';
 import { formatMoney } from '../util/format.js';
+import { ACCOUNTS } from '../config.js';
 
 /** Student table columns (11 §3): key, header label, kind ('text' | 'num'). */
 export const COLUMNS = [
@@ -86,10 +87,13 @@ export function codeCounts(players) {
   return counts;
 }
 
-/** A new class code: 2–12 of A–Z, 0–9 and hyphens, upper-cased; not already used. Returns {code, label} or {error}. */
+/**
+ * A new class code, upper-cased and not already used. It must pass the same ACCOUNTS.classCodePattern the student
+ * registration form checks (4–12 of A–Z, 0–9, hyphens), or students couldn't type it (task 53). → {code, label} | {error}.
+ */
 export function checkNewCode({ code, label }, existing = []) {
   const c = String(code ?? '').trim().toUpperCase();
-  if (!/^[A-Z0-9][A-Z0-9-]{1,11}$/.test(c)) return { error: 'Use 2 to 12 letters, numbers or hyphens, like IO-P3.' };
+  if (!ACCOUNTS.classCodePattern.test(c)) return { error: 'Use 4 to 12 letters, numbers or hyphens, like IO-P3.' };
   if (existing.some((x) => x.code === c)) return { error: 'That class code already exists.' };
   return { code: c, label: String(label ?? '').trim().slice(0, 60) || c };
 }

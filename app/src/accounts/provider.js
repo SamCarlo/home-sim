@@ -3,6 +3,7 @@
 // { kind, init(), register({username, password, classCode}), login({username, password, remember}), logout(),
 //   current() → {uid, username, classCode}|null, onChange(cb) → unsubscribe }.
 import { ACCOUNTS } from '../config.js';
+import { devFlagsAllowed } from '../dev/flags.js';
 
 /** Error thrown by every provider method. `message` is already student-friendly; `field` names the input it belongs to. */
 export class AccountError extends Error {
@@ -78,12 +79,12 @@ export function assertRegistration(input) {
 
 /**
  * Which mode this boot runs in (01 §5 step 1, 11 §1). Firebase when FIREBASE_ENABLED, or with ?emulator=1 on a dev host
- * (the emulators with the demo project, even before the teacher's setup). ?adapter=local and ?seed= always stay local.
- * → { firebaseMode, emulator }.
+ * (the emulators with the demo project, even before the teacher's setup). ?adapter=local and ?seed= stay local wherever
+ * dev flags are allowed; on the deployed site they're ignored (task 53). → { firebaseMode, emulator }.
  */
 export function chooseMode({ enabled = false, params = new URLSearchParams(), hostname = '', devHosts = [] } = {}) {
   const emulator = params.get('emulator') === '1' && devHosts.includes(hostname);
-  const forcedLocal = params.has('adapter') || params.has('seed');
+  const forcedLocal = devFlagsAllowed({ enabled, hostname, devHosts }) && (params.has('adapter') || params.has('seed'));
   return { firebaseMode: !forcedLocal && (enabled || emulator), emulator: !forcedLocal && emulator };
 }
 

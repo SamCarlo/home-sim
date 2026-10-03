@@ -64,6 +64,8 @@ test('checkNewCode and codeCounts', () => {
   assert.deepEqual(checkNewCode({ code: ' io-p3 ', label: '' }, []), { code: 'IO-P3', label: 'IO-P3' });
   assert.ok(checkNewCode({ code: 'IO-P3' }, [{ code: 'IO-P3' }]).error);
   assert.ok(checkNewCode({ code: 'x' }).error);
+  assert.ok(checkNewCode({ code: 'P3' }).error, 'shorter than the student form accepts');
+  assert.equal(checkNewCode({ code: 'p3-a' }).code, 'P3-A');
   assert.ok(checkNewCode({ code: 'IO P3' }).error);
   assert.deepEqual(codeCounts([player('a', 'a', 'X'), player('b', 'b', 'X'), player('c', 'c', 'Y')]), { X: 2, Y: 1 });
 });

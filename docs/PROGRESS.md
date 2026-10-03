@@ -1897,3 +1897,36 @@ life-month1-house · seed 7 · income $4,300/mo
     delete Auth accounts after "Delete class data"; Google sign-in must be enabled as a provider.
   - Not covered by e2e: Reset game, Pause/Unpause and Delete class data run through the same source methods the transfer
     uses (unit-tested locally); task 56/57 could add an emulator run of them.
+
+## Task 53 — Deploy guide, teacher guide, README, production checks
+- attempt started 2026-10-03T02:25:50-10:00
+- done 2026-10-03T02:34:18-10:00
+- Files: new `README.md`, `docs/DEPLOY.md`, `docs/TEACHER_GUIDE.md`, `tests/unit/production.test.js` (5); changed
+  `app/src/dev/flags.js` (pure `devFlagsAllowed`), `app/src/accounts/provider.js` (chooseMode gates ?seed=/?adapter=),
+  `app/src/admin/adminModel.js` (checkNewCode uses ACCOUNTS.classCodePattern), `tests/unit/admin.test.js`,
+  `docs/OPEN_ITEMS.md` (teacher item → DEPLOY.md), CLAUDE.md (docs pointer + Production checks section).
+- Fixed two production bugs found while checking:
+  - `chooseMode` let `?seed=` or `?adapter=local` drop a student into local mode on the deployed site (their game would
+    save only in that browser). Now those flags count only where dev flags are allowed.
+  - The admin form accepted 2–3 character class codes (e.g. `P3`) that the student registration form rejects (4–12),
+    so a teacher could make a code nobody could use. checkNewCode now uses the same pattern.
+- Production checks (tests/unit/production.test.js): devFlagsAllowed truth table (local anywhere, Firebase only on
+  localhost/127.0.0.1); chooseMode on *.web.app ignores seed/adapter; no `console.log` under app/ (none found);
+  firebase.json public app/, cleanUrls, `**/.*` ignored, the three 11 §8 Cache-Control headers; app/ holds only app file
+  types (no logs, tests, maps, dotfiles, node_modules). Dev modules in app/src/dev/ do ship (main.js imports flags/seeds)
+  but are inert off the dev hosts.
+- Verified: `bash tools/check.sh` OK (222 files, smoke 77/77). Every command in the docs was run: configure with a
+  fake console snippet (updated 3 files, next steps printed; rerun "unchanged"; missing --config → usage, exit 1; bad
+  stdin → "no { … } object found"), `--placeholder` restored all three files byte-for-byte (git clean);
+  `npx firebase-tools` 15.32.1 has login (--no-localhost), logout, deploy, projects:list; serve.py served /, /admin.html
+  and ?seed=plan-comfortable (200). Every repo path named in the docs exists (scripted check). UI labels, messages and
+  limits in the docs were checked against the source (Sign in with Google, Create code, Reactivate, Transfer save,
+  password ≥ 8, code 4–12, "That class code isn't right"). Re-read DEPLOY.md as a first-timer; fixed the write-quota
+  sentence (6 periods, not 1). No screenshots asked for. Emulator tests not re-run (the changes only affect non-dev
+  hosts and codes under 4 chars; admin e2e uses AD-P1).
+- Deviations: none from the spec. (Admin class codes are now 4–12, matching 11 §2's student pattern.)
+- Notes for later tasks:
+  - Firebase console menu names in DEPLOY.md were written from knowledge of the 2025–26 console, not checked live
+    (runs may not sign in). The guide tells the teacher to use the console search box if a name moved.
+  - `pkill -f 'tools/serve.py <port>'` in the same command line as other work kills the shell (the gotcha); run it alone.
+  - Task 55 (copy/glossary): TEACHER_GUIDE quotes UI labels; update it if labels change.

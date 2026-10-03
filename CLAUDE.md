@@ -5,6 +5,8 @@ income and savings, pick a home from 20 places × 5 home types, do the real pape
 month by month from January 2033. Vanilla ES modules with an import map, no build step. It runs fully in local mode
 (localStorage); Firebase is optional and teacher-configured. The spec is in `docs/spec/` (start with `00-overview.md`).
 **Every task run follows [`docs/TASK_PROTOCOL.md`](docs/TASK_PROTOCOL.md).**
+Teacher-facing docs: `README.md`, `docs/DEPLOY.md` (Firebase setup), `docs/TEACHER_GUIDE.md` (running the class, admin,
+changing rules, adding a location). Keep their commands, labels and paths true when you change the UI or tools.
 
 ## Commands
 - Serve: `python3 tools/serve.py` → http://127.0.0.1:1270 (`python3 tools/serve.py 8080` for another port)
@@ -662,6 +664,14 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 - Every action confirms (`actions.js`); delete class data needs the typed code. Actions write the summary themselves.
 - Tests: `tests/unit/admin.test.js`; emulator `tests/firebase/admin.test.js` (shoot `tests/e2e/admin-flow.json`,
   `admin-not-admin.json`). Dev: `window.__admin`, `body[data-detail-ready]`.
+
+## Production checks (task 53)
+- `dev/flags.js` `devFlagsAllowed({enabled, hostname, devHosts})` is the pure gating rule; `devAllowed()` wraps it, and
+  `chooseMode` uses it so `?seed=`/`?adapter=` can't force local mode on the deployed site. Read every new URL flag
+  through `getFlag()` or `devAllowed()`.
+- `tests/unit/production.test.js` fails on any `console.log` under `app/` (use `console.warn`/`console.error`), on cache
+  headers drifting from 11 §8, and on non-app files (logs, tests, maps, dotfiles) inside the hosted `app/` folder.
+- Admin class codes use `ACCOUNTS.classCodePattern` (4–12 chars), the same check as the student form.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
