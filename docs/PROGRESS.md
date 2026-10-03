@@ -1553,3 +1553,86 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     of being rebuilt; only the plan panel uses it. Budget + Live sit in `.life-plan-foot` (sticky); put task 48's
     investment block above it in the scrolling part.
   - The panel is `aria-live="polite"`, so in-place budget text changes are announced.
+
+## Task 44 — Monthly simulation: money, events, credit, wellbeing
+- attempt started 2026-10-02T19:31:46-10:00
+- done 2026-10-02T19:42:32-10:00
+- Files: new pure `life/events.js` (EVENT_TABLE text + conditions, eventApplies, eventChance, lossCharge, scheduledEvents,
+  pickEvents), `life/wellbeing.js` (DOMAINS, wellbeingDeltas, applyWellbeing), `life/market.js` (gbmPath, marketPaths),
+  `life/planMonth.js` (planMonth, monthBills, billGroup, seasonalUtilityCents, monthRng), `life/finalizeMonth.js`;
+  changed `life/monthFlow.js` (startLive stores current.plan, finishLive stores current.result; no summary after an
+  eviction), `config.js` (EVENTS, WELLBEING, LIFE.housingCategories/utilityCategories/solarSeasonalCut, pullPct 0.15);
+  new `tools/sim-months.mjs`; tests `tests/unit/month-sim.test.js` (14).
+- Verified: `node --test tests/unit/month-sim.test.js` 14/14; `bash tools/check.sh` OK (202 files, all unit tests, smoke
+  69/69); `tests/e2e/life-flow.json` on life-month1-house still passes with the real simulation behind "Finish the month".
+  - tools/shots/t42/flow-3-february.png (read): Katy house, money strip Checking $386 · Savings $29,480 · Net worth
+    $67,649; recap "In January you brought in $6,000 and spent $5,614, so you kept $386."; wellbeing card 63 ▲3 /
+    64 ▲4 / 61 ▲1 / 59 ▼1 / 64 ▲4. Nothing clipped.
+- 12-month runs (`node tools/sim-months.mjs <seed> 12 <meta.seed> [--income] [--savings] [--choices]`, care 6/8;
+  wb = Physical/pUrpose/Financial/Social/Mental):
+```
+life-month1-apartment · seed 1 · income $4,200/mo
+  January   in  $4,200 out  $3,449 cash  $17,561 card     $0 NW   $17,561 credit 675→678 wb P63 U64 F63 S59 M63 · medical-copay -$226
+  February  in  $4,200 out  $3,224 cash  $18,537 card     $0 NW   $18,537 credit 678→681 wb P65 U67 F66 S59 M65
+  March     in  $4,200 out  $3,224 cash  $19,513 card     $0 NW   $19,513 credit 681→684 wb P67 U70 F69 S59 M67
+  April     in  $4,608 out  $3,416 cash  $20,705 card     $0 NW   $20,705 credit 684→687 wb P69 U72 F71 S59 M69 · flat-tire -$192, tax-refund $408
+  May       in  $4,200 out  $3,224 cash  $21,681 card     $0 NW   $21,681 credit 687→690 wb P70 U74 F73 S59 M70
+  June      in  $4,200 out  $3,811 cash  $22,071 card     $0 NW   $22,071 credit 690→693 wb P71 U76 F72 S59 M71 · family-trip -$587
+  July      in  $4,200 out  $4,188 cash  $22,083 card     $0 NW   $22,083 credit 693→696 wb P72 U77 F71 S59 M72 · hurricane-prep -$122, car-repair -$596, dentist -$245
+  August    in  $4,200 out  $3,224 cash  $23,059 card     $0 NW   $23,059 credit 696→699 wb P73 U78 F73 S59 M73
+  September in  $4,200 out  $3,224 cash  $24,035 card     $0 NW   $24,035 credit 699→702 wb P74 U79 F75 S59 M74
+  October   in  $4,200 out  $4,190 cash  $24,045 card     $0 NW   $24,045 credit 702→705 wb P75 U80 F74 S59 M75 · friends-birthday -$91, flat-tire -$200, car-repair -$676
+  November  in  $4,200 out  $3,515 cash  $24,730 card     $0 NW   $24,730 credit 705→708 wb P76 U81 F75 S59 M76 · holidays -$291
+  December  in  $4,200 out  $3,608 cash  $25,322 card     $0 NW   $25,322 credit 708→711 wb P76 U81 F76 S59 M76 · holidays -$384
+life-month1-apartment · seed 3 · income $3,400/mo
+  January   in  $3,400 out  $3,224 cash   $4,176 card     $0 NW    $4,176 credit 675→678 wb P63 U64 F59 S59 M63
+  February  in  $3,400 out  $3,224 cash   $4,352 card     $0 NW    $4,352 credit 678→681 wb P65 U67 F59 S59 M65
+  March     in  $3,400 out  $3,224 cash   $4,528 card     $0 NW    $4,528 credit 681→684 wb P67 U70 F59 S59 M67
+  April     in  $3,400 out  $3,322 cash   $4,606 card     $0 NW    $4,606 credit 684→687 wb P69 U72 F59 S59 M69 · friends-birthday -$98
+  May       in  $3,400 out  $3,224 cash   $4,782 card     $0 NW    $4,782 credit 687→690 wb P70 U74 F59 S59 M70 · appliance-broke $0
+  June      in  $3,400 out  $4,695 cash   $3,487 card     $0 NW    $3,487 credit 690→693 wb P71 U76 F53 S59 M71 · car-repair -$859, wedding-travel -$612
+  July      in  $3,400 out  $4,119 cash   $2,768 card     $0 NW    $2,768 credit 693→696 wb P72 U77 F47 S59 M72 · car-repair -$895
+  August    in  $3,400 out  $3,224 cash   $2,945 card     $0 NW    $2,945 credit 696→699 wb P73 U78 F48 S59 M73
+  September in  $3,400 out  $3,372 cash   $2,973 card     $0 NW    $2,973 credit 699→702 wb P74 U79 F49 S59 M74 · flat-tire -$148
+  October   in  $3,400 out  $3,827 cash   $2,546 card     $0 NW    $2,546 credit 702→705 wb P75 U80 F47 S59 M75 · wedding-travel -$603
+  November  in  $3,400 out  $3,224 cash   $2,722 card     $0 NW    $2,722 credit 705→708 wb P76 U81 F48 S59 M76
+  December  in  $3,400 out  $3,533 cash   $2,588 card     $0 NW    $2,588 credit 708→711 wb P76 U81 F46 S59 M76 · holidays -$309
+life-month1-house · seed 7 · income $4,300/mo
+  January   in  $4,300 out  $5,703 cash   $1,597 card     $0 NW   $39,381 credit 670→673 wb P63 U64 F53 S61 M59
+  February  in  $4,300 out  $5,703 cash     $195 card     $0 NW   $38,264 credit 673→676 wb P65 U68 F47 S62 M59 · community-cleanup $0
+  March     in  $4,300 out  $4,953 cash       $0 card   $458 NW   $37,897 credit 676→606 wb P67 U70 F31 S63 M56 · car-repair -$766 · MISSED card
+  April     in  $4,663 out  $5,028 cash       $0 card   $824 NW   $37,820 credit 606→521 wb P69 U72 F18 S64 M53 · tax-refund $363, friends-birthday -$65 · MISSED card
+  May       in  $4,300 out  $4,421 cash       $0 card   $945 NW   $37,989 credit 521→436 wb P70 U74 F7 S64 M51 · MISSED card
+  June      in  $4,300 out  $4,138 cash       $0 card   $782 NW   $38,443 credit 436→414 wb P71 U76 F9 S64 M49 · wedding-travel -$347, plumbing -$909
+  July      in  $4,300 out  $4,564 cash       $0 card $1,046 NW   $38,473 credit 414→329 wb P72 U77 F0 S64 M47 · surprise-repair -$3,990 · MISSED card
+  August    in  $4,300 out  $4,329 cash       $0 card $1,076 NW   $38,739 credit 329→300 wb P73 U78 F0 S64 M46 · appliance-broke -$552, roof-leak -$1,814, flat-tire -$159 · MISSED card
+  September in  $4,300 out  $4,140 cash       $0 card   $916 NW   $39,195 credit 300→300 wb P74 U79 F3 S64 M45
+  October   in  $4,300 out  $4,423 cash       $0 card $1,039 NW   $39,370 credit 300→300 wb P75 U80 F0 S64 M44 · roof-leak -$1,342 · MISSED card
+  November  in  $4,300 out  $4,346 cash       $0 card $1,085 NW   $39,625 credit 300→300 wb P76 U81 F0 S64 M43 · MISSED card
+  December  in  $4,300 out  $4,347 cash       $0 card $1,132 NW   $39,880 credit 300→300 wb P76 U81 F0 S64 M42 · phone-screen -$294, holidays -$223 · MISSED card
+```
+  - Judgement: comfortable (Hilo apartment, $4,200 net, rent 37%) saves ~$700–1,000 a month, events $100–900 dent single
+    months, credit +3/month, wellbeing settles in the 70s with good habits. Tight ($3,400, $4k cash) nets ~$0 a month and
+    two car repairs in June–July eat a third of the cushion; financial wellbeing slides to the high 40s. Overextended (Katy
+    house at $4,300 net, $3k cash) is out of cash by March: housing is paid first, the card absorbs groceries and repairs,
+    the minimum goes unpaid each month (late fee + −60 + utilization −25), so credit falls 676 → 300 by August and
+    financial wellbeing hits 0 while mental drifts down from money stress. A renter who can't cover rent at all is evicted
+    after the 3rd straight miss (unit test + a $1,500 run: evicted in July after missing May–July; April's refund month
+    reset the streak). These look realistic for a teaching game; the overextended credit collapse is steep but that is
+    what repeated 30/60/90-day card delinquencies do.
+- Deviations (DEVIATIONS.md): wellbeing pull 15% not 5%; only creditor bills are "missed payments" (living/lifestyle/event
+  shortfalls are `wentWithout`); card cycle runs after living/lifestyle/events; seasonal utilities only (solar trims the
+  extra; catchment is already in the build's utilities line); careRate with nothing shown = nothing lost.
+- Notes for later tasks:
+  - Task 45: `life.current.plan` = planMonth's output (events with `day`, `care.schedule [{day, fraction}]`, `market`);
+    call `finishLive` at the end of the animation; it reads `life.current.care {shown, hits}`, so update those counts.
+    finishLive returns the result; when `result.evicted`, the save is already phase 'plan' (main re-renders by phase).
+  - Task 46: careRate = hits ÷ shown; ≥ `LIFE.careSurviveRate` keeps everything, below it each plant/animal is lost with
+    chance 1 − rate ÷ threshold (seeded 'care-loss'); lost plants get `alive:false, diedMonth`, animals `present:false, leftMonth`.
+  - Task 47 (summary): `current.result` has everything 09 §5 lists plus `label`, `wentWithout[]`, `missed[{kind, label,
+    cents, lateFeeCents}]`, `card.minimumCents/balanceCents`, `loanPayments.pmiDropped`, `deltas[{domain, delta, reason}]`.
+  - Plan screen (eviction): `state.plan.notice = {kind 'eviction'|'foreclosure', monthIndex, title, message}` is set but
+    not shown yet; the plan screen should show it kindly and clear it. Moving into a new home after an eviction runs the
+    design phase's moveIn, which sets life month 0 again: decide whether to keep `life.monthIndex` (history keeps the months).
+  - Task 48: holdings are multiplied by `plan.market[key][days]` in finalizeMonth; buy/sell must happen outside live.
+  - `tools/sim-months.mjs` is the quick way to sanity-check any balance change.

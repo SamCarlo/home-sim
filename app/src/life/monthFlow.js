@@ -7,6 +7,8 @@ import { LIFE_STAGES } from '../state/schema.js';
 import { monthName, yearMonth } from '../util/dates.js';
 import { accountValue } from '../finance/ledger.js';
 import { netWorth } from '../finance/ledgerTotals.js';
+import { planMonth } from './planMonth.js';
+import { finalizeMonth } from './finalizeMonth.js';
 
 export const STAGES = LIFE_STAGES;
 /** The four core questions that must be answered before "Live this month" (09 §2–§3). */
@@ -107,18 +109,28 @@ export function setChoice(s, key, value) {
   s.life.current.choices = { ...(s.life.current.choices ?? {}), [key]: value };
 }
 
-/** plan → live (refuses until canLive). Task 44 runs planMonth here and stores `current.plan`. Mutates a draft. */
+/** plan → live (refuses until canLive): runs planMonth and stores `current.plan`. Mutates a draft. */
 export function startLive(s) {
   if (currentStage(s) !== 'plan') throw new Error('startLive outside the plan stage');
   if (!canLive(s.life.current.choices)) return false;
-  s.life.current = { ...s.life.current, stage: 'live', care: { shown: 0, hits: 0 } };
+  const plan = planMonth(s, s.life.current.choices);
+  s.life.current = { ...s.life.current, stage: 'live', plan, care: { shown: 0, hits: 0 } };
   return true;
 }
 
-/** live → summary. Task 44 runs finalizeMonth first and stores `current.result`. Mutates a store draft. */
+/**
+ * live → summary: runs finalizeMonth with the care counts and stores `current.result`. After an eviction/foreclosure
+ * finalizeMonth has already moved the save to phase 'plan' (and pushed the month to history), so there's no summary.
+ * Mutates a store draft.
+ */
 export function finishLive(s) {
   if (currentStage(s) !== 'live') throw new Error('finishLive outside the live stage');
-  s.life.current = { ...s.life.current, stage: 'summary' };
+  const c = s.life.current;
+  const plan = c.plan ?? planMonth(s, c.choices);
+  const { result } = finalizeMonth(s, plan, c.choices ?? {}, { careShown: c.care?.shown ?? 0, careHits: c.care?.hits ?? 0 });
+  if (result.evicted) return result;
+  s.life.current = { ...s.life.current, stage: 'summary', result };
+  return result;
 }
 
 /** summary → next month's welcome: pushes `{monthIndex, choices, result}` onto history. Mutates a store draft. */

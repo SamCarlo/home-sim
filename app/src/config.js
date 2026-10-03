@@ -181,7 +181,7 @@ export const LIFE = {
   evictionStreak: 3,
   maxRandomEventsPerMonth: 3,
   uninsuredLossCapCents: 800000,
-  wellbeing: { start: 60, pullToward: 50, pullPct: 0.05, min: 0, max: 100 },
+  wellbeing: { start: 60, pullToward: 50, pullPct: 0.15, min: 0, max: 100 },   // 09 §8 says 5%; see DEVIATIONS (task 44)
   dayMs: 1200,                           // one game day at 1×
   speeds: [1, 2, 4],
   reducedMotionDayMs: 300,
@@ -189,6 +189,65 @@ export const LIFE = {
   careWindowMs: 2500,
   careWindowLongMs: 5000,                // "longer care window" setting
   careSurviveRate: 0.5,
+  housingCategories: ['housing'],        // 09 §6 payment order groups, by recurring category
+  utilityCategories: ['utilities', 'insurance'],
+  solarSeasonalCut: 0.40,                // solar trims the seasonal heat/cool extra (the base line already has it)
+};
+
+/** Life events (09 §7): chance per month, cost/income ranges in cents, wellbeing effects. Text and conditions live
+ *  in life/events.js; tune the numbers here. `amount` = a cost, `income` = money in, `loss` = an insurable loss. */
+export const EVENTS = {
+  'car-repair': { chance: 0.07, amount: [30000, 90000] },
+  'flat-tire': { chance: 0.05, amount: [12000, 20000] },
+  'lost-transit-pass': { chance: 0.03, amount: [5000, 13000] },
+  'medical-copay': { chance: 0.06, amount: [8000, 40000] },
+  dentist: { chance: 0.04, amount: [15000, 35000] },
+  'phone-screen': { chance: 0.04, amount: [15000, 30000] },
+  'appliance-broke': { chance: 0.07, amount: [25000, 90000] },
+  plumbing: { chance: 0.03, amount: [30000, 120000] },
+  'roof-leak': { chance: 0.02, amount: [80000, 250000] },
+  termites: { chance: 0.02, amount: [60000, 180000] },
+  holidays: { chance: 0, chanceByMonth: { 10: 0.30, 11: 1.0 }, amount: [10000, 45000] },
+  'friends-birthday': { chance: 0.08, highSocial: 12, highSocialFactor: 2, amount: [4000, 12000] },
+  'family-trip': { chance: 0.04, amount: [40000, 120000] },
+  'wedding-travel': { chance: 0.03, amount: [30000, 90000] },
+  'hurricane-prep': { chance: 0.10, amount: [8000, 20000] },
+  'hurricane-damage': { chance: 0.015, loss: { property: [500000, 2500000], belongings: [150000, 500000] } },
+  flood: { chance: 0.01, loss: { property: [500000, 2500000], belongings: [150000, 500000] } },
+  'heating-spike': { chance: 0.40, amount: [6000, 20000] },
+  'snow-tow': { chance: 0.05, amount: [10000, 25000] },
+  'vog-day': { chance: 0.10, wellbeing: { mental: -1 } },
+  'civil-defense-drill': { chance: 0.01, wellbeing: { mental: -1 } },
+  'wildfire-smoke': { chance: 0.10, wellbeing: { physical: -1, mental: -1 } },
+  'break-in': { chance: 0.015, loss: { belongings: [50000, 200000] } },
+  'kitchen-fire': { chance: 0.005, loss: { property: [200000, 600000], belongings: [200000, 600000] } },
+  'work-bonus': { chance: 0.05, income: [20000, 60000] },
+  'tax-refund': { chance: 0.60, income: [30000, 90000] },
+  'neighbor-gift': { chance: 0.05, income: [4000, 4000], wellbeing: { social: 1 } },
+  'community-cleanup': { chance: 0.04, wellbeing: { purpose: 1 } },
+  'contractor-defect': { amount: [100000, 400000] },
+};
+
+/** Wellbeing deltas (09 §8). Each list is [{at, delta}] matched exactly against the month's answer. */
+export const WELLBEING = {
+  exercise: { 0: -4, 2: 1, 4: 3, 7: 5 },
+  gymOrNatureAccess: 4, gymBonus: 1, gymMinExercise: 2,
+  longCommuteHours: 7.5, longCommute: -1,
+  extraWork: { 16: { social: -1 }, 32: { physical: -2, purpose: -1, social: -2 } },
+  gardenAlive: 1, walkUp: 1,
+  deepPractice: { 0: -2, 4: 3, 7: 5 },
+  deepPracticeMental: { 7: 1 },
+  careKept: 1, careLostPurpose: -1, careLostMental: -2,
+  saved: [{ min: 0.20, delta: 4 }, { min: 0.10, delta: 3 }, { above: 0, delta: 1 }],
+  overspent: [{ below: -0.20, delta: -6 }, { below: 0, delta: -3 }],
+  emergencyFundMonths: 3, emergencyFund: 2,
+  carriedCard: -3, missedPayment: -10, wentWithout: -3,
+  investUpPct: 0.02, investUp: 1, highRiskDropPct: -0.05, highRiskDrop: -2,
+  social: { 3: -3, 7: 1, 12: 3, 20: 4 },
+  sharedLiving: 1, ruralSettlements: ['rural'], rural: -1,
+  noisyAt: 4, noisy: -1, natureAt: 4, nature: 1,
+  moneyStressBelow: 35, moneyStress: -3,
+  pets: 1,
 };
 
 /** Investing (10 §1–§2). μ and σ are annual. */

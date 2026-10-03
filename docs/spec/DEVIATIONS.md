@@ -250,3 +250,26 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   "Not now" every month (it's a purchase). A pending cat/chickens/garden bed counts toward this month's chores (pots in an
   apartment don't). The budget and Live button are pinned to the bottom of the right panel so the bar stays in view while
   the questions scroll. Where: `life/timeBudget.js`, `phases/life/questions.js`, `lifeScreen.js`.
+- 2026-10-02, task 44, wellbeing pull: 09 §8 pulls 5% toward 50 each month, but then the steady state is 50 + delta ÷ 0.05,
+  so the default answers (+5 physical, +5 purpose) pinned three domains at 100 within a year. `LIFE.wellbeing.pullPct` is
+  0.15 (steady state 50 + delta ÷ 0.15: +5 → ~83, −4 → ~23), so good habits stay high and neglect stays low without
+  maxing out. Where: config.js LIFE.wellbeing.
+- 2026-10-02, task 44, what counts as a missed payment: 09 §6 says anything unpaid is a missed payment (−60 each). That
+  let unpaid groceries and gym fees drop credit to 300 in three months. Only creditor bills count as missed (housing;
+  utilities & insurance; the card minimum), with the 09 §6 late fees. Living, lifestyle and event costs that cash and
+  the card can't cover are paid item by item and the rest is `result.wentWithout` (warning + financial −3). Where:
+  life/finalizeMonth.js, config WELLBEING.wentWithout.
+- 2026-10-02, task 44, card timing and bill groups: living/lifestyle/event overflow can land on the card, so the card
+  cycle (statement = carried balance + this month's charges, autopay from checking, savings topping it up) runs after
+  them rather than between utilities and living costs. Each 09 §6 group is one bill: housing (all-or-nothing, never the
+  card), utilities & insurance (incl. phone/internet, never the card). Late fees go to cash, then the card, else are noted
+  unpaid. Where: life/finalizeMonth.js.
+- 2026-10-02, task 44, utilities: the recurring Utilities line already holds the base bill (and a build's solar/catchment
+  effect from site utilities), so planMonth only adds the seasonal heat/cool extra × the home type's `utilityFactor`;
+  solar trims that extra by 40%. Where: life/planMonth.js seasonalUtilityCents.
+- 2026-10-02, task 44, care with nothing shown: until tasks 45/46 drive the care game, finalizeMonth gets
+  `careShown = 0`; careRate is then null and no plant or animal is lost. Where: life/finalizeMonth.js settleCare.
+- 2026-10-02, task 44, event details: "car-dependent" = transport mode car, "car" = car or mixed, "transit places" =
+  transit or mixed; hurricane events need the hurricane hazard, state HI/FL/TX and a hurricane month; floods need the
+  flood add-on to be insured and so do Hawaiʻi hurricanes (where hurricane coverage is a separate add-on); December's
+  sure holiday event fills a cap slot first. Numbers live in config EVENTS. Where: life/events.js.

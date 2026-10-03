@@ -83,13 +83,15 @@ app/src/letters/               types.js send.js score.js text.js allowlist.js sp
                                (pure) · model.json (task 27) · loadSpeller.js (browser, lazy dictionary)
 app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
                                locations/{hawaii,cities,towns,index}.js (pure)
-app/src/life/                  monthFlow.js homeDescription.js timeBudget.js (pure; Phase 4 rules)
+app/src/life/                  monthFlow.js homeDescription.js timeBudget.js events.js wellbeing.js market.js planMonth.js
+                               finalizeMonth.js (pure; Phase 4 rules)
 app/src/admin/adminMain.js     placeholder (task 52)
 tests/unit/                    node --test files importing ../../app/src/…
 app/favicon.svg                tab icon (also keeps /favicon.ico 404s out of shoot reports)
 tests/e2e/                     shoot.mjs step scripts (example, persist, register, intake, plan-keys, choose-home, paperwork-flow …)
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
+tools/sim-months.mjs           12-month simulation printout (task 44)
 tools/letter-model/            corpus/<type>.json · logreg.mjs (pure LR math) · train.mjs (npm run train:letters)
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 ```
@@ -532,6 +534,19 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `renderTimeBudget(budget)` → `{el, update(budget)}` (`.tb[data-rating][data-color]`, `.tb-over` overflow). Choice keys
   exercise / extraWork (h per month) / social / deepPractice / homeGarden ('garden'|'cat'|'chickens'|'none', reset monthly).
   Seed `life-plan-filled` (Hilo, plan stage answered); e2e `tests/e2e/life-plan.json`, `life-plan-overbooked.json`.
+
+- Month simulation (task 44, 09 §5–§8, 10 §4): `startLive` runs `planMonth(state, choices)` → `current.plan` {monthIndex,
+  days, hours, income, events [{day, id, label, message, category, amountCents, insured?, wellbeing?}], market, care
+  {needed, count, schedule}}; `finishLive` runs `finalizeMonth(state, plan, choices, {careShown, careHits})` (mutates the
+  draft) → `current.result`. Order: income → housing (never the card) → utilities & insurance → living/lifestyle/events
+  (checking → savings → card, item by item; uncovered = `wentWithout`) → card cycle → late fees → `payLoan` → sweep above
+  $1,000 → `monthlyUpdate` → care → investments × path end → wellbeing → eviction/foreclosure at `lateHousingStreak` 3
+  (phase 'plan', attempt 'evicted', `plan.notice`, month pushed to history, no summary). `monthBills(state, choices)` →
+  {housing, utilities, living, lifestyle}. Events: `EVENT_TABLE` (text, `when`) + config `EVENTS` (numbers), `pickEvents`,
+  `lossCharge` (deductible or capped loss). Wellbeing: `wellbeingDeltas(ctx)` [{domain, delta, reason}] + `applyWellbeing`
+  (config `WELLBEING`, pull `LIFE.wellbeing.pullPct`). Market: `gbmPath`, `marketPaths`. Randomness:
+  `monthRng(state, mi, stream)` (streams events, care, care-loss, adopt). Check balance changes with
+  `node tools/sim-months.mjs <life seed> 12 <meta.seed> [--income $] [--savings $] [--choices json]`.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
