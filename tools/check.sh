@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Full verification (01 §8): syntax → unit tests → data imports → smoke screenshots (→ rules tests with
+# Full verification (01 §8): syntax → unit tests → data imports → contrast → smoke screenshots + lazy-load check (→ rules tests with
 # HOMESIM_FIREBASE=1). Stops at the first failure.
 # Run from anywhere: bash tools/check.sh  (or npm run check). Steps whose inputs don't exist yet are skipped.
 set -euo pipefail
@@ -37,10 +37,17 @@ else
   done_steps+=("data skipped")
 fi
 
+# 3b. Contrast: every text/background token pair in both themes meets WCAG AA (task 54).
+node tools/contrast.mjs --quiet || fail "contrast"
+done_steps+=("contrast")
+
 # 4. Smoke: one browser, fresh tab + storage per line of tools/smoke.txt.
 if [[ -f tools/smoke.txt ]]; then
   node tools/shoot.mjs --smoke tools/smoke.txt || fail "smoke"
   done_steps+=("smoke")
+  # Lazy loading (01 §10): login → intake → plan never requests three.js, the dictionary or Firebase.
+  node tools/shoot.mjs --path /index.html --wait-ready --steps tests/e2e/lazy-plan.json > /dev/null || fail "lazy-plan network assertion"
+  done_steps+=("lazy-plan")
 fi
 
 # 5. Optional: Firestore rules on the emulator (11 §7). Slow (~30 s), so only with HOMESIM_FIREBASE=1 and Java present.

@@ -1930,3 +1930,60 @@ life-month1-house · seed 7 · income $4,300/mo
     (runs may not sign in). The guide tells the teacher to use the console search box if a name moved.
   - `pkill -f 'tools/serve.py <port>'` in the same command line as other work kills the shell (the gotcha); run it alone.
   - Task 55 (copy/glossary): TEACHER_GUIDE quotes UI labels; update it if labels change.
+
+## Task 54 — Accessibility and Chromebook performance pass
+- attempt started 2026-10-03T03:11:47-10:00
+- done 2026-10-03T03:25:16-10:00
+- Files: new `tools/contrast.mjs`, `tests/e2e/{lazy-plan,life-leak,a11y-focus}.json`; changed `tools/lib/cdp.mjs` (page.requests
+  network log), `tools/shoot.mjs` (`{"noRequests": [regex…]}` step), `tools/check.sh` (+contrast, +lazy-plan), `app/src/main.js`
+  (Firestore adapter via `import()`), `app/src/ui/screens.js` (focusScreen), `app/src/forms/engine.js` (fm-title tabindex -1),
+  `app/src/three/scene.js` (shadow + all material/uniform textures disposed, `memory()`, `leftover`, no damping under
+  reduced motion), `app/src/phases/design/blueprint/editor.js` (Your rooms list), `app/styles/{tokens,base,design,life,paperwork}.css`.
+- Accessibility checklist (keyboard · screen reader · notes):
+  - Login: pass. Tabs are buttons with arrow keys, real labels, `role=alert` errors, Enter submits (lazy-plan.json registers by keyboard).
+  - Intake: pass. First field focused on mount, errors focus the first bad field (aria-invalid), live yearly/hourly line.
+  - Plan table: pass. Roving tabindex, arrows/Home/End, Enter opens detail, Esc returns focus to the cell (plan-keys.json ✓).
+    Detail title takes focus. Shot 1.
+  - Plan detail modal (narrow screens): pass. ui/modal.js focus trap + Esc + opener refocus.
+  - Paperwork forms: **fixed**. `.fm-title` had no tabindex, so paperworkScreen's step-change `focus()` silently failed and
+    focus fell to <body>; now tabindex -1 (no ring on programmatic focus). Labels/aria-describedby/role=alert summary were already there. Shot 2.
+  - Paperwork letters / choices / results: pass. Step titles tabindex -1 and focused on change; letter count and results are live/status.
+  - Design pickers (apartment, house, shared): pass. Buttons/selects, live counts, role=alert errors.
+  - Blueprint: **fixed**. Arrows/Shift+arrows/T/Delete only worked on a room picked with the mouse. New "Your rooms" button list
+    (aria-pressed) selects a room and moves focus to the plan so the keys work; the plan's aria-label says so. Shot 3.
+  - Life questions: pass. Radio groups (role=radio, roving), visible ring. Shot 4.
+  - Life live: pass. W hits the care button (ignored while typing), toasts and care appearances in polite live regions.
+    Reduced motion → calendar grid (life-live-reduced.json ✓).
+  - Life summary / year review: pass (headings + buttons; reached by the screen focus below).
+  - Portfolio drawer: pass. Focus trap, Esc, opener refocused (portfolio.json ✓).
+  - Admin console: pass. Sort headers are buttons with aria-sort, usernames are buttons, detail is a modal, errors role=alert.
+  - Every screen change: **fixed**. ui/screens.js now moves focus to the new screen's first h1/h2 (tabindex -1, class
+    screen-focus, no ring) unless the screen already focused something inside it or a modal holds focus.
+  - Reduced motion: **fixed**. The in-game setting (html[data-reduced-motion]) now zeroes all CSS transitions/animations like
+    the OS setting already did; OrbitControls damping is off under either.
+- Contrast (`node tools/contrast.mjs`, 72 pairs × 2 themes, AA 4.5 text / 3 UI): 4 light-theme failures fixed:
+  --muted #6b7581→#626b76 (4.28→4.94 on bg), --st-yellow #c99a06→#ad8300 (icon 2.52→3.40), --wb-social #d9a21b→#b5850f
+  (2.24→3.23; time-budget --tb-social matched). Also checks the OS-dark and data-theme dark blocks stay identical.
+- 3D (01 §10): pixel ratio cap 1.5, 1024² shadow map, merged geometry, render on demand and hidden-tab pause were already in
+  scene.js (task 32). Leak loop (tests/e2e/life-leak.json on life-month1-house): 10 × life→plan→life; live memory every pass
+  {geometries 81, textures 5}, after dispose {geometries 0, textures 1}, one canvas left. The 1 texture is three r186's own:
+  a bare scene with one shadow light also keeps 1 after LightShadow.dispose(); renderer.dispose + forceContextLoss free it.
+  Before this task 3 textures survived (shadow map render target wasn't disposed).
+- Lazy loading: lazy-plan.json registers → intake → plan → opens a cell, then asserts none of ~150 requests match three
+  (vendor or src/three), dictionary-en, nspell, firebasejs, accounts/firebase.js or persistence/firestore.js. It caught
+  main.js importing persistence/firestore.js statically (no SDK, but still Firebase code); now `import()` in Firebase mode only.
+- Verified: `bash tools/check.sh` OK (syntax 223 · tests · data 11 · contrast · smoke 77/77 · lazy-plan). e2e re-run:
+  plan-keys, intake, design-build, portfolio, life-flow, life-live-reduced, choose-home ✓; life-leak ✓; a11y-focus ✓.
+  Shots (tools/shots/t54/):
+  - 1-table-focus: Hilo shared-room cell with the sky-blue 3 px ring, rest of the table normal.
+  - 2-form-focus: rental application, "Where do you live now?" select with the sky ring after one Tab from the title.
+  - 3-blueprint-focus: Pāhoa build, lānai selected (handles, 14 × 6 ft) and nudged right by ArrowRight, ring round the plan,
+    "Your rooms" list with Lānai pressed.
+  - 4-life-questions-focus: January plan, exercise "Regular" option with its focus ring; no clipping.
+- Deviations: none.
+- Notes for later tasks:
+  - `tests/e2e/paperwork-flow.json` is stale (waits for task 19's `.pw-dev-done`; fails the same before this task). Task 56
+    should rewrite or delete it.
+  - Use `{"noRequests": [...]}` (regex sources) for any other lazy-loading claim; `page.requests` is every URL the tab asked for.
+  - `sceneApi.memory()` / `sceneApi.leftover` give renderer.info.memory live / after dispose.
+  - Not measured: the 600 KB compressed JS+CSS budget for login → plan.

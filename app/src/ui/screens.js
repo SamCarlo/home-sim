@@ -34,9 +34,23 @@ export async function renderPhase(container, ctx) {
   unmountCurrent(container);
   const unmount = await mod.mount(container, ctx);
   current = { phase, unmount: typeof unmount === 'function' ? unmount : null };
+  focusScreen(container);
 }
 
 /** The phase currently on screen, or null. */
 export function currentPhase() {
   return current?.phase ?? null;
+}
+
+/**
+ * After a screen change, move focus into the new screen (12 §4) unless the screen already focused something there
+ * (intake's first field, a step title): its first heading, else the container. Keeps keyboard and screen-reader users
+ * from being left on a removed element.
+ */
+function focusScreen(container) {
+  if (!container || container.contains(document.activeElement)) return;
+  if (document.querySelector('.modal-backdrop, [aria-modal="true"]')?.contains(document.activeElement)) return;
+  const target = container.querySelector('h1, h2') ?? container;
+  if (!target.hasAttribute('tabindex')) { target.setAttribute('tabindex', '-1'); target.classList.add('screen-focus'); }
+  target.focus({ preventScroll: true });
 }

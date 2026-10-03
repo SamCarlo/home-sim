@@ -165,6 +165,7 @@ export async function openPage(cdp, { width, height, origin, freshContext = fals
   const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank', ...(browserContextId ? { browserContextId } : {}) });
   const { sessionId } = await cdp.send('Target.attachToTarget', { targetId, flatten: true });
   const urls = new Map();
+  const requests = []; // every URL the page asked for, in order (the network log behind the noRequests step)
   const loadWaiters = new Set();
   const sameOrigin = (u) => { try { return new URL(u).origin === origin; } catch { return false; } };
   const off = cdp.on(sessionId, (method, p) => {
@@ -191,7 +192,7 @@ export async function openPage(cdp, { width, height, origin, freshContext = fals
         log.push({ kind: `log.${e.level}`, text: `${e.text}${e.url ? ` (${shortUrl(e.url)})` : ''}`, error: e.level === 'error' });
         break;
       }
-      case 'Network.requestWillBeSent': urls.set(p.requestId, p.request.url); break;
+      case 'Network.requestWillBeSent': urls.set(p.requestId, p.request.url); requests.push(p.request.url); break;
       case 'Network.responseReceived':
         if (p.response.status >= 400 && sameOrigin(p.response.url)) {
           log.push({ kind: 'network', text: `${p.response.status} ${shortUrl(p.response.url)}`, error: true });
@@ -210,7 +211,7 @@ export async function openPage(cdp, { width, height, origin, freshContext = fals
   await s('Network.setCacheDisabled', { cacheDisabled: true });
   await s('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
   return {
-    sessionId, targetId, send: s,
+    sessionId, targetId, send: s, requests,
     /** Resolve on the next load event (or reject after `ms`). */
     nextLoad(ms) {
       return new Promise((resolve, reject) => {

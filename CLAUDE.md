@@ -12,7 +12,9 @@ changing rules, adding a location). Keep their commands, labels and paths true w
 - Serve: `python3 tools/serve.py` → http://127.0.0.1:1270 (`python3 tools/serve.py 8080` for another port)
 - Test: `npm test` (= `node --test "tests/unit/*.test.js"`; Node 25 rejects a bare directory, see DEVIATIONS)
 - Train the letter model: `npm run train:letters` (corpus → `app/src/letters/model.json`; `--dry` reports only)
-- Check: `npm run check` (= `bash tools/check.sh`): syntax → unit tests → data imports → smoke. Run it before every commit.
+- Check: `npm run check` (= `bash tools/check.sh`): syntax → unit tests → data imports → contrast → smoke → lazy-plan network assertion. Run it before every commit.
+- Contrast: `node tools/contrast.mjs [--quiet]` checks every text/background token pair in tokens.css (+ life.css time-budget
+  ink) in both themes against WCAG AA. Add a pair to its `PAIRS` when you add a text or surface token.
 - Shoot: `node tools/shoot.mjs --path /index.html --out tools/shots/x.png --wait-ready` (see Verification below)
 - Rules tests (Firestore emulator, needs Java): `mise exec java@temurin-21 -- npm run test:rules` (~30 s). Java is a
   user-level mise install (`mise install java@temurin-21`, no sudo); always run the emulators through `mise exec`.
@@ -49,7 +51,7 @@ changing rules, adding a location). Keep their commands, labels and paths true w
     `--smoke <file>`.
   - Steps (JSON array): `{"click":css}` (real mouse at the center; `el.click()` when covered/zero-size), `{"type":[css,text]}`,
     `{"press":"Enter"}`, `{"wait":ms}`, `{"waitFor":css}`, `{"waitReady":true}`, `{"eval":js}` (prints JSON),
-    `{"assert":js}`, `{"shot":png}`, `{"goto":path}`, `{"offline":bool}` (CDP network emulation; cuts same-origin too). `tests/e2e/example.json` uses every one.
+    `{"assert":js}`, `{"shot":png}`, `{"goto":path}`, `{"offline":bool}` (CDP network emulation; cuts same-origin too), `{"noRequests":[regex…]}` (fails if any URL the tab has requested so far matches; task 54). `tests/e2e/example.json` uses every one.
   - Relative `--out`/`shot` paths resolve against the cwd; smoke shots always go to `HS/tools/shots/smoke-<name>.png`.
 - **Readiness**: shoot waits for `body[data-ready="1"]` with `--wait-ready`, `waitReady` and in every smoke line. A screen
   that never sets it times out.
@@ -672,6 +674,13 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 - `tests/unit/production.test.js` fails on any `console.log` under `app/` (use `console.warn`/`console.error`), on cache
   headers drifting from 11 §8, and on non-app files (logs, tests, maps, dotfiles) inside the hosted `app/` folder.
 - Admin class codes use `ACCOUNTS.classCodePattern` (4–12 chars), the same check as the student form.
+
+## Accessibility (12 §4, task 54)
+- Phase changes: `ui/screens.js` focuses the new screen's first h1/h2 (tabindex -1, `.screen-focus`) unless the screen focused
+  something itself. Titles you focus programmatically need `tabindex: '-1'` (`.pw-step-title`, `.fm-title`) or focus() silently fails.
+- Reduced motion = OS setting or `html[data-reduced-motion]`; base.css zeroes transitions/animations for both. Check both in new CSS.
+- Blueprint keyboard path: "Your rooms" buttons select a room and focus the SVG. e2e: `tests/e2e/a11y-focus.json` (focus shots),
+  `tests/e2e/life-leak.json` (10× life mount/unmount, `sc.memory()` / `sc.leftover`), `tests/e2e/lazy-plan.json` (in check.sh).
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

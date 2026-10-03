@@ -166,8 +166,19 @@ async function runStep(page, env, step, log) {
     case 'type': return type(page, arg[0], arg[1]);
     case 'press': return press(page, arg);
     case 'offline': return setOffline(page, !!arg, log);
+    case 'noRequests': return noRequests(page, arg, log);
     default: throw new Error(`unknown step ${JSON.stringify(step)}`);
   }
+}
+
+/** Fail if any request so far (the page's network log) matches one of the regex sources in `patterns`. */
+function noRequests(page, patterns, log) {
+  const list = [].concat(patterns);
+  for (const src of list) {
+    const hit = page.requests.find((u) => new RegExp(src).test(u));
+    if (hit) throw new Error(`noRequests: /${src}/ matched ${hit}`);
+  }
+  log.push({ kind: 'assert', text: `ok none of ${page.requests.length} requests match ${list.map((x) => `/${x}/`).join(' ')}` });
 }
 
 /** Emulate losing or regaining the network (CDP Network.emulateNetworkConditions; fires offline/online events). */

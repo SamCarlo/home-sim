@@ -94,6 +94,13 @@ a { color: var(--accent-ink); }
   border-radius: var(--r-pill); background: var(--sky-wash); color: var(--sky-deep);
   font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
 
+/* Reduced motion (12 §4): the OS setting or the in-game one (settings.js sets html[data-reduced-motion]). */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
 }
+:root[data-reduced-motion] *, :root[data-reduced-motion] *::before, :root[data-reduced-motion] *::after {
+  transition-duration: 0ms !important; animation-duration: 0ms !important;
+}
+
+/* A screen's heading takes focus on a phase change (ui/screens.js) so screen readers announce it; no ring for that. */
+.screen-focus:focus { outline: none; }

@@ -83,7 +83,7 @@ export function createScene(container, opts = {}) {
 
   const controls = new OrbitControls(camera, canvas);
   Object.assign(controls, {
-    enableDamping: true, dampingFactor: 0.08, enabled: interactive, screenSpacePanning: false,
+    enableDamping: !reducedMotion(), dampingFactor: 0.08, // no glide after a drag when motion is reduced (12 §4) enabled: interactive, screenSpacePanning: false,
     minPolarAngle: SCENE3D.polarMinDeg * DEG, maxPolarAngle: SCENE3D.polarMaxDeg * DEG,
   });
 
@@ -172,6 +172,8 @@ export function createScene(container, opts = {}) {
     /** Run loopFn(dt, seconds) every frame until stop(); pauses while the tab is hidden. */
     start(fn) { loopFn = fn; if (pending) { cancelAnimationFrame(pending); pending = 0; } if (!loopId && !document.hidden) loopId = requestAnimationFrame(tick); },
     stop() { loopFn = null; cancelAnimationFrame(loopId); loopId = 0; lastT = 0; requestRender(); },
+    /** Live GPU objects: {geometries, textures} from renderer.info.memory (task 54 leak loop). */
+    memory() { return { ...renderer.info.memory }; },
     /** Free geometries, materials, textures and the renderer (08 §2). */
     dispose() {
       if (disposed) return;
@@ -182,10 +184,13 @@ export function createScene(container, opts = {}) {
       controls.dispose();
       scene.traverse((o) => {
         o.geometry?.dispose();
+        o.shadow?.map?.depthTexture?.dispose();
+        o.shadow?.dispose(); // the shadow map render target
         const ms = Array.isArray(o.material) ? o.material : o.material ? [o.material] : [];
-        ms.forEach((m) => { m.map?.dispose(); m.dispose(); });
+        ms.forEach((m) => { texturesOf(m).forEach((t) => t.dispose()); m.dispose(); });
       });
       disposeMaterials();
+      api.leftover = { ...renderer.info.memory }; // GPU objects still alive after disposal; {geometries: 0, textures: 0} = no leak
       renderer.dispose();
       renderer.forceContextLoss();
       canvas.remove();
@@ -201,4 +206,16 @@ export function createScene(container, opts = {}) {
   api.setTimeOfDay(opts.timeOfDay ?? SCENE3D.timeOfDay);
   api.setSeason(opts.monthIndex ?? 0);
   return api;
+}
+
+/** Every texture a material holds: its maps (map, emissiveMap, alphaMap…) and any shader uniform textures. */
+function texturesOf(m) {
+  const out = Object.values(m).filter((v) => v?.isTexture);
+  for (const u of Object.values(m.uniforms ?? {})) if (u?.value?.isTexture) out.push(u.value);
+  return out;
+}
+
+/** The OS or in-game reduced-motion setting (html[data-reduced-motion], ui/portfolio/settings.js). */
+function reducedMotion() {
+  return document.documentElement.hasAttribute('data-reduced-motion') || !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }

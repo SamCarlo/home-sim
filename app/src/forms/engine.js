@@ -24,7 +24,7 @@ export function renderForm(container, schema, { values: given = {}, state = null
   const summary = h('p', { class: 'fm-summary', role: 'alert', hidden: true });
   const form = h('form', { class: `fm-form${readOnly ? ' is-readonly' : ''}`, noValidate: true, 'aria-labelledby': `${uid}-title` },
     h('header', { class: 'fm-head' },
-      h('h2', { class: 'fm-title', id: `${uid}-title` }, schema.title),
+      h('h2', { class: 'fm-title', id: `${uid}-title`, tabindex: '-1' }, schema.title),
       schema.intro ? h('p', { class: 'fm-intro' }, schema.intro) : null,
       readOnly ? h('p', { class: 'fm-progress muted' }, 'Read-only copy of what you signed.')
         : [progress, h('p', { class: 'fm-legend-note muted small' }, h('span', { class: 'fm-req', 'aria-hidden': 'true' }, '*'), ' = required')]),

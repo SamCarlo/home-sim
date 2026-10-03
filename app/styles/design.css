@@ -148,6 +148,7 @@
 .bp-sw-office { background: #ddd4f1; } .bp-sw-hallway { background: #e7e7e2; } .bp-sw-closet { background: #dcd6cc; }
 .bp-sw-laundry { background: #cdeef0; } .bp-sw-kitchen { background: #f6c9c0; } .bp-sw-bathroom { background: #c0e6d6; }
 .bp-sw-garage { background: #d6dade; } .bp-sw-lanai { background: #e2ecc9; }
+.bp-room-pick[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-ink); background: var(--accent-wash); }
 .bp-row { display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center; margin: 0 0 var(--sp-2); }
 .bp-row select { padding: 5px 8px; border-radius: var(--r-sm); border: 1px solid var(--field-line); background: var(--field); color: var(--ink); font: inherit; }
 .bp-room-name { margin: 0 0 var(--sp-2); font-weight: 600; }

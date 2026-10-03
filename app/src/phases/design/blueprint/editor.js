@@ -58,7 +58,7 @@ export async function mount(container, { store }) {
   svg.setAttribute('class', 'bp-svg');
   svg.setAttribute('tabindex', '0');
   svg.setAttribute('role', 'application');
-  svg.setAttribute('aria-label', 'Floor plan editor. Arrows move the selected room, Shift+arrows resize it, T changes its type, Delete removes it.');
+  svg.setAttribute('aria-label', 'Floor plan editor. Pick a room under Your rooms, then arrows move it, Shift+arrows resize it, T changes its type, Delete removes it.');
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
   const lotLayer = document.createElementNS(SVGNS, 'g');
   const roomLayer = document.createElementNS(SVGNS, 'g');
@@ -204,6 +204,10 @@ export async function mount(container, { store }) {
           h('button', { class: 'btn btn-secondary btn-small', type: 'button', onClick: () => select(null) }, 'Done')),
         h('p', { class: 'muted bp-help' }, 'Drag to move, drag the white squares to resize. Keys: arrows move, Shift+arrows resize, T changes the type, Delete removes.')));
     }
+    // Keyboard path to a room (12 §4): pick it here, then the plan takes focus so the arrow keys move it.
+    if (bp.rooms.length) panel.append(section('Your rooms', h('div', { class: 'bp-row bp-room-list' }, bp.rooms.map((r) => h('button', {
+      class: 'btn btn-secondary btn-small bp-room-pick', type: 'button', 'aria-pressed': String(r.id === sel), dataset: { focusKey: `pick-${r.id}` },
+      onClick: () => { select(r.id); svg.focus({ preventScroll: true }); } }, roomName(bp, r))))));
     let addType = 'bedroom';
     panel.append(section('Add a room',
       h('div', { class: 'bp-row' },

@@ -12,7 +12,6 @@ import { migrate } from './state/migrate.js';
 import { createStore } from './state/store.js';
 import { attach } from './state/persistence.js';
 import { createLocalAdapter } from './persistence/local.js';
-import { createFirestoreAdapter } from './persistence/firestore.js';
 import { selectProvider, chooseMode } from './accounts/provider.js';
 import { applySettings } from './ui/portfolio/settings.js';
 
@@ -47,7 +46,10 @@ async function boot() {
   const accounts = await selectProvider({ firebaseMode, emulator, config: firebaseConfig });
   await accounts.init();
   // Firebase mode saves to Firestore (11 §6, task 51); local mode and seeds use localStorage.
-  const remoteAdapter = accounts.kind === 'firebase' ? createFirestoreAdapter({ db: accounts.db, firestore: accounts.sdk.firestore }) : null;
+  // The Firestore adapter loads only in Firebase mode, so local play never requests it (01 §10).
+  const remoteAdapter = accounts.kind === 'firebase'
+    ? (await import('./persistence/firestore.js')).createFirestoreAdapter({ db: accounts.db, firestore: accounts.sdk.firestore })
+    : null;
   const localAdapter = createLocalAdapter();
   let game = null; // { store, persistence, unsubscribe, devPanel, user }
 

@@ -151,7 +151,7 @@
 
 /* Time budget bar (09 §4): a storage-style bar with a bracket over the free time. */
 .life { --tb-job: #3f6fb5; --tb-commute: #7b8794; --tb-care: #5aa5a0; --tb-chores: #a07a4f; --tb-exercise: #e0603a;
-  --tb-extra: #2f4f7f; --tb-social: #d9a21b; --tb-deep: #8a5cc9; --tb-orange: #d9711c; --tb-orange-ink: #8a4410; }
+  --tb-extra: #2f4f7f; --tb-social: #b5850f; --tb-deep: #8a5cc9; --tb-orange: #d9711c; --tb-orange-ink: #8a4410; }
 :root[data-theme="dark"] .life { --tb-orange: #ff9d4d; --tb-orange-ink: #ffc38f; --tb-extra: #6f8fc4; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .life { --tb-orange: #ff9d4d; --tb-orange-ink: #ffc38f; --tb-extra: #6f8fc4; } }
 .tb { display: flex; flex-direction: column; gap: 5px;
