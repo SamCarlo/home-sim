@@ -60,3 +60,6 @@ design-house-katy /index.html?seed=design-house-katy
 design-shared-honolulu /index.html?seed=design-shared-honolulu
 design-build-pahoa /index.html?seed=design-build-pahoa&theme=light
 design-build-template /index.html?seed=design-build-template
+blueprint3d-tiny /index.html?dev=blueprint3d&template=tiny&loc=pahoa
+blueprint3d-cozy /index.html?dev=blueprint3d&template=cozy&loc=pahoa
+blueprint3d-family /index.html?dev=blueprint3d&template=family&loc=pahoa

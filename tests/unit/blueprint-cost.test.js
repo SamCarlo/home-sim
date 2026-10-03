@@ -9,6 +9,8 @@ import { blueprintCost, costIndex, wallLength } from '../../app/src/phases/desig
 import { addYardItem, hasFence, moveYardItem, setFence } from '../../app/src/phases/design/blueprint/yard.js';
 import { moveInBuild } from '../../app/src/phases/design/blueprint/moveIn.js';
 import { designBudgetCents } from '../../app/src/finance/build.js';
+import { cash } from '../../app/src/finance/ledger.js';
+import { DESIGN } from '../../app/src/config.js';
 import { seeds } from '../../app/src/dev/seeds.js';
 
 const BUILDABLE = LOCATIONS.filter((l) => l.housing.build?.available);
@@ -137,4 +139,22 @@ test('Move in writes home, plants and hens only for a valid plan', () => {
   assert.equal(s.home.blueprint, bp);
   assert.equal(s.home.plants.length, 2);
   assert.equal(s.home.animals.filter((a) => a.kind === 'chicken').length, 3);
+});
+
+test('Move in adopts the optional pet from savings, and refuses when cash is short', () => {
+  const s = seeds['design-build-template'].build(Date.UTC(2026, 8, 1));
+  const bp = s.home.blueprint;
+  const before = cash(s);
+  const res = moveInBuild(s, bp, { pet: 'dog' });
+  assert.equal(res.ok, true);
+  assert.equal(cash(s), before - DESIGN.house.petCents.dog);
+  const dog = s.home.animals.find((a) => a.kind === 'dog');
+  assert.ok(dog && dog.name && dog.spot === 'yard');
+  const poor = seeds['design-build-template'].build(Date.UTC(2026, 8, 1));
+  poor.finances.checkingCents = 0;
+  poor.finances.savingsCents = 100;
+  const r2 = moveInBuild(poor, poor.home.blueprint, { pet: 'cat' });
+  assert.equal(r2.ok, false);
+  assert.ok(r2.shortfallCents > 0);
+  assert.notEqual(poor.phase, 'life');
 });

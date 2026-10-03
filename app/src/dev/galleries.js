@@ -13,6 +13,7 @@ export const galleries = {
   styles: () => import('./stylesGallery.js'),
   buildings: () => import('./buildingsGallery.js'),
   houses: () => import('./housesGallery.js'),
+  blueprint3d: () => import('./blueprint3dGallery.js'),
 };
 
 /** Mount gallery `name` into root. Returns false when no such gallery exists. */

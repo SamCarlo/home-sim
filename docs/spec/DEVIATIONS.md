@@ -223,3 +223,13 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   `moveInBuild` (home.blueprint, home.build, plants from beds/trees, 3 hens per coop, lifestyle, phase life); task 41 adds
   the 3D split view and the optional pet. Yard items may sit in the setbacks (only rooms must stay out), and a room on a
   yard item is an error. Where: `phases/design/blueprint/moveIn.js`, `validate.js`.
+- 2026-10-02, task 41, blueprint 3D origin: 08 §5 puts a home's origin at the lot center, but lots run up to 150 × 290 ft
+  while the decorated lot pad is ±60 ft. `blueprintTo3d.build` puts the lot's front edge (the street) at
+  z = `BLUEPRINT.view3d.streetZ` (46, the same as `HOUSE.streetZ`) and centers the lot across x, so a blueprint sits on
+  the pad and frames like a generated house. Lānai have a deck, corner posts and a roof but no outside walls; solar is a
+  ground array behind the house and the catchment tank stands beside it (07 §5 calls them yard items). Where:
+  `three/blueprintTo3d.js`.
+- 2026-10-02, task 41, split view and pet: 07 §5's split (editor ~55%, 3D ~45%) is a three-column grid: plan | 3D |
+  the 340 px panel (plan and 3D stack beside the panel from 900–1199 px, all stack under 900 px). The optional pet is a
+  select above Move in; it's adopted from savings at the house picker's prices (`DESIGN.house.petCents`) and Move in
+  refuses with the shortfall if cash is short. Where: `phases/design/blueprint/editor.js`, `view3d.js`, `moveIn.js`.

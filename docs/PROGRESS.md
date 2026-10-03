@@ -1446,3 +1446,34 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     'design-finalized'. `validateBlueprint(bp, buildContext(state))` is the one call for errors + cost.
   - Yard item labels are tiny on 4 ft beds at the default zoom; fine when zoomed in.
   - The ʻokina spacing open item shows in "Required in Hawaiʻi".
+
+## Task 41 — Blueprint to live 3D preview
+- attempt started 2026-10-02T17:13:47-10:00
+- done 2026-10-02T17:22:04-10:00
+- Files: new `three/blueprintTo3d.js` (build → 08 §5 contract), `phases/design/blueprint/view3d.js` (debounced split
+  view, camera kept), `dev/blueprint3dGallery.js` (+ `dev/galleries.js`); changed `blueprint/editor.js` (3D column,
+  rebuild on save, pet select, dispose on unmount), `blueprint/moveIn.js` (optional pet from savings), `config.js`
+  (`BLUEPRINT.view3d`), `styles/design.css` (`.bp-split` grid), `tools/smoke.txt` (3 blueprint3d lines),
+  `tests/unit/blueprint-cost.test.js` (pet test), new e2e `tests/e2e/design-build-3d.json`; CLAUDE.md, DEVIATIONS.md.
+- Verified: `bash tools/check.sh` OK (186 files, smoke 63/63); `node --test tests/unit/blueprint-cost.test.js` 8/8; task 39
+  and task 40 e2e still OK; `node tools/shoot.mjs --path "/index.html?seed=design-build-pahoa&theme=light" --steps
+  tests/e2e/design-build-3d.json --wait-ready --out tools/shots/t41/0-start.png` OK (empty lot builds once → Cozy template
+  → pending at 80 ms, rebuilt at 680 ms with 6 rooms → rotated camera kept across a rebuild with coop/beds/tree + hip roof +
+  board-and-batten, 65 calls / 9.9k tris → Move in with a cat → phase life, 6 rooms, 3 plants, 3 hens + cat).
+  Shots in tools/shots/t41/ (read):
+  - 1-tiny/cozy/family-pahoa.png: gallery with full yard: plantation siding, metal gable roof per room with white fascia,
+    lānai deck + posts, doors and windows, driveway + car, fence on three sides, catchment tank, fruit tree; 91/150 calls,
+    12.1k–13.7k tris, built in 47–62 ms.
+  - 2-split-cozy.png: plan | 3D | panel; the 3D Cozy matches the plan (lānai front-left, kitchen right with its door).
+  - 3-split-mid-edit.png: Bedroom 1 selected with handles on the plan; 3D shows the hip roof, batten siding, coop and
+    beds behind the tree, camera rotated by the test and kept.
+  - 4-moved-in.png: Phase 4 placeholder after Move in.
+  - 5-family-montpelier-winter.png: snowy Montpelier, brick siding with red shutters, 78 calls.
+- Deviations: blueprint origin at the street (z = 46) rather than lot center; lānai without outside walls; solar/catchment
+  ground placement; three-column split; pet from savings (DEVIATIONS.md).
+- Notes for later tasks:
+  - Task 42 (homeRender): call `build(home.blueprint, {style: loc.styleFamily, styleVariant, biome, season, snow, seed:
+    seedFor(meta.seed, 'build')}` for builds. Plants/animals have `spot` = yard item id; map them with the item's center
+    (X = x + w/2 − lot width/2, Z = 46 − (y + h/2)). `plantSpots` = bed centers, `animalSpots` = coops (+5 z), by the door, the side yard.
+  - The narrower plan column wraps the editor toolbar onto two rows at 1366 px; still usable.
+  - Yard items sit behind the house by default, so the front 3D angle often hides them behind the house/tree.

@@ -1,6 +1,7 @@
 // Blueprint editor screen (07 §5, tasks 39–40): an SVG plan of the lot with select / move / resize / draw / delete,
 // door and window tools, the keyboard, zoom and pan, 50-step undo/redo, templates, roof/exterior/yard panels, the
-// budget bar and a status bar. The working blueprint is a draft in state.home.blueprint. Task 41 adds the 3D split view.
+// budget bar and a status bar. The working blueprint is a draft in state.home.blueprint. The 3D split view (task 41,
+// view3d.js) rebuilds after each change; Move in takes an optional pet.
 import { h } from '../../../ui/dom.js';
 import { confirmDialog } from '../../../ui/modal.js';
 import { formatMoney } from '../../../util/format.js';
@@ -10,13 +11,16 @@ import { ROOM_TYPES, ROOM_TYPE_IDS, addRoom, buildArea, createBlueprint, findFre
   removeRoom, resizeRoom, moveRoom, roomAt, roomName, roomArea, setRoomType, toggleOpening, editWindow } from './model.js';
 import { moveYardItem, removeYardItem, YARD_KINDS } from './yard.js';
 import { buildContext, moveInBuild } from './moveIn.js';
+import { createBlueprintView } from './view3d.js';
+import { PET_LABELS } from '../houseModel.js';
+import { seedFor } from '../../../util/rng.js';
 import { budgetPanel, checksPanel, outsidePanel, yardPanel } from './panels.js';
 import { styleFamily } from '../../../data/styleFamilies.js';
 import { problemRoomIds, validateBlueprint } from './validate.js';
 import { TEMPLATES, TEMPLATE_IDS, applyTemplate } from './templates.js';
 import { applyRoomAction, createHistory, drawRect, drawable, keyAction, moveRect, resizeRect, zoomView } from './tools.js';
 import { fitView, lotMarkup, roomsMarkup, roomsView } from './canvas.js';
-import { BLUEPRINT } from '../../../config.js';
+import { BLUEPRINT, DESIGN } from '../../../config.js';
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 const HANDLE_PX = 11;
@@ -45,6 +49,9 @@ export async function mount(container, { store }) {
   let draft = null;         // rect while drawing
   let spaceHeld = false;
   let popover = null;
+  let view3d = null;
+  let pet = 'none';
+  let alive = true;
 
   // ---- DOM ----
   const svg = document.createElementNS(SVGNS, 'svg');
@@ -75,13 +82,17 @@ export async function mount(container, { store }) {
   const panel = h('div', { class: 'dz-panel-body' });
   const moveBtn = h('button', { class: 'btn btn-primary dz-movein', type: 'button', disabled: true, onClick: () => moveIn() }, 'Move in');
   const moveNote = h('div', { class: 'bp-movein-note', 'aria-live': 'polite' });
-  const root = h('section', { class: 'dz bp' }, stageWrap,
+  const petSelect = h('label', { class: 'bp-row bp-pet' }, 'A pet ', h('select', { class: 'bp-pet-select', onChange: (e) => { pet = e.target.value; } },
+    Object.entries(PET_LABELS).map(([id, label]) => h('option', { value: id }, id === 'none' ? label : `${label}, ${formatMoney(DESIGN.house.petCents[id])}`))));
+  const view3dWrap = h('div', { class: 'dz-stage-wrap bp-3d', 'aria-label': '3D preview of your house' },
+    h('p', { class: 'dz-loading muted' }, 'Loading 3D…'));
+  const root = h('section', { class: 'dz bp bp-split' }, stageWrap, view3dWrap,
     h('aside', { class: 'dz-panel', 'aria-label': 'Blueprint' },
       h('p', { class: 'dz-eyebrow' }, `Phase 3 · ${loc.name}`),
       h('h1', { class: 'dz-title' }, 'Design your house'),
       h('p', { class: 'dz-intro muted' }, `Your lot is ${bp.lot.widthFt} × ${bp.lot.depthFt} ft. Draw rooms inside the dashed line, `
         + 'or start from a template and change it.'),
-      panel, moveBtn, moveNote));
+      panel, petSelect, moveBtn, moveNote));
   container.append(root);
 
   // ---- coordinates ----
@@ -101,7 +112,7 @@ export async function mount(container, { store }) {
   const ftPerPx = () => Math.max(view.w / (svg.clientWidth || 1), view.h / (svg.clientHeight || 1));
 
   // ---- state changes ----
-  function save() { store.update((s) => { s.home.blueprint = bp; }); }
+  function save() { store.update((s) => { s.home.blueprint = bp; }); view3d?.update(bp); }
   const exists = (id) => bp.rooms.some((r) => r.id === id) || bp.yard.some((y) => y.id === id);
   function commit(next) {
     if (!next || next === bp) return;
@@ -144,8 +155,11 @@ export async function mount(container, { store }) {
   }
   function moveIn() {
     let res = null;
-    store.update((s) => { res = moveInBuild(s, bp); }, { checkpoint: 'design-finalized' });
-    if (res && !res.ok) render();
+    store.update((s) => { res = moveInBuild(s, bp, { pet }); }, { checkpoint: 'design-finalized' });
+    if (res && !res.ok) {
+      render();
+      if (res.shortfallCents) moveNote.replaceChildren(h('p', { class: 'bp-movein-why' }, `Not enough savings for the pet: ${formatMoney(res.shortfallCents)} short. Pick No pet to move in.`));
+    }
   }
 
   function fillPanel() {
@@ -354,9 +368,17 @@ export async function mount(container, { store }) {
   applyView();
   render();
   window.__blueprint = { get bp() { return bp; }, get sel() { return sel; }, get history() { return history.depth; },
-    toClient, result: () => result };
+    toClient, result: () => result, get view3d() { return view3d; } };
+  createBlueprintView(view3dWrap, { location: loc, palette: 0, seed: seedFor(state.meta.seed, 'build') }).then((v) => {
+    view3dWrap.querySelector('.dz-loading')?.remove();
+    if (!alive) { v?.dispose(); return; }
+    view3d = v;
+    v?.rebuildNow(bp);
+  });
   document.body.dataset.ready = '1';
   return () => {
+    alive = false;
+    view3d?.dispose();
     ro.disconnect();
     document.removeEventListener('keydown', onKey);
     document.removeEventListener('keyup', onKeyUp);

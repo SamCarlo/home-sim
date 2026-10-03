@@ -418,6 +418,12 @@ export const BLUEPRINT = {
   sidings: ['board', 'board-and-batten', 'stucco', 'brick', 'log', 'vinyl'],
   wallColors: ['#e9e2d0', '#f4efe6', '#c9d8c5', '#b8cde0', '#e8c9a0', '#9c6b4f'],
   trimColors: ['#ffffff', '#2f3a40', '#7a5a3a', '#5a7d6a'],
+  view3d: {                    // live 3D (07 §5, 08 §5, task 41)
+    debounceMs: 250,            // rebuild this long after the last change
+    streetZ: 46,                // the lot's front edge in the scene (= HOUSE.streetZ, so blueprints frame like houses)
+    slabFt: 0.6, wallFt: 9, wallThickFt: 0.5, doorFt: 7, sillFt: 3, windowFt: 4, eaveFt: 1.2,
+    pitch: { gable: 0.42, hip: 0.42, shed: 0.2, flat: 0 },
+  },
   maxSolarKw: 8,
   catchmentSizes: [0, 5000, 10000, 15000, 20000],
   cost: {                       // 07 §5 cost formula

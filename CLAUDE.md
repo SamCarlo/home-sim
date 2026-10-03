@@ -69,9 +69,9 @@ app/src/ui/                    dom.js (h, clear, qs) · screens.js (registerScre
                                agreementDoc.js registerAgreementDoc/agreementSchema)
 app/src/forms/                 engine.js (renderForm) · fields.js (field kinds) · validate.js (pure rules + helpers)
 app/src/dev/                   flags.js (devAllowed, getFlag) · galleries.js (?dev=<name> registry) · vendorCheck.js
-                               seeds.js (fixtures) · designSeeds.js (design-* seeds, addDesignSeeds) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles) · buildingsGallery.js (?dev=buildings) · housesGallery.js (?dev=houses)
+                               seeds.js (fixtures) · designSeeds.js (design-* seeds, addDesignSeeds) · sampleLetters.js · devPanel.js (?dev=1) · gallery2d.js (?dev=gallery2d) · formsGallery.js (?dev=forms) · lettersGallery.js (?dev=letters) · sceneGallery.js (?dev=scene) · propsGallery.js (?dev=props) · stylesGallery.js (?dev=styles) · buildingsGallery.js (?dev=buildings) · housesGallery.js (?dev=houses) · blueprint3dGallery.js (?dev=blueprint3d)
 app/src/three/                 scene.js sky.js terrain.js landmarks.js materials.js · props.js propKit.js animals.js yard.js
-                               character.js · styles.js styleParts.js styleSwatch.js · buildingGen.js buildingParts.js · houseGen.js houseYard.js
+                               character.js · styles.js styleParts.js styleSwatch.js · buildingGen.js buildingParts.js · houseGen.js houseYard.js · blueprintTo3d.js
                                (browser only, import() lazily; see 3D scene)
 app/vendor/                    three/ (+addons/) nspell/ dictionary-en/ vader/ · VERSIONS.md (pinned, licensed)
 app/src/phases/<phase>/        one screen per phase (placeholders until their tasks); design/blueprint/ = the build editor
@@ -433,7 +433,7 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 
 ## Phase 3: Design (07, `app/src/phases/design/`)
 - `designScreen.js` routes by `home.kind`: apartment/condo → `apartmentPicker.js`, house → `housePicker.js`, shared →
-  `sharedPicker.js`, build → `blueprint/editor.js` (task 39; the 3D split view comes in task 41).
+  `sharedPicker.js`, build → `blueprint/editor.js` (task 39; 3D split view task 41).
 - Apartment/condo picker (task 36, 07 §2): pure `apartmentModel.js` `buildingOptions(state)` → 3 × `{index, seed
   (seedFor(meta.seed, 'building', i)), name, plan, form, formLabel, amenities, floors}`; `unitTraits(locId, option, floor,
   unit)` → `{view, noise −1…1, sun, stairs (flights), lotsOfStairs}`; `lifestyleFor`, `traitNotes`, `unitLabel` ("Unit 4B" /
@@ -485,6 +485,20 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `moveInBuild(state, bp)` refuses with errors, else writes home.blueprint/build/plants/animals and phase 'life'.
   Tunables `BLUEPRINT.yardKinds/cost/roofStyles/sidings/…Colors/maxSolarKw/catchmentSizes`. e2e
   `tests/e2e/design-build-features.json` (`window.__tap(lotPoint)`, `window.__pick(focusKey, value)`).
+- Blueprint 3D (task 41, 08 §5): `three/blueprintTo3d.js` `build(bp, {style, styleVariant, palette, biome, season, snow,
+  seed})` → 08 §5 contract + `{kit, info {rooms, walls, openings, yard}}`. The street (lot front, bp y = 0) is at
+  z = `BLUEPRINT.view3d.streetZ` (46), x = bp.x − lot width / 2. One merged mesh per material: lawn (edit window),
+  sidewalk, slabs (lānai = deck + posts, no outside walls), exterior wall segments + each shared wall once (texBox 0.5 ft,
+  9 ft), doors/windows facing out (`addDoor`/`addWindow`), interior doors as panels, garage doors, a roof per room
+  (`addRoof`, pitch from `view3d.pitch`), driveway/patio/rain garden; beds/plants/fruit trees instanced, coop, fence, car on the
+  driveway, solar array behind, catchment tank beside. The kit = the family's look with the student's siding/roof
+  textures and colors (storefront windows become grid). Builds take ~50–60 ms; templates are 65–91 calls, ≤ 14k tris.
+  `blueprint/view3d.js` `createBlueprintView(container, {location, palette, seed})` → `{update(bp) (debounced
+  view3d.debounceMs), rebuildNow, scene, pending, builds, info, current, firstFrame, dispose}`; frames on the first build
+  and when the first room appears, otherwise keeps the camera. The editor calls `view3d.update(bp)` in `save()` (every
+  commit/undo/redo); `window.__blueprint.view3d`. `moveInBuild(state, bp, {pet})` adopts a pet from savings. Gallery
+  `?dev=blueprint3d&template=tiny|cozy|family&loc=&yard=0|1&roof=&siding=&t=&month=` (`window.__bp3d`); e2e
+  `tests/e2e/design-build-3d.json` (template → rebuild → camera kept → Move in with a cat → phase life).
 - `scene.setPanLimits({half, yMax})` widens the pan clamp (default ±`SCENE3D.lotHalf`, look-at y ≤ 40).
 
 ## Gotchas
