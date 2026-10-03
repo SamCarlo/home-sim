@@ -1409,3 +1409,40 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
     in `state.home.blueprint` (saved without checkpoint on every commit); Move in (`.dz-movein`) is disabled for now.
   - e2e pointer drags: `tests/e2e/design-build.json` defines `window.__drag(startLot, endLot)` that dispatches synthetic
     PointerEvents (shoot's `click` can't click SVG elements: they have no `.click()`).
+
+## Task 40 — Blueprint: doors, windows, roof, exterior, yard, cost vs budget
+- attempt started 2026-10-02T16:27:46-10:00
+- done 2026-10-02T16:37:25-10:00
+- Files: new `phases/design/blueprint/cost.js` (pure: blueprintCost itemized lines/groups, costIndex, wallLength,
+  needsSolarWaterHeater, needsCatchment), `yard.js` (pure: addYardItem, moveYardItem, removeYardItem, setFence, hasFence,
+  findYardSpot, coveredYard), `moveIn.js` (pure: buildContext, moveInBuild), `panels.js` (outsidePanel, yardPanel,
+  budgetPanel, checksPanel); changed `validate.js` (opts {location, budgetCents, included}; reachableRooms BFS, no-entry,
+  unreachable, bedroom-window, catchment, budget, yard-overlap errors; one-exit, living-dark, bath-kitchen warnings;
+  returns cost), `model.js` (toggleOpening `tol`), `canvas.js` (yardMarkup, haloed openings, roomsView frames yard),
+  `editor.js` (Door/Window tools, Rooms / Roof & walls / Yard tabs, budget panel, yard select/drag/arrows/Delete, status
+  cost, Move in with the error list), `houseModel.js` (exports HEN_NAMES/PET_NAMES), `config.js` BLUEPRINT (yardKinds,
+  roof/siding/colors, cost block), `styles/design.css`; tests `tests/unit/blueprint-cost.test.js` (7), task 39's
+  validation test scoped to its own rules; e2e `tests/e2e/design-build-features.json`.
+- Verified: `bash tools/check.sh` OK (183 files, smoke 60/60); `node --test tests/unit/blueprint-cost.test.js` 7/7 (all 3
+  templates pass every rule and fit their tier in all 19 buildable locations, at 86–96% of budget); the task 39 e2e still OK;
+  `node tools/shoot.mjs --path "/index.html?seed=design-build-template&theme=light" --steps tests/e2e/design-build-features.json
+  --wait-ready --out tools/shots/t40/0-start.png` OK. Shots in tools/shots/t40/ (read):
+  - 1-doors-windows.png: Pāhoa Cozy with a new kitchen window and a bedroom side door; inside doors brown, outside doors
+    orange, windows dashed blue, all haloed; Door tool pressed; budget $370,195 of $412,500, green bar, $42,305 left.
+  - 2-yard-under.png: coop, 2 garden beds and a fruit tree placed just behind the house; Yard tab with the 6 add buttons
+    ("2 placed"), selected garden bed card; status "Plan OK", green bar.
+  - 2b-breakdown.png: itemized lines (rooms by type with sq ft × mult × $375, roof, walls, doors, windows, yard, solar
+    water heater "Required in Hawaiʻi").
+  - 3-over.png / 3a-over-bar.png: 8 kW solar, fence (dashed outline on the 120 ft window), tile roof, brick, a window removed
+    and an unconnected Bedroom 3 → red bar "$46,445 over budget", red status cost, 3 red checks, Move in disabled with
+    the same 3 reasons listed under it.
+  - 4-moved-in.png: after 6 undos the plan is valid; Move in → Phase 4 placeholder (3 plants, 3 hens).
+  - smoke-design-build-template.png (dark): panels readable on the dark surface.
+- Deviations: site-utilities solar/catchment not charged twice; fence = the editing window outline; basic Move in in
+  task 40 (DEVIATIONS.md).
+- Notes for later tasks:
+  - Task 41: `moveInBuild(state, bp)` already writes home.blueprint, home.build {sqft, beds, baths}, plants (spot = yard
+    item id), hens (spot = coop id), lifestyle; add the optional pet and the 3D there. The editor calls it with checkpoint
+    'design-finalized'. `validateBlueprint(bp, buildContext(state))` is the one call for errors + cost.
+  - Yard item labels are tiny on 4 ft beds at the default zoom; fine when zoomed in.
+  - The ʻokina spacing open item shows in "Required in Hawaiʻi".

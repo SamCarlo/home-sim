@@ -192,10 +192,9 @@ export function pruneOpenings(bp) {
 /**
  * Toggle a door or window at lot point (x, y) (07 §5): removes an opening of that kind covering the point, otherwise
  * adds one centered there (clamped into the wall segment). Doors go on shared or exterior walls, windows on exterior
- * walls only. Returns the blueprint unchanged when the point isn't on a usable wall or the opening would overlap another.
+ * walls only. `tol` is how far (ft) from the wall a click still counts. Returns the blueprint unchanged when the point isn't on a usable wall or the opening would overlap another.
  */
-export function toggleOpening(bp, { kind, x, y, widthFt }) {
-  const tol = 0.75;
+export function toggleOpening(bp, { kind, x, y, widthFt, tol = 0.75 }) {
   const segs = openingSegments(bp, kind).filter((s) => (isVertical(s)
     ? Math.abs(x - s.x1) <= tol && y >= s.y1 - EPS && y <= s.y2 + EPS
     : Math.abs(y - s.y1) <= tol && x >= s.x1 - EPS && x <= s.x2 + EPS));

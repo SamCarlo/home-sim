@@ -403,6 +403,32 @@ export const BLUEPRINT = {
     lanai: { label: 'Lānai', mult: 0.45, minSqft: 40 },
   },
   required: ['bedroom', 'bathroom', 'kitchen', 'living'],
+  // Yard items (07 §5, task 40): default size in feet and price. Fence is the perimeter-fence toggle (per foot).
+  yardKinds: {
+    'garden-bed': { label: 'Garden bed', w: 4, h: 8, cents: 15000 },
+    'fruit-tree': { label: 'Fruit tree', w: 6, h: 6, cents: 8000 },
+    coop: { label: 'Chicken coop', w: 6, h: 8, cents: 60000 },
+    driveway: { label: 'Driveway', w: 10, h: 20, perSqft: 800 },
+    patio: { label: 'Patio', w: 10, h: 12, perSqft: 1200 },
+    'rain-garden': { label: 'Rain garden', w: 6, h: 8, cents: 40000 },
+    fence: { label: 'Perimeter fence', perFt: 2500 },
+  },
+  roofStyles: ['gable', 'hip', 'shed', 'flat'],
+  roofColors: ['#6b7581', '#3f4a52', '#8a3b2e', '#2f5d50', '#b9b4a8'],
+  sidings: ['board', 'board-and-batten', 'stucco', 'brick', 'log', 'vinyl'],
+  wallColors: ['#e9e2d0', '#f4efe6', '#c9d8c5', '#b8cde0', '#e8c9a0', '#9c6b4f'],
+  trimColors: ['#ffffff', '#2f3a40', '#7a5a3a', '#5a7d6a'],
+  maxSolarKw: 8,
+  catchmentSizes: [0, 5000, 10000, 15000, 20000],
+  cost: {                       // 07 §5 cost formula
+    indexBaseCents: 30000,      // local cost index = cost per sq ft ÷ $300
+    roofOverhang: 1.15, roofCentsPerSqft: 1200, roofFactor: { metal: 1.0, shingle: 0.9, tile: 1.3 },
+    wallHeightFt: 9, wallCentsPerSqft: 800,
+    sidingFactor: { board: 1.0, 'board-and-batten': 1.05, stucco: 1.1, brick: 1.4, log: 1.3, vinyl: 0.8 },
+    sidingLabel: { board: 'board', 'board-and-batten': 'board and batten', stucco: 'stucco', brick: 'brick', log: 'log', vinyl: 'vinyl' },
+    extDoorCents: 90000, intDoorCents: 35000, windowCents: 60000,
+    solarPerKwCents: 300000, catchmentBaseGallons: 10000, catchmentBaseCents: 800000, solarWaterHeaterCents: 450000,
+  },
 };
 
 export const DESIGN = {

@@ -63,20 +63,24 @@ test('doors and windows toggle on the right walls and follow their rooms', () =>
   assert.equal(removeRoom(bp, 'r2').openings.length, 0);
 });
 
+// Task 39's rules only (task 40's door/window rules are tested in blueprint-cost.test.js).
+const core = (v) => ({ errors: v.errors.filter((e) => !['no-entry', 'unreachable', 'bedroom-window'].includes(e.code)),
+  warnings: v.warnings.filter((w) => w.code === 'small') });
+
 test('validation: required rooms, overlaps, setbacks, small rooms', () => {
   const empty = validateBlueprint(createBlueprint(LOT));
   assert.deepEqual(empty.errors.map((e) => e.code), ['missing-bedroom', 'missing-bathroom', 'missing-kitchen', 'missing-living']);
   let bp = two();
   bp = addRoom(bp, { type: 'kitchen', x: 10, y: 32, w: 8, h: 8 });
   bp = addRoom(bp, { type: 'bathroom', x: 18, y: 32, w: 6, h: 8 });
-  assert.deepEqual(validateBlueprint(bp), { errors: [], warnings: [] });
-  const over = validateBlueprint(moveRoom(bp, 'r2', 22, 20));
+  assert.deepEqual(core(validateBlueprint(bp)), { errors: [], warnings: [] });
+  const over = core(validateBlueprint(moveRoom(bp, 'r2', 22, 20)));
   assert.deepEqual(over.errors.map((e) => [e.code, e.roomIds]), [['overlap', ['r1', 'r2']]]);
-  const set = validateBlueprint(moveRoom(bp, 'r1', 2, 20));
+  const set = core(validateBlueprint(moveRoom(bp, 'r1', 2, 20)));
   assert.deepEqual(set.errors.map((e) => e.code), ['overlap', 'setback'].filter((c) => c === 'setback'));
   assert.equal(validateBlueprint(moveRoom(bp, 'r1', 10, 14)).errors[0].code, 'setback', 'front setback is 15 ft');
   assert.equal(validateBlueprint(resizeRoom(bp, 'r2', { y: 80, h: 12 })).errors[0].code, 'setback', 'rear setback is 10 ft');
-  const small = validateBlueprint(resizeRoom(bp, 'r2', { w: 6 }));
+  const small = core(validateBlueprint(resizeRoom(bp, 'r2', { w: 6 })));
   assert.deepEqual(small.warnings.map((w) => w.code), ['small']);
   assert.match(small.warnings[0].message, /Bedroom is small.*70 sq ft and 7 ft wide/);
 });
@@ -89,7 +93,7 @@ test('templates fit and validate on every buildable lot', () => {
       const bp = templateBlueprint(id, lotOf(loc));
       assert.ok(bp, `${id} fits ${loc.id}`);
       const v = validateBlueprint(bp);
-      assert.deepEqual(v, { errors: [], warnings: [] }, `${id} @ ${loc.id}`);
+      assert.deepEqual({ errors: v.errors, warnings: v.warnings }, { errors: [], warnings: [] }, `${id} @ ${loc.id}`);
       assert.equal(bp.openings.length, TEMPLATES[id].openings.length, `${id} @ ${loc.id}: every door and window placed`);
       const a = buildArea(bp);
       assert.ok(bp.rooms.every((r) => r.x >= a.x0 && r.y >= a.y0 && r.x + r.w <= a.x1 && r.y + r.h <= a.y1));

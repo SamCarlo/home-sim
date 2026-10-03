@@ -31,8 +31,8 @@ export const QUIRKS = {
 };
 
 export const PET_LABELS = { none: 'No pet', cat: 'Cat', dog: 'Dog' };
-const PET_NAMES = ['Mochi', 'Poki', 'Kona', 'Biscuit', 'Lilo', 'Scout', 'Pepper', 'Nala', 'Bear', 'Maple', 'Koa', 'Ziggy'];
-const HEN_NAMES = ['Henrietta', 'Nugget', 'Pua', 'Clover', 'Goldie', 'Penny', 'Lani', 'Dot'];
+export const PET_NAMES = ['Mochi', 'Poki', 'Kona', 'Biscuit', 'Lilo', 'Scout', 'Pepper', 'Nala', 'Bear', 'Maple', 'Koa', 'Ziggy'];
+export const HEN_NAMES = ['Henrietta', 'Nugget', 'Pua', 'Clover', 'Goldie', 'Penny', 'Lani', 'Dot'];
 
 /** The seed of listing `index` (0–2) for this save. */
 export function listingSeed(state, index) {

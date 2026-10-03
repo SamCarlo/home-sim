@@ -1,13 +1,17 @@
-// Blueprint editor screen (07 §5, task 39): an SVG plan of the lot with select / move / resize / draw / delete, the
-// keyboard, zoom and pan, 50-step undo/redo, templates and a status bar. The working blueprint is a draft in
-// state.home.blueprint. Task 40 adds doors, windows, panels and the budget; task 41 the 3D split view and Move in.
+// Blueprint editor screen (07 §5, tasks 39–40): an SVG plan of the lot with select / move / resize / draw / delete,
+// door and window tools, the keyboard, zoom and pan, 50-step undo/redo, templates, roof/exterior/yard panels, the
+// budget bar and a status bar. The working blueprint is a draft in state.home.blueprint. Task 41 adds the 3D split view.
 import { h } from '../../../ui/dom.js';
 import { confirmDialog } from '../../../ui/modal.js';
 import { formatMoney } from '../../../util/format.js';
 import { byId } from '../../../data/locations/index.js';
 import { section } from '../pickerParts.js';
 import { ROOM_TYPES, ROOM_TYPE_IDS, addRoom, buildArea, createBlueprint, findFreeSpot, footprintArea, lotOf,
-  removeRoom, resizeRoom, moveRoom, roomAt, roomName, roomArea, setRoomType } from './model.js';
+  removeRoom, resizeRoom, moveRoom, roomAt, roomName, roomArea, setRoomType, toggleOpening, editWindow } from './model.js';
+import { moveYardItem, removeYardItem, YARD_KINDS } from './yard.js';
+import { buildContext, moveInBuild } from './moveIn.js';
+import { budgetPanel, checksPanel, outsidePanel, yardPanel } from './panels.js';
+import { styleFamily } from '../../../data/styleFamilies.js';
 import { problemRoomIds, validateBlueprint } from './validate.js';
 import { TEMPLATES, TEMPLATE_IDS, applyTemplate } from './templates.js';
 import { applyRoomAction, createHistory, drawRect, drawable, keyAction, moveRect, resizeRect, zoomView } from './tools.js';
@@ -22,12 +26,16 @@ export async function mount(container, { store }) {
   const state = store.getState();
   const loc = byId[state.home.locationId];
   const opts = state.paperwork?.options ?? {};
-  const budgetCents = opts.designBudgetCents ?? null;
+  const ctx = buildContext(state);
+  const budgetCents = ctx.budgetCents;
+  const palette = styleFamily(loc.styleFamily, loc.styleVariant)?.palettes?.[0] ?? null;
+  let tab = 'rooms';
   let bp = state.home.blueprint ?? createBlueprint(lotOf(loc), {
     solarKw: opts.siteUtilities?.solarKw ?? 0, catchmentGallons: opts.siteUtilities?.catchmentGallons ?? 0 });
   if (!state.home.blueprint) store.update((s) => { s.home.blueprint = bp; });
 
   const area = buildArea(bp);
+  const yardArea = editWindow(bp.lot);
   const history = createHistory(BLUEPRINT.undoSteps);
   let sel = null;
   let tool = 'select';
@@ -56,21 +64,24 @@ export async function mount(container, { store }) {
   const undoBtn = actBtn('bp-undo', 'Undo', 'Undo (Ctrl+Z)', () => undo());
   const redoBtn = actBtn('bp-redo', 'Redo', 'Redo (Ctrl+Shift+Z)', () => redo());
   const toolbar = h('div', { class: 'bp-toolbar', role: 'toolbar', 'aria-label': 'Blueprint tools' },
-    toolBtn('select', 'Select', 'Select, move and resize rooms'), toolBtn('draw', 'Draw room', 'Drag on the lot to draw a room'),
+    toolBtn('select', 'Select', 'Select, move and resize rooms and yard items'), toolBtn('draw', 'Draw room', 'Drag on the lot to draw a room'),
+    toolBtn('door', 'Door', 'Click a wall between two rooms, or an outside wall, to add or remove a door'),
+    toolBtn('window', 'Window', 'Click an outside wall to add or remove a window'),
     h('span', { class: 'bp-sep' }), undoBtn, redoBtn, h('span', { class: 'bp-sep' }),
     actBtn('bp-zoom-out', '−', 'Zoom out', () => zoomBy(1 / 1.25)), actBtn('bp-zoom-in', '+', 'Zoom in', () => zoomBy(1.25)),
     actBtn('bp-fit', 'Fit', 'Fit the lot', () => { view = fitView(bp); applyView(); }));
   const status = h('div', { class: 'bp-status', 'aria-live': 'polite' });
   const stageWrap = h('div', { class: 'dz-stage-wrap bp-stage' }, svg, toolbar, status);
   const panel = h('div', { class: 'dz-panel-body' });
-  const moveBtn = h('button', { class: 'btn btn-primary dz-movein', type: 'button', disabled: true }, 'Move in');
+  const moveBtn = h('button', { class: 'btn btn-primary dz-movein', type: 'button', disabled: true, onClick: () => moveIn() }, 'Move in');
+  const moveNote = h('div', { class: 'bp-movein-note', 'aria-live': 'polite' });
   const root = h('section', { class: 'dz bp' }, stageWrap,
     h('aside', { class: 'dz-panel', 'aria-label': 'Blueprint' },
       h('p', { class: 'dz-eyebrow' }, `Phase 3 · ${loc.name}`),
       h('h1', { class: 'dz-title' }, 'Design your house'),
       h('p', { class: 'dz-intro muted' }, `Your lot is ${bp.lot.widthFt} × ${bp.lot.depthFt} ft. Draw rooms inside the dashed line, `
         + 'or start from a template and change it.'),
-      panel, moveBtn));
+      panel, moveBtn, moveNote));
   container.append(root);
 
   // ---- coordinates ----
@@ -91,29 +102,30 @@ export async function mount(container, { store }) {
 
   // ---- state changes ----
   function save() { store.update((s) => { s.home.blueprint = bp; }); }
+  const exists = (id) => bp.rooms.some((r) => r.id === id) || bp.yard.some((y) => y.id === id);
   function commit(next) {
     if (!next || next === bp) return;
     history.push(bp);
     bp = next;
-    if (sel && !bp.rooms.some((r) => r.id === sel)) sel = null;
+    fixSel();
     save();
     render();
   }
   function undo() { const prev = history.undo(bp); if (prev) { bp = prev; fixSel(); save(); render(); } }
   function redo() { const next = history.redo(bp); if (next) { bp = next; fixSel(); save(); render(); } }
-  function fixSel() { if (sel && !bp.rooms.some((r) => r.id === sel)) sel = null; }
+  function fixSel() { if (sel && !exists(sel)) sel = null; }
   function setTool(id) { tool = id; closePopover(); render(); }
   function select(id) { sel = id; render(); }
   function applyView() { svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`); renderRooms(); }
   function zoomBy(f, cx = view.x + view.w / 2, cy = view.y + view.h / 2) { view = zoomView(view, f, cx, cy); applyView(); }
 
   // ---- rendering ----
-  let result = validateBlueprint(bp);
+  let result = validateBlueprint(bp, ctx);
   function renderRooms() {
     roomLayer.innerHTML = roomsMarkup(bp, { sel, preview, draft, problems: problemRoomIds(result), handleFt: HANDLE_PX * ftPerPx() });
   }
   function render() {
-    result = validateBlueprint(bp);
+    result = validateBlueprint(bp, ctx);
     renderRooms();
     stageWrap.dataset.tool = spaceHeld ? 'pan' : tool;
     for (const b of toolbar.querySelectorAll('.bp-tool')) b.setAttribute('aria-pressed', String(b.classList.contains(`bp-tool-${tool}`)));
@@ -122,14 +134,49 @@ export async function mount(container, { store }) {
     const problems = result.errors.length;
     status.replaceChildren(
       h('span', null, `Area ${footprintArea(bp).toLocaleString('en-US')} sq ft`), h('span', null, `${bp.rooms.length} room${bp.rooms.length === 1 ? '' : 's'}`),
-      budgetCents != null ? h('span', null, `Budget ${formatMoney(budgetCents)}`) : null,
+      h('span', { class: budgetCents != null && result.cost.totalCents > budgetCents ? 'bp-over' : null },
+        `Cost ${formatMoney(result.cost.totalCents)}${budgetCents != null ? ` of ${formatMoney(budgetCents)}` : ''}`),
       h('span', { class: problems ? 'bp-bad' : 'bp-good' }, problems ? `${problems} to fix` : 'Plan OK'));
     fillPanel();
+    moveBtn.disabled = problems > 0;
+    moveNote.replaceChildren(...(problems ? [h('p', { class: 'bp-movein-why' }, `Move in opens when these ${problems === 1 ? 'is' : 'are'} fixed:`),
+      h('ul', { class: 'bp-movein-list' }, result.errors.map((e) => h('li', null, e.message)))] : []));
+  }
+  function moveIn() {
+    let res = null;
+    store.update((s) => { res = moveInBuild(s, bp); }, { checkpoint: 'design-finalized' });
+    if (res && !res.ok) render();
   }
 
   function fillPanel() {
     const focusKey = document.activeElement?.dataset?.focusKey;
     panel.replaceChildren();
+    panel.append(budgetPanel(result.cost, budgetCents));
+    const tabs = [['rooms', 'Rooms'], ['outside', 'Roof & walls'], ['yard', 'Yard']];
+    panel.append(h('div', { class: 'bp-tabs', role: 'tablist', 'aria-label': 'Design panels' }, tabs.map(([id, label]) => h('button', {
+      class: `bp-tab bp-tab-${id}`, type: 'button', role: 'tab', 'aria-selected': String(tab === id), dataset: { focusKey: `tab-${id}` },
+      onClick: () => { tab = id; fillPanel(); } }, label))));
+    const item = bp.yard.find((y) => y.id === sel);
+    if (item) {
+      panel.append(section('Selected', h('p', { class: 'bp-room-name' }, `${YARD_KINDS[item.kind].label} · ${item.w} × ${item.h} ft`),
+        h('div', { class: 'bp-row' },
+          h('button', { class: 'btn btn-secondary btn-small bp-delete', type: 'button', onClick: () => commit(removeYardItem(bp, item.id)) }, 'Remove'),
+          h('button', { class: 'btn btn-secondary btn-small', type: 'button', onClick: () => select(null) }, 'Done'))));
+    }
+    if (tab === 'outside') panel.append(outsidePanel(bp, { palette }, commit));
+    else if (tab === 'yard') {
+      panel.append(yardPanel(bp, ctx, (next) => {
+        const added = next.yard.length > bp.yard.length;
+        commit(next);
+        if (added) { sel = bp.yard.at(-1).id; view = roomsView(bp); applyView(); }
+      }));
+    }
+    else fillRooms();
+    panel.append(checksPanel(result));
+    if (focusKey) panel.querySelector(`[data-focus-key="${focusKey}"]`)?.focus();
+  }
+
+  function fillRooms() {
     const room = bp.rooms.find((r) => r.id === sel);
     const typeSelect = (value, onChange, key) => h('select', { class: 'bp-type-select', dataset: { focusKey: key }, onChange: (e) => onChange(e.target.value) },
       ROOM_TYPE_IDS.map((id) => h('option', { value: id, selected: id === value }, ROOM_TYPES[id].label)));
@@ -161,12 +208,7 @@ export async function mount(container, { store }) {
         class: `bp-template bp-template-${id}`, type: 'button', dataset: { focusKey: `tpl-${id}` }, onClick: () => useTemplate(id) },
       h('strong', null, TEMPLATES[id].label), h('span', null, TEMPLATES[id].blurb)))),
       h('button', { class: 'btn btn-secondary btn-small bp-clear', type: 'button', disabled: !bp.rooms.length, onClick: clearAll }, 'Clear the lot')));
-    const items = [...result.errors.map((e) => ['error', e]), ...result.warnings.map((w) => ['warn', w])];
-    panel.append(section('Checks', items.length
-      ? h('ul', { class: 'bp-checks' }, items.map(([tone, it]) => h('li', { class: `bp-check is-${tone}` }, it.message)))
-      : h('p', { class: 'bp-check is-ok' }, 'Everything checks out so far.')));
-    panel.append(h('p', { class: 'muted bp-help' }, 'Doors, windows, the roof, the yard and the cost come next. Move in opens once those are in.'));
-    if (focusKey) panel.querySelector(`[data-focus-key="${focusKey}"]`)?.focus();
+    panel.append(h('p', { class: 'muted bp-help' }, 'Doors and windows: pick the Door or Window tool, then click a wall. Click again to remove.'));
   }
 
   async function useTemplate(id) {
@@ -214,12 +256,24 @@ export async function mount(container, { store }) {
     const p = toLot(ev);
     const handle = ev.target.closest?.('[data-handle]')?.dataset.handle;
     const roomEl = ev.target.closest?.('[data-id]');
+    const yardEl = ev.target.closest?.('[data-yard]');
     if (spaceHeld || ev.button === 1) drag = { kind: 'pan', sx: ev.clientX, sy: ev.clientY, view: { ...view } };
+    else if (tool === 'door' || tool === 'window') {
+      commit(toggleOpening(bp, { kind: tool, x: p.x, y: p.y, tol: Math.max(0.75, 9 * ftPerPx()) }));
+      ev.preventDefault();
+      return;
+    }
     else if (handle && sel) drag = { kind: 'resize', handle, id: sel, start: bp.rooms.find((r) => r.id === sel) };
     else if (tool === 'draw') { drag = { kind: 'draw', p0: p }; draft = drawRect(p, p, area); }
-    else if (roomEl || roomAt(bp, p.x, p.y)) {
+    else if (yardEl && !roomEl) {
+      const id = yardEl.dataset.yard;
+      sel = id;
+      drag = { kind: 'move-yard', id, p0: p, start: bp.yard.find((y) => y.id === id) };
+      render();
+    } else if (roomEl || roomAt(bp, p.x, p.y)) {
       const id = roomEl?.dataset.id ?? roomAt(bp, p.x, p.y).id;
       sel = id;
+      tab = 'rooms';
       drag = { kind: 'move', id, p0: p, start: bp.rooms.find((r) => r.id === id) };
       render();
     } else {
@@ -239,7 +293,8 @@ export async function mount(container, { store }) {
       return;
     }
     const p = toLot(ev);
-    if (drag.kind === 'move') preview = { id: drag.id, rect: moveRect(drag.start, p.x - drag.p0.x, p.y - drag.p0.y, area) };
+    if (drag.kind === 'move-yard') preview = { id: drag.id, rect: moveRect(drag.start, p.x - drag.p0.x, p.y - drag.p0.y, yardArea) };
+    else if (drag.kind === 'move') preview = { id: drag.id, rect: moveRect(drag.start, p.x - drag.p0.x, p.y - drag.p0.y, area) };
     else if (drag.kind === 'resize') preview = { id: drag.id, rect: resizeRect(drag.start, drag.handle, p.x, p.y, area) };
     else if (drag.kind === 'draw') draft = drawRect(drag.p0, p, area);
     renderRooms();
@@ -249,7 +304,8 @@ export async function mount(container, { store }) {
     window.removeEventListener('pointerup', onUp);
     const d = drag; drag = null;
     if (!d) return;
-    if (d.kind === 'move' && preview) { const r = preview.rect; preview = null; commit(r.x === d.start.x && r.y === d.start.y ? bp : moveRoom(bp, d.id, r.x, r.y)); }
+    if (d.kind === 'move-yard' && preview) { const r = preview.rect; preview = null; commit(moveYardItem(bp, d.id, r.x, r.y)); }
+    else if (d.kind === 'move' && preview) { const r = preview.rect; preview = null; commit(r.x === d.start.x && r.y === d.start.y ? bp : moveRoom(bp, d.id, r.x, r.y)); }
     else if (d.kind === 'resize' && preview) { const r = preview.rect; preview = null; commit(resizeRoom(bp, d.id, r)); }
     else if (d.kind === 'draw') {
       if (draft && drawable(draft) && bp.rooms.length < BLUEPRINT.maxRooms) openPopover(draft);
@@ -278,6 +334,12 @@ export async function mount(container, { store }) {
     if (a.kind === 'zoom-out') return zoomBy(1 / 1.25);
     if (a.kind === 'fit') { view = fitView(bp); return applyView(); }
     if (a.kind === 'deselect') return select(null);
+    if (sel && bp.yard.some((y) => y.id === sel)) {
+      const it = bp.yard.find((y) => y.id === sel);
+      if (a.kind === 'delete') commit(removeYardItem(bp, sel));
+      else if (a.kind === 'move') commit(moveYardItem(bp, sel, it.x + a.dx, it.y + a.dy));
+      return;
+    }
     if (sel) commit(applyRoomAction(bp, sel, a, area));
   }
   function onKeyUp(ev) { if (ev.key === ' ' && spaceHeld) { spaceHeld = false; stageWrap.dataset.tool = tool; } }

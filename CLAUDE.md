@@ -17,7 +17,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 
 ## Key rules (01 §3–§4)
 - **Pure modules** (`util/ data/ finance/ letters/ life/`, `state/{schema,migrate,summary}.js`, `phases/plan/preview2d/`,
-  `phases/design/blueprint/{model,validate,cost,templates}.js`, `phases/design/{buildingPlan,apartmentModel,housePlan,houseModel,sharedModel}.js`): no DOM, `window`, `localStorage`, `three` or network;
+  `phases/design/blueprint/{model,validate,cost,templates,yard,moveIn}.js`, `phases/design/{buildingPlan,apartmentModel,housePlan,houseModel,sharedModel}.js`): no DOM, `window`, `localStorage`, `three` or network;
   relative imports only; importable from Node tests.
 - three.js, the spelling dictionary and Firebase load lazily with `import()`; login, intake and the plan table never pull them in.
 - Money is integer cents (format only at the UI edge with `util/format.js`); rates are decimals.
@@ -474,6 +474,17 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `canvas.js` (SVG strings; street at the bottom, so SVG y = depth − y). `editor.js` mounts it; the draft is
   `state.home.blueprint`. Room types + limits in `config.BLUEPRINT`. Seeds `design-build-pahoa` (empty),
   `design-build-template` (Cozy); e2e `tests/e2e/design-build.json` (synthetic pointer drags via `window.__drag`).
+- Blueprint features (task 40): Door/Window tools call `toggleOpening(bp, {kind, x, y, tol})`. `validateBlueprint(bp,
+  {location, budgetCents, included})` (get the opts from `moveIn.js` `buildContext(state)`) adds reachability
+  (`reachableRooms` BFS from outside doors), bedroom windows, catchment (`location.water === 'catchment'`), budget and
+  yard-overlap errors plus one-exit / dark-living / bath-kitchen warnings, and returns `cost`. Pure `cost.js`
+  `blueprintCost(bp, location, {included})` → `{lines [{id, group house|shell|openings|yard, label, detail, cents}],
+  totalCents, byGroup}`; solar/catchment already chosen in site utilities (`included`) aren't charged again. Pure
+  `yard.js`: `addYardItem` (closest free spot behind the house; driveway at the street), `moveYardItem`, `removeYardItem`,
+  `setFence` (outline of the editing window). `panels.js`: `outsidePanel`, `yardPanel`, `budgetPanel`, `checksPanel`.
+  `moveInBuild(state, bp)` refuses with errors, else writes home.blueprint/build/plants/animals and phase 'life'.
+  Tunables `BLUEPRINT.yardKinds/cost/roofStyles/sidings/…Colors/maxSolarKw/catchmentSizes`. e2e
+  `tests/e2e/design-build-features.json` (`window.__tap(lotPoint)`, `window.__pick(focusKey, value)`).
 - `scene.setPanLimits({half, yMax})` widens the pan clamp (default ±`SCENE3D.lotHalf`, look-at y ≤ 40).
 
 ## Gotchas

@@ -213,3 +213,13 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
 - 2026-10-02, task 39, editor extras: besides 07 §5's tools, the editor has an "Add room" button (a 10 × 10 ft room at the
   first free spot, so keyboard-only students can add rooms), drag on empty lot = pan (as well as Space+drag), +/−/0 keys
   for zoom, and Esc to deselect. `designScreen` routes builds to the editor now (task 41 adds the 3D split view).
+- 2026-10-02, task 40, site utilities in the blueprint cost: 05 §4 takes site-utilities upgrades out of the design budget
+  (and a lot's native catchment is in the site work), and 07 §5 also prices solar and catchment in the blueprint. To avoid
+  charging twice, `blueprintCost` only charges solar kW and catchment gallons above what `options.siteUtilities` chose
+  (`included`); the yard panel says how much is already paid. Where: `phases/design/blueprint/cost.js`, `moveIn.js` `buildContext`.
+- 2026-10-02, task 40, perimeter fence: the fence toggle fences the editing window (the whole lot on lots ≤ 120 ft, a
+  120 × 120 ft yard on big lots) at $25/ft, so a 290 ft-deep Pāhoa lot isn't $22,000 of fence. Where: `blueprint/yard.js` `setFence`.
+- 2026-10-02, task 40, Move in for builds: the task's acceptance needs a valid plan to move in, so task 40 adds a basic
+  `moveInBuild` (home.blueprint, home.build, plants from beds/trees, 3 hens per coop, lifestyle, phase life); task 41 adds
+  the 3D split view and the optional pet. Yard items may sit in the setbacks (only rooms must stay out), and a room on a
+  yard item is an error. Where: `phases/design/blueprint/moveIn.js`, `validate.js`.

@@ -3,6 +3,7 @@
 // and still go through escapeHtml.
 import { escapeHtml } from '../../../util/escape.js';
 import { buildArea, editWindow, roomArea, roomName } from './model.js';
+import { YARD_KINDS } from './yard.js';
 
 export const ROOM_COLORS = {
   bedroom: ['#cfe3f5', '#5d86ad'], living: ['#f6e3b4', '#a88732'], dining: ['#f3d2ae', '#a8703a'],
@@ -21,12 +22,13 @@ export function fitView(bp) {
   return { x: win.x0 - pad, y: D - win.y1 - pad * 1.6, w: win.x1 - win.x0 + pad * 2, h: win.y1 - win.y0 + pad * 3.2 + 12 };
 }
 
-/** A closer view around the rooms (at least 64 ft across, street included when the house is near it), or fitView. */
+/** A closer view around the rooms and yard items (at least 64 ft across, street included when near it), or fitView. */
 export function roomsView(bp) {
   if (!bp.rooms.length) return fitView(bp);
   const D = bp.lot.depthFt;
-  const x0 = Math.min(...bp.rooms.map((r) => r.x)); const x1 = Math.max(...bp.rooms.map((r) => r.x + r.w));
-  const y0 = Math.min(...bp.rooms.map((r) => r.y)); const y1 = Math.max(...bp.rooms.map((r) => r.y + r.h));
+  const all = [...bp.rooms, ...(bp.yard ?? []).filter((it) => it.kind !== 'fence')];
+  const x0 = Math.min(...all.map((r) => r.x)); const x1 = Math.max(...all.map((r) => r.x + r.w));
+  const y0 = Math.min(...all.map((r) => r.y)); const y1 = Math.max(...all.map((r) => r.y + r.h));
   const lo = Math.min(y0, 0) - 14; const hi = y1 + 14;
   const w = Math.max(64, x1 - x0 + 28, (hi - lo) * 1.4);
   const h = Math.max(hi - lo, w / 1.4);
@@ -67,13 +69,40 @@ export function lotMarkup(bp) {
     + (win.y1 < lot.depthFt ? label((a.x0 + a.x1) / 2, D - win.y1 - fs * 0.8, `Your lot continues ${lot.depthFt - win.y1} ft back`, 'text-anchor="middle" fill="#7a6f55"') : '');
 }
 
+const YARD_COLORS = { 'garden-bed': ['#b48a5a', '#6b4a26'], 'fruit-tree': ['#8cc56b', '#3d7a2a'], coop: ['#e8c07a', '#8a5f1c'],
+  driveway: ['#c4c4bd', '#7d7d75'], patio: ['#dcc9b0', '#8d7454'], 'rain-garden': ['#a6d6c9', '#3a8a74'] };
+
+/** Yard items under the rooms (the fence as a dashed outline). Items are selectable like rooms (data-yard). */
+export function yardMarkup(bp, { sel = null, preview = null } = {}) {
+  const D = bp.lot.depthFt;
+  let out = '';
+  for (const item of bp.yard) {
+    const it = preview?.id === item.id ? { ...item, ...preview.rect } : item;
+    if (it.kind === 'fence') {
+      out += `<rect class="bp-fence" x="${it.x + 0.5}" y="${D - it.y - it.h + 0.5}" width="${it.w - 1}" height="${it.h - 1}" fill="none" stroke="#7a5a3a" stroke-width="3" stroke-dasharray="8 3" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+      continue;
+    }
+    const [fill, line] = YARD_COLORS[it.kind] ?? ['#ddd', '#888'];
+    const label = YARD_KINDS[it.kind]?.label ?? it.kind;
+    const fs = Math.max(0.5, Math.min(1.3, it.w / (label.length * 0.55)));
+    const shape = it.kind === 'fruit-tree'
+      ? `<circle cx="${n(it.x + it.w / 2)}" cy="${n(D - it.y - it.h / 2)}" r="${n(it.w / 2)}" fill="${fill}" stroke="${line}" stroke-width="2" vector-effect="non-scaling-stroke"/>`
+      : `<rect x="${it.x}" y="${D - it.y - it.h}" width="${it.w}" height="${it.h}" rx="0.4" fill="${fill}" stroke="${line}" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+    out += `<g class="bp-yard${item.id === sel ? ' is-sel' : ''}" data-yard="${escapeHtml(item.id)}" data-kind="${escapeHtml(it.kind)}">${shape}`
+      + `<text x="${n(it.x + it.w / 2)}" y="${n(D - it.y - it.h / 2 + fs / 3)}" font-size="${n(fs)}" text-anchor="middle" fill="#1f2a33">${escapeHtml(label)}</text>`
+      + (item.id === sel ? `<rect x="${it.x - 0.5}" y="${D - it.y - it.h - 0.5}" width="${it.w + 1}" height="${it.h + 1}" fill="none" stroke="#1f6fd1" stroke-width="2.5" stroke-dasharray="5 3" vector-effect="non-scaling-stroke" pointer-events="none"/>` : '')
+      + '</g>';
+  }
+  return out;
+}
+
 /**
  * Rooms, openings, the selection and the drawing rectangle.
  * opts: `{sel, preview {id, rect}, draft rect, problems Set, handlePx (feet per 9 px)}`.
  */
 export function roomsMarkup(bp, { sel = null, preview = null, draft = null, problems = new Set(), handleFt = 1 } = {}) {
   const D = bp.lot.depthFt;
-  let out = '';
+  let out = yardMarkup(bp, { sel, preview });
   for (const room of bp.rooms) {
     const r = preview?.id === room.id ? { ...room, ...preview.rect } : room;
     const [fill, line] = ROOM_COLORS[r.type] ?? ['#eee', '#888'];
@@ -90,7 +119,10 @@ export function roomsMarkup(bp, { sel = null, preview = null, draft = null, prob
   }
   for (const o of bp.openings) {
     const color = o.kind === 'door' ? (o.roomB ? '#8a5a2b' : '#c0571c') : '#2f86c9';
-    out += `<path class="bp-opening bp-${o.kind}" d="M${o.x1} ${D - o.y1}L${o.x2} ${D - o.y2}" stroke="${color}" stroke-width="${o.kind === 'door' ? 5 : 4}" stroke-linecap="butt" vector-effect="non-scaling-stroke"/>`;
+    const d = `M${o.x1} ${D - o.y1}L${o.x2} ${D - o.y2}`;
+    out += `<g class="bp-opening bp-${o.kind}${o.roomB ? '' : ' is-outside'}"><path d="${d}" stroke="#fff" stroke-width="${o.kind === 'door' ? 9 : 8}" vector-effect="non-scaling-stroke"/>`
+      + `<path d="${d}" stroke="${color}" stroke-width="${o.kind === 'door' ? 6 : 5}" stroke-linecap="butt" vector-effect="non-scaling-stroke"`
+      + `${o.kind === 'window' ? ' stroke-dasharray="3 1.5"' : ''}/></g>`;
   }
   const selRoom = bp.rooms.find((r) => r.id === sel);
   if (selRoom) {

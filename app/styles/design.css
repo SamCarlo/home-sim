@@ -164,3 +164,42 @@
 .bp-check.is-error { background: var(--st-red-bg); border-color: var(--st-red); color: var(--st-red-ink); }
 .bp-check.is-warn { background: var(--st-yellow-bg); border-color: var(--st-yellow); color: var(--st-yellow-ink); }
 .bp-check.is-ok { background: var(--st-green-bg); border-color: var(--st-green); color: var(--st-green-ink); }
+
+/* Blueprint panels (07 §5, task 40): tabs, budget bar, roof/exterior/yard fields, Move in reasons. */
+.bp-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+.bp-tab {
+  flex: 1; padding: 6px 8px; border: 1px solid transparent; border-bottom: 0; border-radius: var(--r-sm) var(--r-sm) 0 0;
+  background: transparent; color: var(--ink-2); font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer;
+}
+.bp-tab[aria-selected="true"] { background: var(--accent-wash); border-color: var(--line); color: var(--ink); }
+.bp-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.bp-budget-nums { font-size: 1.05rem; }
+.bp-budget-nums span { color: var(--muted); }
+.bp-bar { height: 12px; margin: 6px 0 4px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.bp-bar span { display: block; height: 100%; background: var(--st-green); border-radius: 6px; transition: width .2s; }
+.bp-budget.is-over .bp-bar span { background: var(--st-red); }
+.bp-budget-left { margin: 0; font-size: .88rem; color: var(--st-green-ink); font-weight: 600; }
+.bp-budget.is-over .bp-budget-left { color: var(--st-red-ink); }
+.bp-breakdown { margin-top: var(--sp-2); font-size: .84rem; }
+.bp-breakdown summary { cursor: pointer; color: var(--accent-ink); font-weight: 600; }
+.bp-breakdown table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+.bp-breakdown td { padding: 3px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.bp-breakdown td small { display: block; color: var(--muted); font-size: .76rem; }
+.bp-breakdown td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; padding-left: 8px; }
+.bp-field { display: flex; flex-direction: column; gap: 3px; margin: 0 0 var(--sp-2); font-size: .86rem; }
+.bp-field > span { color: var(--ink-2); font-weight: 600; }
+.bp-field select { padding: 5px 8px; border-radius: var(--r-sm); border: 1px solid var(--field-line); background: var(--field); color: var(--ink); font: inherit; }
+.bp-swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.bp-color { width: 28px; height: 28px; border-radius: 50%; border: 2px solid rgba(0, 0, 0, .2); cursor: pointer; padding: 0; }
+.bp-color.is-on { outline: 3px solid var(--accent); outline-offset: 2px; }
+.bp-yard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: var(--sp-2); }
+.bp-add-yard { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 1px; }
+.bp-add-yard small { font-weight: 400; color: var(--muted); font-size: .76rem; }
+.bp-check-row { display: flex; gap: 8px; align-items: flex-start; font-size: .86rem; margin: var(--sp-2) 0 0; }
+.bp-check-row input { margin-top: 3px; }
+.bp-status .bp-over { color: var(--st-red-ink); font-weight: 600; }
+.bp-movein-note:empty { display: none; }
+.bp-movein-why { margin: 0 0 4px; font-size: .84rem; font-weight: 600; color: var(--st-red-ink); }
+.bp-movein-list { margin: 0; padding-left: 1.2em; font-size: .82rem; color: var(--ink-2); }
+.bp-yard { cursor: move; }
+.bp-stage[data-tool="door"] .bp-svg, .bp-stage[data-tool="window"] .bp-svg { cursor: cell; }
