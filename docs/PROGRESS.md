@@ -1763,3 +1763,38 @@ life-month1-house · seed 7 · income $4,300/mo
     `#inv-sell-pick`, `#inv-sell-amount`, `.inv-sell-btn`, `.inv-sell-all` for e2e; `[data-inv=total|pct]`.
   - In the plan stage the pinned time-budget foot covers the lower half of the block; the panel scrolls (09 §1 allows it).
   - The year review still has no investment line (task 47 note).
+
+## Task 49 — Firebase project files, security rules, emulator tests
+- attempt started 2026-10-02T23:21:50-10:00
+- done 2026-10-02T23:31:22-10:00
+- Files: new `firebase.json`, `.firebaserc` (demo-home-sim), `firestore.rules.template`, `firestore.rules` (rendered,
+  admin@example.com), `firestore.indexes.json`, `tools/configure.mjs`, `tests/firebase/rules.test.js` (25 tests),
+  `tests/unit/configure.test.js` (6), `package-lock.json`; changed `package.json` (pinned devDependencies firebase-tools
+  15.32.1, @firebase/rules-unit-testing 5.0.2, firebase 12.19.0 = the import-map version; scripts test:rules, test:firebase),
+  `tools/check.sh` (optional step 5), `CLAUDE.md`. Java: `mise install java@temurin-21` (user-level).
+- Verified: `mise exec java@temurin-21 -- npm run test:rules`:
+  ```
+  ✔ committed firestore.rules is the template rendered with admin@example.com
+  ✔ classCodes (3: anyone gets; only admin lists; only admin creates/updates/deletes)
+  ✔ players: create (5: active code OK; missing/inactive code, username ≠ email, disabled true, extra key/other uid/
+    non-student email/anonymous all denied)
+  ✔ players: read, update, delete (5: own read only; summary+updatedAt OK; disabled/classCode/username/transferredTo
+    denied; other's doc and paused student's own update denied; delete denied)
+  ✔ saves (7: own read/write; first save needs the player doc; other's denied; disabled denied; 899,999 chars OK,
+    900,000 denied; non-string stateJson / extra key denied; delete denied)
+  ✔ admin (4: admin does everything; same email via password denied; unverified Google denied; other Google denied)
+  ℹ tests 25 · pass 25 · fail 0 · duration_ms ~7400
+  ```
+  `node --test tests/unit/configure.test.js` 6/6 (JSON + pasted console snippet with the `import { initializeApp }` line,
+  sandbox, a real CLI run in a temp copy: writes all 3 files, second run "unchanged" ×3, `--placeholder` restores the
+  committed bytes). md5 of the committed firebase-config.js/.firebaserc/firestore.rules unchanged afterwards.
+  `HOMESIM_FIREBASE=1 bash tools/check.sh` OK (213 files, smoke 76/76, rules) in 164 s. No screenshots asked for.
+- Deviations (DEVIATIONS.md): admin may create player docs; test:rules points at the file (Node 25); configure `--placeholder`.
+- Notes for later tasks:
+  - Task 50/51: emulator ports auth 9099 / firestore 8080 (firebase.json). Put new emulator tests in `tests/firebase/` and
+    run `mise exec java@temurin-21 -- npm run test:firebase`. `test:e2e:emulator` (11 §7) isn't defined yet; add it with
+    the `?emulator=1` client code (it needs `--only firestore,auth,hosting` or shoot's own server).
+  - A player's first save must come *after* `players/{uid}` exists (activePlayer reads it), so register in the 11 §2 order.
+  - The admin console (52) needs `list` on players/saves/classCodes: allowed for the admin only; a student query on
+    `players` is denied even when filtered to their own uid, so read by doc path.
+  - The emulators leave `firestore-debug.log` in HS (gitignored by `*-debug.log`).

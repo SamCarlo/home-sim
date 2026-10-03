@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Full verification (01 §8): syntax → unit tests → data imports → smoke screenshots. Stops at the first failure.
+# Full verification (01 §8): syntax → unit tests → data imports → smoke screenshots (→ rules tests with
+# HOMESIM_FIREBASE=1). Stops at the first failure.
 # Run from anywhere: bash tools/check.sh  (or npm run check). Steps whose inputs don't exist yet are skipped.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -40,6 +41,20 @@ fi
 if [[ -f tools/smoke.txt ]]; then
   node tools/shoot.mjs --smoke tools/smoke.txt || fail "smoke"
   done_steps+=("smoke")
+fi
+
+# 5. Optional: Firestore rules on the emulator (11 §7). Slow (~30 s), so only with HOMESIM_FIREBASE=1 and Java present.
+if [[ "${HOMESIM_FIREBASE:-}" == "1" ]]; then
+  if command -v mise > /dev/null && mise exec java@temurin-21 -- java -version > /dev/null 2>&1; then
+    mise exec java@temurin-21 -- npm run --silent test:rules || fail "rules tests"
+    done_steps+=("rules")
+  elif command -v java > /dev/null; then
+    npm run --silent test:rules || fail "rules tests"
+    done_steps+=("rules")
+  else
+    echo "check: HOMESIM_FIREBASE=1 but no Java (mise install java@temurin-21); skipping the rules tests"
+    done_steps+=("rules skipped")
+  fi
 fi
 
 summary=$(IFS=,; echo "${done_steps[*]}")

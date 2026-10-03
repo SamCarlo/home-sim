@@ -1,0 +1,55 @@
+// Firestore security rules (11 §5). firestore.rules is rendered from firestore.rules.template by tools/configure.mjs,
+// which fills in the admin email. Edit the template, never firestore.rules, then re-run configure
+// (`node tools/configure.mjs --placeholder` renders the committed default).
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'admin@example.com'
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+    function isStudentEmail() {
+      return request.auth.token.email.matches('^[a-z0-9][a-z0-9_-]{2,19}@players[.]example[.]com$');
+    }
+    function usernameFromEmail() { return request.auth.token.email.split('@')[0]; }
+    function codeDoc(code) { return /databases/$(database)/documents/classCodes/$(code); }
+    function playerPath(uid) { return /databases/$(database)/documents/players/$(uid); }
+    function activePlayer(uid) {
+      return exists(playerPath(uid)) && get(playerPath(uid)).data.disabled == false;
+    }
+
+    match /classCodes/{code} {
+      allow get: if true;                               // check a code you already know
+      allow list, create, update, delete: if isAdmin();
+    }
+
+    match /players/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create: if isAdmin()
+        || (isSelf(uid) && isStudentEmail()
+        && request.resource.data.keys().hasOnly(['username','classCode','createdAt','updatedAt','disabled','summary'])
+        && request.resource.data.username == usernameFromEmail()
+        && request.resource.data.disabled == false
+        && exists(codeDoc(request.resource.data.classCode))
+        && get(codeDoc(request.resource.data.classCode)).data.active == true);
+      allow update: if isAdmin()
+        || (isSelf(uid) && resource.data.disabled == false
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['summary','updatedAt']));
+      allow delete: if isAdmin();
+    }
+
+    match /saves/{uid} {
+      allow read: if isAdmin() || (isSelf(uid) && activePlayer(uid));
+      allow create, update: if isAdmin()
+        || (isSelf(uid) && activePlayer(uid)
+            && request.resource.data.keys().hasOnly(['stateJson','version','updatedAt','saveCount'])
+            && request.resource.data.stateJson is string
+            && request.resource.data.stateJson.size() < 900000);
+      allow delete: if isAdmin();
+    }
+  }
+}

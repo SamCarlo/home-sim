@@ -12,6 +12,12 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 - Train the letter model: `npm run train:letters` (corpus → `app/src/letters/model.json`; `--dry` reports only)
 - Check: `npm run check` (= `bash tools/check.sh`): syntax → unit tests → data imports → smoke. Run it before every commit.
 - Shoot: `node tools/shoot.mjs --path /index.html --out tools/shots/x.png --wait-ready` (see Verification below)
+- Rules tests (Firestore emulator, needs Java): `mise exec java@temurin-21 -- npm run test:rules` (~30 s). Java is a
+  user-level mise install (`mise install java@temurin-21`, no sudo); always run the emulators through `mise exec`.
+  `HOMESIM_FIREBASE=1 bash tools/check.sh` adds them to the check; the default check stays fast. `npm run test:firebase`
+  runs every `tests/firebase/*.test.js` (tasks 50–52 add theirs there).
+- Configure Firebase: `node tools/configure.mjs --config <json | pasted snippet file | -> --admin <email> [--project <id>]`;
+  `--placeholder` restores the committed defaults. Never deploy or sign in to Firebase from a task run.
 - Stop the server with `pkill -f 'python3 tools/serve.py'` from a *separate* command (a pkill pattern that matches your
   own shell line kills the shell too).
 
@@ -92,6 +98,11 @@ tests/e2e/                     shoot.mjs step scripts (example, persist, registe
 tools/serve.py                 static server, port 1270 · tools/shots/ (gitignored)
 tools/shoot.mjs lib/cdp.mjs    headless harness · check.sh · smoke.txt
 tools/sim-months.mjs           12-month simulation printout (task 44)
+tools/configure.mjs            Firebase setup: firebase-config.js + firestore.rules + .firebaserc (task 49)
+firebase.json .firebaserc      hosting (public app/), emulators auth 9099 / firestore 8080 / hosting 5000, rules + indexes
+firestore.rules.template       the rules source (edit this) → firestore.rules (rendered, committed with admin@example.com)
+firestore.indexes.json         no composite indexes; saves.stateJson exempt from indexing
+tests/firebase/                emulator tests (rules.test.js); not part of npm test
 tools/letter-model/            corpus/<type>.json · logreg.mjs (pure LR math) · train.mjs (npm run train:letters)
 docs/                          TASK_PROTOCOL, PROGRESS, OPEN_ITEMS, spec/
 ```
@@ -593,6 +604,21 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   forms disabled in live). lifeScreen's `investBlock` saves checkpoint 'invest'; panels get ctx `onTick(fn)`;
   `startTicker` moves `moneyStrip.tick({investments, net})` each frame. Seeds `life-invest` (intro), `life-invest-held`
   (February plan with holdings), `life-invest-live`; e2e `tests/e2e/life-invest.json`, `life-invest-live.json`.
+
+## Firebase files and rules (11 §4–§5, §7–§8, task 49)
+- `firestore.rules` is generated: edit `firestore.rules.template` (`__ADMIN_EMAIL__` marker), then
+  `node tools/configure.mjs --placeholder` (or with the real config). `tests/unit/configure.test.js` and the rules test
+  both fail if the committed rules drift from the template.
+- `tools/configure.mjs` exports `parseFirebaseConfig` (JSON, `{firebaseConfig: …}`, or the console snippet; only the
+  `firebaseConfig = {…}` literal runs, in an empty `vm` sandbox), `checkEmail` (lowercases), `checkProject`, `renderRules`,
+  `renderConfigJs`, `renderFirebaserc`. Writes only changed files and prints created/updated/unchanged per file.
+- `tests/firebase/rules.test.js`: `@firebase/rules-unit-testing` with the compat API (`ctx.firestore().doc(…).get()`).
+  Identities: students = `authenticatedContext(uid, {email: '<username>@players.example.com', firebase:
+  {sign_in_provider: 'password'}})`; admin = `admin@example.com`, `email_verified: true`, provider 'google.com'.
+  `beforeEach` clears Firestore and seeds two codes (IO-P3 active, OLD-P1 inactive), players lani-uid and paused-uid
+  (disabled) with saves. `setLogLevel('silent')` hides the SDK's PERMISSION_DENIED noise.
+- Emulator ports: auth 9099, firestore 8080, hosting 5000; UI off; project `demo-home-sim` (a `demo-` project never
+  touches the cloud). The firestore emulator jar downloads to `~/.cache/firebase/emulators` on first run.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

@@ -299,3 +299,13 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   month-end change); the live and summary stages say "this month". The intro card shows until the first buy (no extra
   state field). A buy in the summary stage is dated the month's last day. Where: life/investments.js,
   phases/life/investPanel.js, phases/life/lifeScreen.js.
+- 2026-10-02, task 49, rules and Firebase files: (1) the 11 §5 draft let only a student create `players/{uid}`, so the
+  admin couldn't do "everything" (11 §5 tests); `allow create` on players now starts with `isAdmin() ||` (useful when the
+  admin restores or moves a player). (2) `test:rules` runs `node --test 'tests/firebase/rules.test.js'` (a glob/file, not
+  the `tests/firebase/` directory in 11 §7, which Node 25 rejects; see task 01) with `--test-concurrency=1`, and
+  `test:firebase` runs `tests/firebase/*.test.js` the same way for tasks 50–52. (3) `firebase.json` also sets
+  `emulators.singleProjectMode` and a hosting `ignore` list. (4) `tools/configure.mjs` has a `--placeholder` mode that
+  writes the committed defaults (that's how `firestore.rules` is rendered with admin@example.com), lowercases the admin
+  email, and defaults `--project` to the config's projectId. (5) `firestore.indexes.json` exempts `stateJson` with a
+  `fieldOverrides` entry on collection group `saves`. Where: firestore.rules.template, package.json, firebase.json,
+  tools/configure.mjs, firestore.indexes.json.
