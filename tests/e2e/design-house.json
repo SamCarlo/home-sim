@@ -1,0 +1,23 @@
+[
+ {"waitReady": true},
+ {"assert": "document.querySelectorAll('.dz-bcard').length === 3 && document.querySelector('.dz-movein').disabled"},
+ {"click": ".dz-bcard[data-index=\"2\"]"},
+ {"wait": 400},
+ {"assert": "window.__design.sel.index === 2 && document.querySelectorAll('.dz-swatch').length >= 3 && !document.querySelector('.dz-movein').disabled"},
+ {"shot": "tools/shots/t38/1-house-listing.png"},
+ {"click": ".dz-swatch[data-palette=\"1\"]"},
+ {"click": ".dz-beds-add"},
+ {"click": ".dz-beds-add"},
+ {"click": ".dz-trees-add"},
+ {"click": ".dz-coop"},
+ {"click": ".dz-radio input[value=\"dog\"]"},
+ {"wait": 500},
+ {"assert": "document.querySelector('.dz-beds-count').textContent === '2' && document.querySelector('.dz-coop').checked && document.querySelector('.dz-total').textContent.includes('$950')"},
+ {"eval": "({info: window.__design.info(), sel: window.__design.sel})"},
+ {"shot": "tools/shots/t38/2-house-custom.png"},
+ {"click": ".dz-movein"},
+ {"waitFor": ".placeholder .phase-tag"},
+ {"waitReady": true},
+ {"assert": "(s => s.phase === 'life' && s.home.kind === 'house' && s.home.house.listingIndex === 2 && s.home.house.palette === 1 && s.home.house.quirk && s.home.house.address && s.home.plants.length === 3 && s.home.animals.length === 4 && s.home.animals[0].kind === 'dog' && s.home.lifestyle && s.home.modifiers && s.life.monthIndex === 0 && s.life.current.stage === 'welcome' && s.finances.transactions.some(t => t.label === 'Chicken coop and 3 hens' && t.month === -1 && t.amountCents === -40000))(window.__homesim.getState())"},
+ {"eval": "(s => ({cash: s.finances.checkingCents + s.finances.savingsCents, home: s.home}))(window.__homesim.getState())"}
+]

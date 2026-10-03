@@ -1,12 +1,14 @@
-// Phase 3: Design (07 §1). Routes by home type: apartments and condos use the building picker (task 36); houses,
-// shared rooms and builds show a placeholder until their tasks (38 and 41).
+// Phase 3: Design (07 §1). Routes by home type: apartments and condos use the building picker (task 36), houses the
+// listing picker and shared rooms the room picker (task 38); builds show a placeholder until task 41.
 import { h } from '../../ui/dom.js';
 
 const PICKERS = {
   apartment: () => import('./apartmentPicker.js'),
   condo: () => import('./apartmentPicker.js'),
+  house: () => import('./housePicker.js'),
+  shared: () => import('./sharedPicker.js'),
 };
-const LATER = { shared: 38, house: 38, build: 41 };
+const LATER = { build: 41 };
 
 /** Mount the design screen for state.home.kind; returns unmount. */
 export async function mount(container, ctx) {

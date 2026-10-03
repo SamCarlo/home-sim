@@ -76,3 +76,32 @@
   .dz { grid-template-columns: 1fr; height: auto; }
   .dz-stage-wrap { height: 52vh; min-height: 320px; }
 }
+
+/* House and shared-living pickers (07 §3–§4, task 38). */
+.dz-chip.is-good { background: var(--sky-wash); color: var(--sky-deep); border-color: var(--sky); }
+.dz-chip.is-warn { background: var(--plumeria); color: var(--sunset-ink); border-color: var(--plumeria-line); }
+.dz-quirk-note { font-size: .82rem; color: var(--ink-2); }
+.dz-swatches { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.dz-swatch {
+  display: flex; flex-direction: column; width: 52px; height: 44px; padding: 0; overflow: hidden; cursor: pointer;
+  border: 2px solid var(--line-2); border-radius: var(--r-sm); background: var(--sw-trim);
+}
+.dz-swatch-roof { flex: 0 0 14px; background: var(--sw-roof); }
+.dz-swatch-wall { flex: 1; margin: 3px 6px 0; background: var(--sw-wall); }
+.dz-swatch.is-on { border-color: var(--sky-deep); box-shadow: 0 0 0 2px var(--sky-wash); }
+.dz-yard { display: flex; flex-direction: column; gap: var(--sp-2); }
+.dz-check, .dz-radio { display: flex; align-items: center; gap: var(--sp-2); font-size: .9rem; cursor: pointer; }
+.dz-pets { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); margin: 0; padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-md); }
+.dz-pets legend { padding: 0 4px; font-size: .85rem; color: var(--ink-2); }
+.dz-lines { list-style: none; margin: 6px 0 2px; padding: 0; font-size: .85rem; }
+.dz-lines li { display: flex; justify-content: space-between; gap: var(--sp-2); }
+.dz-lines .dz-total { margin-top: 2px; padding-top: 2px; border-top: 1px solid var(--plumeria-line); font-weight: 700; }
+.dz-warn { color: var(--sunset-ink) !important; font-weight: 600; }
+.dz-mates { display: flex; flex-direction: column; gap: var(--sp-2); }
+.dz-mate { display: flex; gap: var(--sp-2); align-items: flex-start; padding: var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--field); }
+.dz-mate-face {
+  flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--accent-wash); color: var(--accent-ink); font-weight: 700; border: 1px solid var(--accent-line);
+}
+.dz-mate-body { display: flex; flex-direction: column; gap: 4px; }
+.dz-effects { margin: var(--sp-2) 0 0; font-size: .85rem; }

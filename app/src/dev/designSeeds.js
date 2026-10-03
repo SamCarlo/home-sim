@@ -28,4 +28,10 @@ export function addDesignSeeds(seeds) {
   seeds['design-condo-miami'] = { phase: 'design',
     description: 'Miami condo approved: pick a glass tower, floor and unit.',
     build: designFrom(seeds, 'paperwork-ready-condo') };
+  seeds['design-house-katy'] = { phase: 'design',
+    description: 'Katy house approved: pick one of three listings and customize it (garden, trees, coop, pet).',
+    build: designFrom(seeds, 'paperwork-ready-house') };
+  seeds['design-shared-honolulu'] = { phase: 'design',
+    description: 'Honolulu room approved: pick a shared house, a room, and meet the roommates.',
+    build: designFrom(seeds, 'paperwork-ready-shared') };
 }

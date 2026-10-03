@@ -1335,3 +1335,37 @@ Append-only. Each task adds a `## Task NN — <title>` section with `attempt sta
   - Shared variant always uses houseGen; 07 §4's "or buildingGen depending on the style" is the picker's call (task 38).
   - Loose ends: the brownstone stoop's iron handrail bars render as thin stray lines (styleParts addPorch 'stoop', from
     task 34); bikes are small at the default framing; Alaska 'boat' extra not drawn.
+
+## Task 38 — Phase 3: house listings and shared-room picker
+- attempt started 2026-10-02T13:23:49-10:00
+- attempt started 2026-10-02T14:55:48-10:00
+- done 2026-10-02T15:00:30-10:00
+- Files (attempt 1 built most of it; attempt 2 reviewed, fixed and verified): `phases/design/houseModel.js` (pure:
+  listings, QUIRKS, normalizeCustom, customLines/customCost, afterCustom, houseLifestyle, quirkModifiers, moveInHouse),
+  `housePicker.js`, `sharedModel.js` (pure: sharedOptions, roomNotes, agreementRules, roommateEffects,
+  sharedLifestyle, moveInShared), `sharedPicker.js`, `houseView.js` (one house at a time + room pin),
+  `pickerParts.js` (section, chips, stepper, pickerShell, rerender), `designScreen.js` (house/shared routes),
+  `config.js` (DESIGN.house, DESIGN.shared), `styles/design.css`, `dev/designSeeds.js` (design-house-katy,
+  design-shared-honolulu), `tools/smoke.txt`, `tests/unit/housePickers.test.js`, `tests/e2e/design-{house,shared}.json`.
+- Fix this attempt: the fruit-tree stepper label used listing 0's fruit kind; it now uses the chosen listing's (Hawaiʻi
+  listings can differ: mango vs citrus).
+- Verified: `bash tools/check.sh` OK (173 files, tests, smoke 58/58). e2e: `node tools/shoot.mjs --path
+  "/index.html?seed=design-house-katy&theme=light" --steps tests/e2e/design-house.json --wait-ready --out …` and the
+  shared one; both end in phase life with the right home fields. Shots in tools/shots/t38/ (read):
+  - 1-house-listing.png: Katy 2-story brick hip-roof house with garage + car; three listing cards (old roof, fixer-upper
+    kitchen, big yard), third selected; 3 exterior swatches. 
+  - 2-house-custom.png: palette 2 (red brick, dark roof) applied; 2 beds, 1 citrus tree, coop, dog; summary lists the
+    four lines, total $950, savings after $29,200. Coop corner visible behind the house; 83 calls / 10.7k tris.
+  - 3-shared-house.png: Honolulu 2-story modern shared house with carport, block wall, bikes; ocean and Diamond Head
+    behind; three house cards with roommate names; room cards (upstairs, back, corner).
+  - 4-shared-room.png: blue pin over the upstairs room; roommates Keʻala 27 (messy/early bird/quiet/baking) and Joseph
+    26; effects line "social +1, noise ±0, chores ±0"; 2 lānai plants $40; Move in enabled. 76 calls.
+  - 5-house-life / 6-shared-life: life placeholder after Move in.
+- Deviations: extra house/shared fields; shared always uses houseGen (DEVIATIONS.md).
+- Notes for later tasks:
+  - Task 42+ (life): read `home.modifiers` (roofLeakMultiplier, electricFactor, kitchenRepairs) for house quirks and
+    `home.lifestyle.choresHours` for shared roommates. Animals: pet spot 'yard', hens spot 'coop'; plants: beds
+    'bed-0..2', trees 'tree-0..1' (map to houseGen plan.spots), shared potted plants spot 0..2. Pet food/vet recurring
+    costs are NOT added yet (07 §3 "later"): add them when the month sim lands.
+  - `window.__design = {sel, info(), house()}` in both pickers for e2e.
+  - The ʻokina spacing open item shows in roommate names ("Ke ʻala") on the shared cards.

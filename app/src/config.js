@@ -399,6 +399,33 @@ export const DESIGN = {
     glass: { laundry: 1, parking: 0.8, elevator: 1, pool: 0.7, gym: 0.8, rooftop: 0.5 },
     townhomes: { laundry: 1, parking: 1, elevator: 0, pool: 0.3, gym: 0, rooftop: 0 },
   },
+  // 07 §3 house listings and light customization (paid from savings, never below $0; warn under lowCashCents).
+  house: {
+    quirks: ['old-roof', 'big-yard', 'solar', 'fixer-kitchen', 'mountain-view', 'busy-street'],
+    roofLeakMultiplier: 3,      // 09 §5 roof-leak chance ×3 with "old roof"
+    solarElectricFactor: 0.5,   // 07 §3: solar cuts electricity 50%
+    bigYardLot: 1.6,            // "big yard" lot size multiplier
+    sqftJitter: 0.12,           // listings vary ± this share around the location's median sq ft
+    yearBuilt: [1955, 2022],
+    suburbBuiltFrom: 1982,      // master-planned suburbs (Katy) are newer
+    bedCents: 12000,            // garden bed $120 (0–3)
+    maxBeds: 3,
+    treeCents: 6000,            // fruit tree $60 (0–2)
+    maxTrees: 2,
+    coopCents: 40000,           // chicken coop + 3 hens $400
+    hens: 3,
+    petCents: { cat: 15000, dog: 25000 },
+    lowCashCents: 100000,       // warn when savings would drop below $1,000
+  },
+  // 07 §4 shared living: rooms per house, roommate ages and the agreement's softening.
+  shared: {
+    rooms: [2, 3],
+    roommates: 2,
+    ages: [19, 35],
+    hobbies: ['surfing', 'gaming', 'cooking', 'guitar', 'hiking', 'basketball', 'painting', 'gardening', 'reading', 'baking'],
+    quietHoursSoften: 0.5,      // agreed quiet hours take this much off the roommates' noise
+    choresSystemSoften: 0.5,    // a chore chart (or clean-as-you-go) halves the extra chore hours from messy roommates
+  },
 };
 
 /** 08 §6–§7: props and the character. */

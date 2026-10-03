@@ -191,3 +191,13 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   the path and driveway) instead of the swatch's short front wall; Hawaiʻi plantation and Miami use flowering hedges;
   Texas has an open lawn. Brownstones get the two neighbours in the row (other palettes) and no fire escape. Where:
   `three/houseYard.js`, `three/houseGen.js`.
+- 2026-10-02, task 38, extra house fields: besides 02 §2's `house {seed, listingIndex, address, palette, extras}`, Move in
+  stores `house.quirk/sqft/beds/baths/lotAcres/yearBuilt/gardenBeds/fruitTrees/coop/pet`, `home.address`, and
+  `home.modifiers {roofLeakMultiplier, electricFactor, kitchenRepairs}` (the quirk effects for the life tasks).
+  `extras` holds strings like `garden-beds:2`, `coop`, `pet:dog`. `lifestyle` adds `garden`. Customization is charged
+  line by line from savings then checking (month −1, category 'lifestyle'); Move in refuses if the total exceeds cash.
+  Where: `phases/design/houseModel.js`.
+- 2026-10-02, task 38, shared living: 07 §4 allows houseGen or buildingGen "depending on the style"; the picker always
+  uses houseGen (`variant: 'shared'`), so Honolulu's highrise family still gets a house. `home.shared` adds `address`,
+  `room {id, label, sqft, view, closet, bath, noise}`, `effects {social, noise, choresHours, softened}` and roommate
+  `age`; `lifestyle` adds `choresHours`. Roommate noise is 0, 0.5 or 1 before softening. Where: `phases/design/sharedModel.js`.

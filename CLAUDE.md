@@ -17,7 +17,7 @@ month by month from January 2033. Vanilla ES modules with an import map, no buil
 
 ## Key rules (01 §3–§4)
 - **Pure modules** (`util/ data/ finance/ letters/ life/`, `state/{schema,migrate,summary}.js`, `phases/plan/preview2d/`,
-  `phases/design/blueprint/{model,validate,cost,templates}.js`, `phases/design/{buildingPlan,apartmentModel,housePlan}.js`): no DOM, `window`, `localStorage`, `three` or network;
+  `phases/design/blueprint/{model,validate,cost,templates}.js`, `phases/design/{buildingPlan,apartmentModel,housePlan,houseModel,sharedModel}.js`): no DOM, `window`, `localStorage`, `three` or network;
   relative imports only; importable from Node tests.
 - three.js, the spelling dictionary and Firebase load lazily with `import()`; login, intake and the plan table never pull them in.
 - Money is integer cents (format only at the UI edge with `util/format.js`); rates are decimals.
@@ -432,8 +432,8 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   (`window.__buildings` stats, `window.__pick(px, py)`); e2e `tests/e2e/buildings-pick.json`. Three buildings ≤ 135 calls.
 
 ## Phase 3: Design (07, `app/src/phases/design/`)
-- `designScreen.js` routes by `home.kind`: apartment/condo → `apartmentPicker.js`; shared/house/build show placeholders
-  (tasks 38/41 add theirs to `PICKERS`).
+- `designScreen.js` routes by `home.kind`: apartment/condo → `apartmentPicker.js`, house → `housePicker.js`, shared →
+  `sharedPicker.js`; build shows a placeholder (task 41 adds it to `PICKERS`).
 - Apartment/condo picker (task 36, 07 §2): pure `apartmentModel.js` `buildingOptions(state)` → 3 × `{index, seed
   (seedFor(meta.seed, 'building', i)), name, plan, form, formLabel, amenities, floors}`; `unitTraits(locId, option, floor,
   unit)` → `{view, noise −1…1, sun, stairs (flights), lotsOfStairs}`; `lifestyleFor`, `traitNotes`, `unitLabel` ("Unit 4B" /
@@ -453,6 +453,17 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   `plan kit info`; body = styleSwatch `addBody`/`addExtras` + wings + `houseYard.js` `addYard` (lawn, sidewalk, path,
   driveway, picket|iron|ranch|hedge|lava|block fence) in one merged mesh; repeated props are instanced. Gallery
   `?dev=houses&loc=&variant=house|shared&seed=&palette=&extras=0|1` (`window.__houses`). Single houses 79–108 calls.
+- House picker (task 38, 07 §3): pure `houseModel.js` `listings(state)` → 3 × `{index, seed (seedFor(meta.seed,'house',i)),
+  plan, sqftTarget, bedrooms, address, sqft, beds, baths, lotAcres, yearBuilt, quirk, priceCents, palette, fruitKind}`;
+  `QUIRKS`, `normalizeCustom`, `customLines/customCost`, `afterCustom(state, c)` → `{leftCents, ok, low}`, `quirkModifiers`,
+  `moveInHouse(s, {index, palette, gardenBeds, fruitTrees, coop, pet})` (charges each line from savings→checking at
+  month −1, refuses if short) → `home.house`, plants, animals, `lifestyle`, `modifiers`. Tunables `DESIGN.house`.
+- Shared picker (task 38, 07 §4): pure `sharedModel.js` `sharedOptions(state)` → 3 × `{seed, plan, address, rooms[2–3],
+  roommates[2] {name, age, traits [3 pair picks + hobby]}, rentCents}`; `roommateEffects(mates, agreementRules(state))`;
+  `moveInShared(s, {index, roomId, plants})`. Tunables `DESIGN.shared`. Both pickers use `houseView.js`
+  `createHouseView(stage, {location, variant})` → `{show({seed, palette, extras, sqft, bedrooms, pin}), info, current,
+  firstFrame, dispose}` and `pickerParts.js` (pickerShell, section, chips, stepper, rerender). Seeds `design-house-katy`,
+  `design-shared-honolulu`; e2e `tests/e2e/design-house.json`, `design-shared.json`.
 - `scene.setPanLimits({half, yMax})` widens the pan clamp (default ±`SCENE3D.lotHalf`, look-at y ≤ 40).
 
 ## Gotchas
