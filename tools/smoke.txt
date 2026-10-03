@@ -73,3 +73,6 @@ life-live-house /index.html?seed=life-live-house&theme=light&speed=4
 life-summary /index.html?seed=life-summary&theme=light
 life-overdue /index.html?seed=life-overdue&theme=light
 life-year-review /index.html?seed=life-year-review&theme=light
+life-invest /index.html?seed=life-invest&theme=light
+life-invest-held /index.html?seed=life-invest-held&theme=light
+life-invest-live /index.html?seed=life-invest-live&theme=light&speed=4

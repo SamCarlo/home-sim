@@ -4,7 +4,10 @@ import { h } from '../../ui/dom.js';
 import { formatMoney } from '../../util/format.js';
 import { moneyStrip } from '../../life/monthFlow.js';
 
-/** Render the money strip; returns `{el, update(state)}`. Each figure has `data-key` for later tweening (task 48). */
+/**
+ * Render the money strip; returns `{el, update(state), tick({key: cents})}`. `tick` rewrites single figures in place
+ * (the investment ticker, task 48); the next `update` redraws everything from the state.
+ */
 export function renderMoneyStrip(state) {
   const el = h('section', { class: 'life-money', 'aria-label': 'Your money' });
   function update(s) {
@@ -13,6 +16,14 @@ export function renderMoneyStrip(state) {
       h('span', { class: `life-money-value${it.cents < 0 ? ' neg' : ''}` }, formatMoney(it.cents)),
     )));
   }
+  function tick(values) {
+    for (const [key, cents] of Object.entries(values)) {
+      const v = el.querySelector(`[data-key="${key}"] .life-money-value`);
+      if (!v) continue;
+      v.textContent = formatMoney(cents);
+      v.classList.toggle('neg', cents < 0);
+    }
+  }
   update(state);
-  return { el, update };
+  return { el, update, tick };
 }

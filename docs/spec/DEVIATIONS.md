@@ -293,3 +293,9 @@ and where in the code. Keep entries short. The teacher's intent in `99-original-
   box at the top of the summary (first miss or final notice, with "Here's what you can try next") rather than in the
   bills list. `result.netWorthBeforeCents` was added to finalizeMonth so the year review's starting net worth is exact.
   Where: life/monthReport.js, life/finalizeMonth.js, phases/life/summary.js.
+- 2026-10-02, task 48, investment details: buys and sells post 'transfer' transactions (`Invested in …` / `Sold …`) so
+  they are never income or spending in month totals. Sells accept whole dollars or "Sell all" (the exact value, which
+  can have cents). Outside the animation the plan stage labels the figure "Average growth rate last month" (the latest
+  month-end change); the live and summary stages say "this month". The intro card shows until the first buy (no extra
+  state field). A buy in the summary stage is dated the month's last day. Where: life/investments.js,
+  phases/life/investPanel.js, phases/life/lifeScreen.js.

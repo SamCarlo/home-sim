@@ -3,7 +3,9 @@
 // summary → next month. Each stage change saves a checkpoint. The plan stage holds the questions + time budget (task 43,
 // questions.js + timeBudgetView.js); the live stage plays "Live this month" (task 45, animation.js) over the 3D view and
 // runs finishLive when it ends, with the water-and-feed button's counts (careButton.js, task 46); the summary and, after
-// each December, the year in review come from summary.js and yearReview.js (task 47).
+// each December, the year in review come from summary.js and yearReview.js (task 47). The investment block
+// (investPanel.js, task 48) sits in the plan, live and summary panels once unlocked; while the month plays, the money
+// strip's Investments and Net worth figures and the block's totals tick along the month's market path.
 import { h } from '../../ui/dom.js';
 import { byId } from '../../data/locations/index.js';
 import { monthLabel, monthName } from '../../util/dates.js';
@@ -20,12 +22,23 @@ import { createAnimation } from './animation.js';
 import { createCareGame } from './careButton.js';
 import { renderSummary } from './summary.js';
 import { renderYearReview } from './yearReview.js';
+import { renderInvestPanel } from './investPanel.js';
+import { buy, sell, valueAt, monthSeries, totalInvested } from '../../life/investments.js';
+import { netWorth } from '../../finance/ledger.js';
 import { getFlag } from '../../dev/flags.js';
 
 /**
- * The panel for each stage: `(ctx) → Node[]`. ctx = {state, go(fn, checkpoint), store, onUpdate(fn)}. A panel that
- * registers `onUpdate(fn)` is built once per stage/month and gets `fn(state)` on every later store change.
+ * The panel for each stage: `(ctx) → Node[]`. ctx = {state, go(fn, checkpoint), store, onUpdate(fn), onTick(fn)}. A panel
+ * that registers `onUpdate(fn)` is built once per stage/month and gets `fn(state)` on every later store change;
+ * `onTick(fn)` gets `fn(value, series)` on every animation frame of a month with investments (10 §5).
  */
+/** The investment block for a stage (null while locked); buys and sells save an 'invest' checkpoint (10 §3). */
+function investBlock(state, go, mode, day = 1) {
+  return renderInvestPanel({ state, mode,
+    onBuy: (key, cents) => go((s) => { buy(s, key, cents, { day }); }, 'invest'),
+    onSell: (key, cents) => go((s) => { sell(s, key, cents, { day }); }, 'invest') });
+}
+
 const PANELS = {
   welcome({ state, go }) {
     const mi = state.life.monthIndex;
@@ -48,21 +61,26 @@ const PANELS = {
     const budget = renderTimeBudget(timeBudget(state, choices));
     const live = h('button', { class: 'btn btn-primary btn-lg life-go', type: 'button', disabled: !canLive(choices),
       onClick: () => go(startLive, 'life-live') }, 'Live this month');
+    const invest = investBlock(state, go, 'plan');
     onUpdate((s) => {
       const c = s.life.current?.choices ?? {};
       questions.update(c);
       budget.update(timeBudget(s, c));
       live.disabled = !canLive(c);
+      invest?.update(s);
     });
     return [
       h('p', { class: 'life-eyebrow' }, `Plan · ${monthLabel(mi)}`),
       h('h1', { class: 'life-title' }, welcomeTitle(mi)),
       questions.el,
+      invest?.el,
       // The bar and the button stay pinned at the bottom of the panel so the bar is in view while answering.
       h('div', { class: 'life-plan-foot' }, budget.el, live),
     ];
   },
-  live({ state, go }) {
+  live({ state, go, onTick }) {
+    const invest = investBlock(state, go, 'live');
+    if (invest) onTick(invest.tick);
     return [
       h('p', { class: 'life-eyebrow' }, `Living · ${monthLabel(state.life.monthIndex)}`),
       h('h1', { class: 'life-title' }, `Living ${monthName(state.life.monthIndex)}…`),
@@ -70,14 +88,18 @@ const PANELS = {
         + 'their day; the summary comes at the end.'),
       // The animation's controls mount here once the 3D view is ready (startAnimation below).
       h('div', { class: 'life-slot', dataset: { slot: 'live' } }),
+      invest?.el,
     ];
   },
-  summary({ state, go }) {
+  summary({ state, go, onUpdate }) {
     const mi = state.life.monthIndex;
+    const invest = investBlock(state, go, 'summary', state.life.current?.plan?.days ?? 28);
+    if (invest) onUpdate((s) => invest.update(s));
     return [
       h('p', { class: 'life-eyebrow' }, 'Month summary'),
       h('h1', { class: 'life-title' }, `${monthLabel(mi)} — how it went`),
       h('div', { class: 'life-summary', dataset: { slot: 'summary' } }, ...renderSummary(state)),
+      invest?.el,
       h('div', { class: 'life-plan-foot' },
         h('button', { class: 'btn btn-primary btn-lg life-go', type: 'button', onClick: () => go(nextMonth, 'life-month') },
           isYearEnd(mi) ? 'See your year in review' : `Continue to ${monthName(mi + 1)}`)),
@@ -115,7 +137,7 @@ export async function mount(container, { store }) {
       panel));
   container.append(root);
 
-  let shownStage = null, shownMonth = null, panelUpdate = null, anim = null, care = null, viewReady = false, view = null;
+  let shownStage = null, shownMonth = null, panelUpdate = null, panelTick = null, anim = null, care = null, viewReady = false, view = null;
   /** Start the month's animation once the live panel and the 3D view (or its failure) are both ready. */
   function startAnimation(s) {
     if (anim || !viewReady || currentStage(s) !== 'live' || !s.life.current.plan) return;
@@ -131,7 +153,21 @@ export async function mount(container, { store }) {
     care = createCareGame({ plan: s.life.current.plan, anim, wrap: stage.parentElement, settings: s.settings,
       seed: s.meta.seed, flag: getFlag('care') });
     root.dataset.anim = reduced ? 'calendar' : '3d';
+    startTicker(s, anim);
     slot.replaceChildren(...[anim.el, care.el].filter(Boolean));
+  }
+  /** 10 §5 / 09 §9: Investments, Net worth and the block's totals follow the market path, tweened between days. */
+  function startTicker(s, a) {
+    const { market, days } = s.life.current.plan;
+    if (!market || totalInvested(s) <= 0) return;
+    const series = monthSeries(s, market, days);
+    const netBase = netWorth(s) - totalInvested(s);
+    a.onTick(({ index, t, done }) => {
+      const pos = done ? days : index + t;
+      const v = valueAt(s, market, pos);
+      money.tick({ investments: v.valueCents, net: netBase + v.valueCents });
+      panelTick?.(v, [...series.slice(0, Math.floor(pos) + 1), v.valueCents]);
+    });
   }
   function stopAnimation() {
     care?.dispose();
@@ -154,10 +190,11 @@ export async function mount(container, { store }) {
       return;
     }
     if (s.life.monthIndex !== shownMonth && shownMonth !== null) view?.scene.setSeason(s.life.monthIndex);
-    shownStage = st; shownMonth = s.life.monthIndex; panelUpdate = null;
+    shownStage = st; shownMonth = s.life.monthIndex; panelUpdate = null; panelTick = null;
     stopAnimation();
     if (st !== 'live') view?.syncHome(s); // wilted plants, departed or new animals (care game, home & garden answer)
-    panel.replaceChildren(...PANELS[st]({ state: s, go, store, onUpdate: (fn) => { panelUpdate = fn; } }).filter(Boolean));
+    panel.replaceChildren(...PANELS[st]({ state: s, go, store, onUpdate: (fn) => { panelUpdate = fn; },
+      onTick: (fn) => { panelTick = fn; } }).filter(Boolean));
     panel.scrollTop = 0;
     startAnimation(s);
   }

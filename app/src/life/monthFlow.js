@@ -9,6 +9,7 @@ import { accountValue } from '../finance/ledger.js';
 import { netWorth } from '../finance/ledgerTotals.js';
 import { planMonth } from './planMonth.js';
 import { finalizeMonth } from './finalizeMonth.js';
+import { checkUnlock } from './investments.js';
 
 export const STAGES = LIFE_STAGES;
 /** The four core questions that must be answered before "Live this month" (09 §2–§3). */
@@ -98,9 +99,10 @@ export function moneyStrip(state) {
   ];
 }
 
-/** welcome → plan: pre-selects the choices. Mutates a store draft. */
+/** welcome → plan: pre-selects the choices and runs the investing unlock check (10 §1). Mutates a store draft. */
 export function startPlan(s) {
   s.life.current = { ...(s.life.current ?? {}), stage: 'plan', choices: defaultChoices(s) };
+  checkUnlock(s);
 }
 
 /** Record one answer during plan. Mutates a store draft. */

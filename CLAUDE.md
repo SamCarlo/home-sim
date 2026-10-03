@@ -584,6 +584,16 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
   (Hilo, 12 months lived, review stage). e2e `tests/e2e/life-two-months.json` (`?seed=life-plan-filled&theme=light&speed=20&care=hit`),
   `life-year-review.json`.
 
+- Investments (task 48, 10): pure `life/investments.js` `checkUnlock(s)` (startPlan calls it; `INVEST.unlockCents`),
+  `maxInvest` (cash − `INVEST.reserveCents`, ≥ 0), `validateBuy/validateSell(state, key, text)` → `{ok, cents, error}`,
+  `buy(s, key, cents)` (savings → checking) / `sell(s, key, cents)` (→ savings, basis cut in proportion), both 'transfer'
+  txns; `typicalYearRange(p)` (10th–90th pct), `valueAt(state, market, pos)` → `{startCents, valueCents, pct, byKey}`
+  (pos = fractional days, tweened), `monthSeries`, `historySeries`, `lastMonthGrowth`, `sparkLine`. `phases/life/investPanel.js`
+  `renderInvestPanel({state, mode plan|live|summary, onBuy, onSell})` → `{el, update, tick(v, series)}` (null while locked;
+  forms disabled in live). lifeScreen's `investBlock` saves checkpoint 'invest'; panels get ctx `onTick(fn)`;
+  `startTicker` moves `moneyStrip.tick({investments, net})` each frame. Seeds `life-invest` (intro), `life-invest-held`
+  (February plan with holdings), `life-invest-live`; e2e `tests/e2e/life-invest.json`, `life-invest-live.json`.
+
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
 - `main.js`: `?seed=` → `local-dev` user + fixture (saved at once, no login); otherwise `accounts.current()` or the login

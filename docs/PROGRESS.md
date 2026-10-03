@@ -1732,3 +1732,34 @@ life-month1-house · seed 7 · income $4,300/mo
   - The year in review reads `life.history` by calendar year, so it works after an eviction gap too. Reflections are
     `life.reflections [{year, monthIndex, text, savedAt}]` for the admin console (task 52).
   - Sparklines use a 0–100 scale, so a year of small drifts looks flat; that's honest, not a bug.
+
+## Task 48 — Investment block
+- attempt started 2026-10-02T22:35:54-10:00
+- done 2026-10-02T22:47:29-10:00
+- Files: new `app/src/life/investments.js` (pure: cashCents, checkUnlock, maxInvest, holdings, totalInvested, neverInvested,
+  parseDollars, validateBuy/validateSell, buy, sell, typicalYearRange, pathAt, valueAt, monthSeries, historySeries,
+  lastMonthGrowth, sparkLine), `app/src/phases/life/investPanel.js` (renderInvestPanel), `tests/unit/investments.test.js` (11),
+  e2e `tests/e2e/life-invest.json` (on life-invest: validation, buy $5,000 high risk through the UI, sell $1,000),
+  `life-invest-live.json` (on life-invest-live: paused seeks tick the strip and block, summary matches result);
+  changed `life/monthFlow.js` (startPlan runs checkUnlock), `phases/life/lifeScreen.js` (invest block in plan/live/summary,
+  ctx `onTick`, startTicker), `phases/life/moneyStrip.js` (`tick({key: cents})`), `dev/lifeSeeds.js` (seeds life-invest,
+  life-invest-held, life-invest-live), `styles/life.css` (`inv-`), `tools/smoke.txt` (+3).
+- Verified: `node --test tests/unit/investments.test.js` 11/11 (incl. 5,000-month mean/std of log returns per portfolio,
+  ticker end == finalizeMonth); `bash tools/check.sh` OK (212 files, smoke 76/76); e2e life-invest, life-invest-live,
+  life-two-months, life-flow all OK.
+  Shots (tools/shots/t48/):
+  - 1-intro: Katy January plan, "Investing" block with the green intro card and the three risk cards (green/yellow/red
+    edges, blurbs, typical-year ranges 88–$1,095 / $934–$1,207 / $855–$1,356); strip shows Investments $0.
+  - 1b-bought: after buying $5,000 and selling $1,000: strip Investments $4,000, Savings $25,480, totals $4,000, growth "—".
+  - 2-held: February plan, Total investments $9,955, "Average growth rate last month −0.45%" in red, sparkline.
+  - 3-live-day14 / 3b-live-day24: Mon Feb 14 paused, strip Investments $9,745 and net worth $67,394, block −2.11% with the
+    month's sparkline so far; forms greyed out with "Buying and selling opens again when the month is over"; day 24
+    shows $9,762 / −1.94% (values move along the path).
+  - 4-summary: February summary, the block re-enabled with $9,840 and "Average growth rate this month −1.16%".
+- Deviations (DEVIATIONS.md): buys/sells are 'transfer' transactions; sells take whole dollars or Sell all; the plan stage
+  shows last month's growth rate; the intro shows until the first buy.
+- Notes for later tasks:
+  - The block's `.inv-fs` fieldsets are disabled in the live stage; `#inv-amount`, `.inv-card[data-key]`, `.inv-buy`,
+    `#inv-sell-pick`, `#inv-sell-amount`, `.inv-sell-btn`, `.inv-sell-all` for e2e; `[data-inv=total|pct]`.
+  - In the plan stage the pinned time-budget foot covers the lower half of the block; the panel scrolls (09 §1 allows it).
+  - The year review still has no investment line (task 47 note).

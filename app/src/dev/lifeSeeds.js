@@ -7,6 +7,7 @@ import { sharedOptions, moveInShared } from '../phases/design/sharedModel.js';
 import { moveInBuild } from '../phases/design/blueprint/moveIn.js';
 import { addYardItem } from '../phases/design/blueprint/yard.js';
 import { startPlan, setChoice, startLive, finishLive, nextMonth } from '../life/monthFlow.js';
+import { buy } from '../life/investments.js';
 
 /** Fail loudly when a seed's Move in refuses (a seed that silently stays in design would hide bugs). */
 function ok(result, name) {
@@ -107,4 +108,25 @@ export function addLifeSeeds(seeds) {
       nextMonth(s);
       return s;
     } };
+  seeds['life-invest'] = { phase: 'life',
+    description: 'Katy house, January 2033 plan stage with $29,480 saved: investing just unlocked, nothing invested yet (the intro card).',
+    build: (now) => { const s = seeds['life-month1-house'].build(now); startPlan(s); return s; } };
+  /** Katy house: $4,000 medium + $6,000 high bought in January, January lived; stops in February's plan. */
+  const held = (now) => {
+    const s = seeds['life-invest'].build(now);
+    buy(s, 'medium', 400000);
+    buy(s, 'high', 600000);
+    startLive(s);
+    s.life.current.care = { shown: 4, hits: 4 };
+    finishLive(s);
+    nextMonth(s);
+    startPlan(s);
+    return s;
+  };
+  seeds['life-invest-held'] = { phase: 'life',
+    description: 'Katy house, February 2033 plan stage holding medium and high risk investments after one month of growth.',
+    build: held };
+  seeds['life-invest-live'] = { phase: 'life',
+    description: 'Katy house, February 2033 live stage with investments: the money strip and the block tick along the market path.',
+    build: (now) => { const s = held(now); startLive(s); return s; } };
 }

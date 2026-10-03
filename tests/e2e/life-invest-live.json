@@ -1,0 +1,19 @@
+[
+  {"waitFor": ".life-anim"},
+  {"eval": "window.__life.animation().pause(); window.__life.animation().seek(14, 0.5)"},
+  {"wait": 500},
+  {"eval": "document.querySelector('.inv').scrollIntoView({block: 'start'})"},
+  {"assert": "document.querySelector('.inv-fs').disabled"},
+  {"eval": "[document.querySelector('.m-investments .life-money-value').textContent, document.querySelector('[data-inv=pct]').textContent]"},
+  {"shot": "tools/shots/t48/3-live-day14.png"},
+  {"eval": "window.__life.animation().seek(24, 0.2)"},
+  {"wait": 500},
+  {"eval": "[document.querySelector('.m-investments .life-money-value').textContent, document.querySelector('[data-inv=pct]').textContent]"},
+  {"shot": "tools/shots/t48/3b-live-day24.png"},
+  {"eval": "window.__life.animation().resume(); window.__life.animation().seek(31, 0.98)"},
+  {"waitFor": ".life-summary"},
+  {"assert": "(() => { const s = window.__homesim.getState(); const r = s.life.current.result.investment; const shown = document.querySelector('.m-investments .life-money-value').textContent; return r.startCents > 0 && shown === '$' + Math.round(r.endCents / 100).toLocaleString('en-US'); })()"},
+  {"eval": "document.querySelector('.inv').scrollIntoView({block: 'start'})"},
+  {"wait": 300},
+  {"shot": "tools/shots/t48/4-summary.png"}
+]
