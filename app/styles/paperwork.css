@@ -200,3 +200,6 @@
 .pw-res-dontpay + .pw-res-dontpay { margin-top: var(--sp-3); }
 .pw-res-dontpay h4 { margin: 0; font-size: 1rem; }
 .pw-res-actions { display: flex; justify-content: flex-end; padding-bottom: var(--sp-6); }
+
+/* "Words to know" glossary line above each step (stepTerms.js, task 55). */
+.pw-words { margin: 0 0 var(--sp-3); }

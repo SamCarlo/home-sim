@@ -28,7 +28,7 @@ const NOTES = {
   ho6: 'Condo insurance (HO-6) covers the inside of your unit. The HOA master policy covers the building.',
   hoa: 'Monthly dues to the condo association for the roof, halls, grounds and the building insurance.',
   ho3: 'Homeowners insurance (HO-3) covers the house and your liability. The lender requires it.',
-  hazard: 'Extra coverage the lender requires here because regular homeowners insurance leaves this hazard out.',
+  hazard: 'Regular homeowners insurance leaves this risk out here, so the lender makes you buy extra coverage.',
   buildDown: 'Construction lenders want 20% of the whole project in cash: the lot, building and site work.',
   buildClosing: 'Fees to set up the construction-to-permanent loan, 3% of the loan.',
   permit: 'County fees to approve your plans and inspect the work as it is built.',

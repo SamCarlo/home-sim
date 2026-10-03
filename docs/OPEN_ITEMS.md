@@ -12,7 +12,7 @@ mark it ✅ with the date and who resolved it.
 - [ ] *(Optional)* Rename the game with `GAME_TITLE` in `app/src/config.js`. The working title is "Home & Life Sim".
 
 ## For the build
-- [ ] **ʻokina spacing (task 20)**: in the UI sans font the ʻokina renders with visible space around it ("Hawai ʻ i",
+- [x] ✅ 2026-10-03, task 55: `HS Okina` unicode-range faces in tokens.css (local Noto Sans/Serif etc. for U+02BB). **ʻokina spacing (task 20)**: in the UI sans font the ʻokina renders with visible space around it ("Hawai ʻ i",
   "ʻ Āina") in computed fields and intros (see tools/shots/t20/*). Likely a font fallback for U+02BB. Fix by loading a
   font subset that includes U+02BB or adding a fallback family with the glyph in `tokens.css`; check 12 §6.
 - [ ] **Kahakō in the display font (task 21)**: the paperwork title "House in Pāhoa" (Fraunces, `.pw-title`) appears to

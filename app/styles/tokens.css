@@ -7,6 +7,16 @@
    (guarded so an explicit light choice still wins) and once for data-theme.
    Status and wellbeing hues are meaningful, never decoration.
    --------------------------------------------------------------------------- */
+/* The ʻokina (U+02BB) isn't in the IBM Plex Sans / Fraunces web subsets, so the browser fell back to a CJK font and drew
+   it with wide side gaps ("Hawai ʻ i"). These faces cover only that code point with a local Latin font (Noto ships on
+   ChromeOS; the rest are Windows/macOS/Linux fallbacks). Task 55, 12 §6. */
+@font-face { font-family: "HS Okina"; unicode-range: U+02BB-02BC;
+  src: local("Noto Sans"), local("NotoSans-Regular"), local("Roboto"), local("Segoe UI"), local("Arial"),
+    local("Helvetica Neue"), local("Liberation Sans"), local("DejaVu Sans"); }
+@font-face { font-family: "HS Okina Serif"; unicode-range: U+02BB-02BC;
+  src: local("Noto Serif"), local("NotoSerif-Regular"), local("Georgia"), local("Times New Roman"),
+    local("Liberation Serif"), local("DejaVu Serif"); }
+
 :root {
   color-scheme: light;
 
@@ -80,8 +90,8 @@
   --shadow-lg: 0 2px 4px rgba(20, 28, 36, .08), 0 16px 40px rgba(20, 28, 36, .12);
   --overlay: rgba(16, 21, 26, .45);
 
-  --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
-  --font-display: "Fraunces", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-sans: "HS Okina", "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "HS Okina Serif", "Fraunces", "Iowan Old Style", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --ease: cubic-bezier(.2, .7, .2, 1);

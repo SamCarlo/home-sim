@@ -56,7 +56,7 @@ export const LETTER_TYPES = {
       'Explain what co-signing means: they pay if you can\'t.',
       'Explain why you need a co-signer.',
       'Share your budget and how you will pay every month.',
-      'Name specific safeguards, like autopay, a savings cushion, or sharing your budget with them.',
+      'Name the steps you will take, like autopay, money saved for surprises, or showing them your budget.',
       'Be respectful and say thank you.',
     ],
     greetingExamples: ['Dear Mom,', 'Dear Aunty Mele,', 'Hi Grandpa,'],

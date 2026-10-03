@@ -5,6 +5,7 @@ import { h } from '../../ui/dom.js';
 import { AFFORD } from '../../config.js';
 import { formatMoney } from '../../finance/money.js';
 import { STATUSES } from '../../finance/affordability.js';
+import { term } from '../../ui/term.js';
 import { buildGrid } from '../../finance/grid.js';
 import { createTable } from './table.js';
 import { cellKey, deniedKeys } from './tableModel.js';
@@ -35,7 +36,7 @@ export function mount(container, ctx) {
   const bar = h('section', { class: 'plan-bar card', 'aria-label': 'Your numbers' },
     h('div', { class: 'plan-bar-nums' },
       h('h2', { class: 'plan-bar-title' }, 'Your numbers'),
-      num('Take-home pay', nums.income),
+      num(term('gross-net', 'Take-home pay'), nums.income),
       num('Cash in the bank', nums.cash),
       num('⅓ of your income', nums.third, h('span', { class: 'plan-num-note' }, 'stretch line')),
       num('⅕ of your income', nums.fifth, h('span', { class: 'plan-num-note' }, 'well-below line'))),

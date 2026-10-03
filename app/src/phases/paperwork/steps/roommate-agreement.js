@@ -36,8 +36,8 @@ export const ROOMMATE_CHOICES = {
   conflict: [
     { value: 'talk-24h', label: 'Talk it out within 24 hours', comfort: 1 },
     { value: 'meeting', label: 'A weekly house meeting', comfort: 0.8 },
-    { value: 'hooponopono', label: 'A hoʻoponopono-style talk: acknowledge what happened, take responsibility, '
-      + 'forgive, and release it', comfort: 1 },
+    { value: 'hooponopono', label: 'A hoʻoponopono-style talk: say what happened, own your part, '
+      + 'forgive, and let it go', comfort: 1 },
   ],
   pets: [
     { value: 'none', label: 'No pets', comfort: 0.6 },

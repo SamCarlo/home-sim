@@ -1987,3 +1987,30 @@ life-month1-house · seed 7 · income $4,300/mo
   - Use `{"noRequests": [...]}` (regex sources) for any other lazy-loading claim; `page.requests` is every URL the tab asked for.
   - `sceneApi.memory()` / `sceneApi.leftover` give renderer.info.memory live / after dispose.
   - Not measured: the 600 KB compressed JS+CSS budget for login → plan.
+
+## Task 55 — Copy, glossary and Hawaiian spelling pass
+- attempt started 2026-10-03T03:57:50-10:00
+- done 2026-10-03T04:08:59-10:00
+- Files: new `app/src/content/glossary.js` (40 terms = all of 12 §5, word/def/example), `app/src/ui/term.js` (term(), wordsToKnow,
+  hideTerm), `app/src/phases/paperwork/stepTerms.js` (STEP_TERMS + stepWords), `tools/copy-audit.mjs`, `tests/unit/glossary.test.js`;
+  changed intakeScreen (Gross pay, emergency fund), planScreen (Take-home pay), plan/detail.js (cost-line terms via LINE_TERMS),
+  paperworkScreen (Words to know above every step), insuranceShop (premium, deductible), steps/results.js (security deposit,
+  co-signer, APR), life/moneyStrip.js (net worth), life/investPanel.js (Words to know: stock, bond, index fund,
+  diversification, risk), tools/check.sh (+copy audit), styles tokens.css (HS Okina faces) components.css paperwork.css life.css.
+- Copy pass: rewrote the hardest UI strings (roommate hoʻoponopono option, financing contingency, hazard-line note, Florida
+  repair, energy-code line, theater metric, deductible tip, cosigner letter tip, letter-report explainer, Hawaiʻi hurricane note
+  ×4; DATA_VERSION 1→2). ʻokina audit: only hit was "Kilauea Credit Union" in dev/seeds.js → Kīlauea. Ids/keys stay ASCII.
+- Readability: `node tools/copy-audit.mjs` → 816 sentence-like strings, pooled Flesch–Kincaid grade 4.24 (mean 4.36), target ≤ 7;
+  0 spelling hits. Remaining "hard" strings are data-source citations and the 09 §3 deep-practice question (spec wording, kept).
+- ʻokina rendering (OPEN_ITEMS task 20) fixed: Plex/Fraunces web subsets lack U+02BB, Chrome fell back to a CJK font with wide
+  gaps; unicode-range faces now map just U+02BB–02BC to local Noto Sans/Serif (ChromeOS) → Arial/Georgia etc.
+- Verified: `bash tools/check.sh` OK (syntax 227 · tests · data 11 · contrast · copy · smoke · lazy-plan). e2e: plan-keys, intake,
+  insurance-katy, life-invest, card-offer, paperwork-apartment-full, builder-pahoa ✓. Shots (tools/shots/t55/):
+  - 1-plan-detail-tip: Hilo apartment detail, "Security deposit" focused with ring; tooltip below with definition + example, unclipped by the table frame.
+  - 2-paperwork-tip: renters insurance step, "Words to know: renters insurance, premium, deductible", deductible tip open; premium/
+    deductible underlined in the teach box; "Koaʻe Insurance Group" now renders with a tight ʻokina.
+  - 3-invest-tip (dark): invest panel Words to know, "index fund" tip open, flipped left to stay on screen; Net worth underlined in the money strip.
+- Deviations: none (the paperwork "Words to know" line is how term() reaches form-schema labels without changing the form engine).
+- Notes for later tasks:
+  - term() is a <button>: don't put it inside another button/label-wrapped control; use wordsToKnow() beside it.
+  - The Fraunces kahakō item (task 21) still looks fine in the t55 smoke shot of paperwork-pahoa-house-options; task 57 can close it after a check with web fonts loaded.

@@ -159,7 +159,7 @@ export function permitChecklist(location, cfg = BUILD) {
   if (location.sewer !== 'municipal') items.push({ id: 'septic', label: 'Septic system approval from the Department of Health',
     why: 'Waste has to be treated so it doesn’t pollute the ground water.' });
   items.push({ id: 'energy', label: location.region === 'hawaii'
-    ? 'Energy code, including a solar water heater (required on new houses in Hawaiʻi)'
+    ? 'Energy code, including a solar water heater (Hawaiʻi requires one on new houses)'
     : 'Energy code: insulation, windows and efficient lights', why: 'New homes must use less energy.' });
   if (location.water === 'catchment' || location.water === 'well') items.push({ id: 'catchment', label: location.water === 'well'
     ? 'Well permit and water test' : 'Catchment tank approval (size, cover and filters)', why: 'Your drinking water has to be safe.' });

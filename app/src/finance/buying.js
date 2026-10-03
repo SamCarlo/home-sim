@@ -39,7 +39,7 @@ export function hoaReport(state, cfg = BUYING.hoa) {
     const monthlyCents = roundTo(pickRange(rng, byLocation(cfg.assessmentMonthlyCents, locationId)), 500);
     const months = pickRange(rng, byLocation(cfg.assessmentMonths, locationId));
     const reason = locationId === 'miami'
-      ? 'Concrete and balcony repairs required by the 2022 Florida building-safety law'
+      ? 'Fixing concrete and balconies. A 2022 Florida safety law requires it'
       : rng.pick(['Roof replacement', 'Elevator replacement', 'Repaving the parking lot', 'New fire-alarm system']);
     assessment = { reason, monthlyCents, months, totalCents: monthlyCents * months };
   }

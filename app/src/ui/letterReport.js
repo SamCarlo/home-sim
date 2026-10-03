@@ -11,10 +11,10 @@ const TONE = {
   negative: ['Negative', 'Your letter sounds upset or negative. Readers respond better to a calm, friendly tone, even when things are hard.'],
 };
 
-const EXPLAINER = 'Your letter was scored by a small machine-learning model trained on example letters. It checks '
-  + 'spelling with a Hunspell dictionary, looks for common grammar mistakes, measures tone with VADER (a sentiment-analysis '
-  + "tool), and checks whether you covered what the reader needs to know. It's not a person and it's not an AI chatbot, "
-  + 'but real readers care about the same things.';
+const EXPLAINER = 'A small computer model scored your letter. It learned from example letters. It checks your '
+  + 'spelling and looks for common grammar mistakes. It reads your tone with a tool called VADER. It also checks that you '
+  + "covered what the reader needs to know. It's not a person and it's not an AI chatbot, but real readers care about "
+  + 'the same things.';
 
 /** A kind next step for the lower bands. Every letter can be rewritten. */
 const ENCOURAGE = {

@@ -12,7 +12,7 @@ changing rules, adding a location). Keep their commands, labels and paths true w
 - Serve: `python3 tools/serve.py` → http://127.0.0.1:1270 (`python3 tools/serve.py 8080` for another port)
 - Test: `npm test` (= `node --test "tests/unit/*.test.js"`; Node 25 rejects a bare directory, see DEVIATIONS)
 - Train the letter model: `npm run train:letters` (corpus → `app/src/letters/model.json`; `--dry` reports only)
-- Check: `npm run check` (= `bash tools/check.sh`): syntax → unit tests → data imports → contrast → smoke → lazy-plan network assertion. Run it before every commit.
+- Check: `npm run check` (= `bash tools/check.sh`): syntax → unit tests → data imports → contrast → copy audit → smoke → lazy-plan network assertion. Run it before every commit.
 - Contrast: `node tools/contrast.mjs [--quiet]` checks every text/background token pair in tokens.css (+ life.css time-budget
   ink) in both themes against WCAG AA. Add a pair to its `PAIRS` when you add a text or surface token.
 - Shoot: `node tools/shoot.mjs --path /index.html --out tools/shots/x.png --wait-ready` (see Verification below)
@@ -90,7 +90,7 @@ app/src/phases/<phase>/        one screen per phase (placeholders until their ta
 app/src/accounts/              provider.js (AccountError, validation, chooseMode, selectProvider) · local.js (PBKDF2, homesim:v1:accounts/session)
                                · firebase.js (Firebase Auth, synthetic email, lazy SDK; task 50)
                                ui/login.js (welcome screen: Log in / Create account tabs)
-app/src/content/names.js       fictional people/businesses per region (pure, seeded)
+app/src/content/names.js       fictional people/businesses per region (pure, seeded) · tips.js · glossary.js (task 55)
 app/src/letters/               types.js send.js score.js text.js allowlist.js spell.js grammar.js sentiment.js features.js
                                (pure) · model.json (task 27) · loadSpeller.js (browser, lazy dictionary)
 app/src/data/                  enums.js sanity.js (03 §5 bands) validate.js homeTypes.js metrics.js styleFamilies.js ·
@@ -681,6 +681,17 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 - Reduced motion = OS setting or `html[data-reduced-motion]`; base.css zeroes transitions/animations for both. Check both in new CSS.
 - Blueprint keyboard path: "Your rooms" buttons select a room and focus the SVG. e2e: `tests/e2e/a11y-focus.json` (focus shots),
   `tests/e2e/life-leak.json` (10× life mount/unmount, `sc.memory()` / `sc.leftover`), `tests/e2e/lazy-plan.json` (in check.sh).
+
+## Copy and glossary (12 §1, §5–§6, task 55)
+- `content/glossary.js` `GLOSSARY[id] = {word, def, example}` (all 40 of 12 §5 in `REQUIRED_TERMS`), `glossaryEntry(id)` throws
+  on a typo. `ui/term.js` `term(id, text?)` → a `<button class="term">` (dotted underline) with one shared fixed
+  `#term-tip` (role=tooltip, aria-describedby while open): hover, focus and tap open it; Esc, blur or a second tap close it.
+  `wordsToKnow(ids, cls)` → a "Words to know: …" line. Never nest `term()` inside another button (portfolio cards, radio cards):
+  use a `wordsToKnow` line beside it. Paperwork steps get theirs from `phases/paperwork/stepTerms.js` `STEP_TERMS[stepId]`.
+- `node tools/copy-audit.mjs [--worst N]` (in check.sh): Hawaiian spelling in UI string literals (ids/CSS skipped) and the
+  pooled Flesch–Kincaid grade of sentence-like strings (≤ 7; was 4.24 at task 55). dev/, admin/, three/ aren't scanned.
+- tokens.css `HS Okina` / `HS Okina Serif` faces map only U+02BB–02BC to local Noto/Roboto/Arial: the web subsets of Plex and
+  Fraunces lack the ʻokina and Chrome fell back to a CJK font with wide gaps.
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.

@@ -34,7 +34,7 @@ export const HAWAII = [
         { type: 'lava', annualCents: usd(4000), requiredForMortgage: true,
           note: 'Fire and lava coverage from HPIA, the only company that will insure homes in lava zones 1–2.' },
         { type: 'hurricane', annualCents: usd(900), requiredForMortgage: false,
-          note: 'Hurricane coverage is a separate policy in Hawaiʻi. Optional, but a good idea from June to November.' },
+          note: 'In Hawaiʻi, hurricane coverage is a separate policy. You don’t have to buy it, but it is smart from June to November.' },
       ],
       lavaZone: 1,
     },
@@ -81,7 +81,7 @@ export const HAWAII = [
       homeInsuranceAnnualCents: usd(1500), condoInsuranceAnnualCents: usd(500), rentersInsuranceMonthlyCents: usd(15),
       hazardCoverage: [
         { type: 'hurricane', annualCents: usd(900), requiredForMortgage: false,
-          note: 'Hurricane coverage is a separate policy in Hawaiʻi. Optional, but a good idea from June to November.' },
+          note: 'In Hawaiʻi, hurricane coverage is a separate policy. You don’t have to buy it, but it is smart from June to November.' },
         { type: 'flood', annualCents: usd(700), requiredForMortgage: false,
           note: 'Required only in a mapped flood or tsunami zone near the bay; optional elsewhere.' },
       ],
@@ -130,7 +130,7 @@ export const HAWAII = [
       homeInsuranceAnnualCents: usd(1800), condoInsuranceAnnualCents: usd(550), rentersInsuranceMonthlyCents: usd(15),
       hazardCoverage: [
         { type: 'hurricane', annualCents: usd(1000), requiredForMortgage: false,
-          note: 'Hurricane coverage is a separate policy in Hawaiʻi. Optional, but a good idea from June to November.' },
+          note: 'In Hawaiʻi, hurricane coverage is a separate policy. You don’t have to buy it, but it is smart from June to November.' },
       ],
       lavaZone: 4,
     },
@@ -224,7 +224,7 @@ export const HAWAII = [
       homeInsuranceAnnualCents: usd(1400), condoInsuranceAnnualCents: usd(600), rentersInsuranceMonthlyCents: usd(15),
       hazardCoverage: [
         { type: 'hurricane', annualCents: usd(1000), requiredForMortgage: false,
-          note: 'Hurricane coverage is a separate policy in Hawaiʻi. Optional, but a good idea from June to November.' },
+          note: 'In Hawaiʻi, hurricane coverage is a separate policy. You don’t have to buy it, but it is smart from June to November.' },
         { type: 'flood', annualCents: usd(700), requiredForMortgage: false,
           note: 'Required only in a mapped flood zone (parts of Waikīkī and Kakaʻako); optional elsewhere.' },
         { type: 'earthquake', annualCents: usd(400), requiredForMortgage: false,

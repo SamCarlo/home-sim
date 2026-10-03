@@ -11,6 +11,7 @@ import { renderForm } from '../../forms/engine.js';
 import * as config from '../../config.js';
 import { STATUS_INFO, checklist, nextStep, setStep, completeStep, withdraw } from './flow.js';
 import { step as stepModule } from './steps/index.js';
+import { stepWords } from './stepTerms.js';
 
 const FINISHED = new Set(['done', 'skipped']);
 
@@ -141,6 +142,8 @@ export function mount(container, ctx) {
         onDone: (values = {}) => finish(id, values), onDraft: (values) => saveDraft(id, values), onNext: goNext });
       unmountStep = typeof un === 'function' ? un : null;
     }
+    const words = stepWords(id);
+    if (words) body.prepend(words);
   }
 
   function render(state) {

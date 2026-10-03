@@ -167,3 +167,16 @@ body.has-modal { overflow: hidden; }
   background: rgb(11 16 32 / 0.78); color: #fff; font: 600 12px/1.4 var(--font-sans, system-ui); white-space: nowrap; }
 .dev-scene-label .is-ok { color: #8fe3a0; }
 .dev-scene-label .is-bad { color: #ff9a8a; }
+
+/* Glossary words (ui/term.js, 12 §5): dotted underline; one shared fixed tooltip. */
+.term { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: help;
+  text-decoration: underline dotted; text-decoration-thickness: 1.5px; text-underline-offset: 3px;
+  text-decoration-color: var(--accent); display: inline; line-height: inherit; text-align: inherit; min-height: 0; }
+.term:hover, .term[aria-expanded="true"] { color: var(--accent-ink); text-decoration-style: solid; }
+.term-tip { position: fixed; z-index: 1000; background: var(--surface); color: var(--ink); border: 1px solid var(--line-2);
+  border-radius: var(--r-md); box-shadow: var(--shadow-lg); padding: var(--sp-2) var(--sp-3); font-size: 0.9rem;
+  line-height: 1.4; font-weight: 400; text-align: left; white-space: normal; text-transform: none; letter-spacing: normal; }
+.term-tip strong { color: var(--accent-ink); }
+.term-tip .term-ex { display: block; margin-top: var(--sp-1); color: var(--ink-2); }
+.words { font-size: 0.95rem; color: var(--ink-2); }
+.words-k { font-weight: 600; color: var(--ink); }

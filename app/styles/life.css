@@ -338,3 +338,4 @@
 .inv-ok { margin: 0; font-size: .88rem; color: var(--st-green-ink); }
 .inv-err:empty, .inv-ok:empty { display: none; }
 .inv-paused { font-style: italic; }
+.inv-words { margin: var(--sp-2) 0; }

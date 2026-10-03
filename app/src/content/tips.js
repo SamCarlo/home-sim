@@ -10,7 +10,7 @@ export const TIPS = [
   'Write down what you spend for one week. Most people are surprised where the money goes.',
   'Cooking at home most nights costs far less than eating out, and leftovers make tomorrow’s lunch.',
   'Before a big purchase, wait a day or two. If you still want it, it will still be there.',
-  'A higher insurance deductible lowers your monthly bill, but only if you have savings to cover it.',
+  'A higher deductible lowers your insurance bill. Pick one only if your savings can cover it.',
   'Your credit score grows slowly with on-time payments and drops fast with missed ones.',
   'Using less than 30% of your credit card limit helps your credit score.',
   'Free fun counts: the beach, a hike, a game night with friends.',

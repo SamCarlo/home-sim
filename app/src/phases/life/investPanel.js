@@ -6,6 +6,7 @@
 import { h } from '../../ui/dom.js';
 import { formatMoney, formatPct } from '../../util/format.js';
 import { INVEST } from '../../config.js';
+import { wordsToKnow } from '../../ui/term.js';
 import {
   holdings, totalInvested, maxInvest, neverInvested, validateBuy, validateSell, typicalYearRange, historySeries,
   lastMonthGrowth, sparkLine,
@@ -117,7 +118,7 @@ export function renderInvestPanel({ state, mode = 'plan', onBuy, onSell }) {
     + 'over time, but the value goes up and down. Only invest money you won’t need soon.');
   const el = h('section', { class: 'inv', dataset: { mode }, 'aria-labelledby': 'inv-h' },
     h('h2', { class: 'inv-h', id: 'inv-h' }, 'Investing'),
-    intro, stats,
+    intro, wordsToKnow(['stock', 'bond', 'index-fund', 'diversification', 'risk'], 'inv-words'), stats,
     live ? h('p', { class: 'inv-fine inv-paused' }, 'Buying and selling opens again when the month is over.') : null,
     buyForm, sellForm);
 

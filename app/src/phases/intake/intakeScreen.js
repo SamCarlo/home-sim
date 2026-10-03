@@ -1,6 +1,7 @@
 // Intake screen (04 §1, 12 §1, §4): character name, job, take-home pay, hours and savings. Continue writes
 // player.*, puts the savings in the bank (first time only) and moves on to the Plan phase.
 import { h } from '../../ui/dom.js';
+import { term } from '../../ui/term.js';
 import { INTAKE } from '../../config.js';
 import { formatMoney } from '../../finance/money.js';
 import {
@@ -38,7 +39,7 @@ export function mount(container, ctx) {
     }),
     savings: field({
       name: 'savings', label: 'Savings in the bank', money: true, value: cents(p.startingSavingsCents),
-      hint: 'How much money you have saved right now. (For now you type it in.)', placeholder: '8,000',
+      hint: ['How much money you have saved right now. Keep part of it as your ', term('emergency-fund'), '.'], placeholder: '8,000',
       check: (v) => parseMoneyField(v, 'savings').error,
     }),
   };
@@ -134,7 +135,7 @@ function explainer() {
   const net = 320000;
   return h('aside', { class: 'intake-explain card card-warm', 'aria-labelledby': 'intake-explain-title' },
     h('h2', { id: 'intake-explain-title', class: 'intake-explain-title' }, 'Net pay vs gross pay'),
-    h('p', null, h('strong', null, 'Gross pay'), ' is your pay before taxes. ',
+    h('p', null, h('strong', null, term('gross-net', 'Gross pay')), ' is your pay before taxes. ',
       h('strong', null, 'Net pay'), ' is what actually lands in your account.'),
     h('div', { class: 'intake-paybar', role: 'img', 'aria-label': `Example: ${formatMoney(gross)} gross pay, ${formatMoney(gross - net)} taxes, ${formatMoney(net)} net pay` },
       h('div', { class: 'intake-paybar-net', style: { flexBasis: `${Math.round((net / gross) * 100)}%` } }, `Net ${formatMoney(net)}`),

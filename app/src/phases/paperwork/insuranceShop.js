@@ -8,6 +8,7 @@ import { INSURANCE } from '../../config.js';
 import { insuranceOffer, chosenAddOns, policyMonthlyCents, outOfPocket, choosePolicy } from '../../finance/insurance.js';
 import { businessFor } from '../../content/names.js';
 import { setStep } from './flow.js';
+import { term } from '../../ui/term.js';
 
 const money = (c) => formatMoney(c);
 const moneyC = (c) => formatMoney(c, { showCents: true });
@@ -78,8 +79,9 @@ export function mountInsuranceShop(container, { store, status, values, onDone, o
     h('h2', { class: 'pw-step-title', tabindex: '-1' }, `${offer.title} (${offer.code})`),
     h('p', { class: 'pw-lo-intro' }, `${offer.title} covers ${offer.covers} ${required} ${insurer} sent you three quotes.`),
     h('div', { class: 'fm-info fm-info-teach' }, h('h4', null, 'Premium vs. deductible'),
-      h('p', null, 'The premium is what you pay every month, no matter what. The deductible is what you pay yourself '
-        + 'when something goes wrong, before insurance pays the rest. A cheaper premium means a bigger deductible.')),
+      h('p', null, 'The ', term('premium'), ' is what you pay every month, no matter what. The ', term('deductible'),
+        ' is what you pay yourself when something goes wrong, before insurance pays the rest. A cheaper premium means a '
+        + 'bigger deductible.')),
     grid,
     offer.addOns.length ? h('fieldset', { class: 'pw-addons' },
       h('legend', null, 'Hazard coverage for this place'),

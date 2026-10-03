@@ -30,7 +30,7 @@ export function cellMetrics(location, homeTypeId) {
     { key: 'venues', label: 'Movie theater / concert hall', icon: '🎬', kind: 'number',
       value: { movieTheaterMiles: m.movieTheaterMiles, concertHallMiles: m.concertHallMiles },
       display: `${plural(m.movieTheaterMiles, 'mile')} / ${plural(m.concertHallMiles, 'mile')}`,
-      meaning: 'Typical distance from home to the nearest movie theater and performing-arts venue.' },
+      meaning: 'How far it is from home to the nearest movie theater or live show.' },
     { key: 'noise', label: 'Noise level', icon: '🔊', kind: 'bar', value: noise, max: 5,
       display: `${noise} of 5 (${NOISE_WORDS[Math.round(noise)]})`,
       meaning: adj.noise > 0 ? 'Shared walls and neighbors close by add some noise.'

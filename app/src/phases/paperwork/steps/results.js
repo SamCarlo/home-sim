@@ -16,6 +16,7 @@ import { homeType } from '../../../data/homeTypes.js';
 import { detailTitle } from '../../plan/detailModel.js';
 import { commitPaperwork } from '../commit.js';
 import { resultsSummary, letterStepsFor, factorLine } from '../resultsModel.js';
+import { term } from '../../../ui/term.js';
 
 const money = (c) => formatMoney(c);
 const exact = (c) => formatMoney(c, { showCents: true });
@@ -94,7 +95,7 @@ function moneyBlocks(r) {
   if (r.lease) {
     const l = r.lease;
     out.push(block('Your lease', terms([['Landlord', l.landlord], ['Rent', `${exact(l.rentCents)} a month`], ['Length', durationText(l.termMonths)],
-      ['Security deposit', exact(l.depositCents)], l.cosigned ? ['Co-signer', 'Yes, your co-signer signed with you'] : null])));
+      [term('security-deposit', 'Security deposit'), exact(l.depositCents)], l.cosigned ? [term('co-signer', 'Co-signer'), 'Yes, your co-signer signed with you'] : null])));
   }
   if (r.insurance) {
     const i = r.insurance;
@@ -107,7 +108,7 @@ function moneyBlocks(r) {
 
 /** Credit card terms, shown whenever the card opens (even if the home was denied). */
 function cardBlock(t) {
-  return block('Your credit card', terms([['Limit', money(t.limitCents)], ['APR', `${(t.apr * 100).toFixed(2)}%`],
+  return block('Your credit card', terms([['Limit', money(t.limitCents)], [term('apr'), `${(t.apr * 100).toFixed(2)}%`],
     ['Autopay', t.autopay === 'full' ? 'Pays the full statement each month' : t.autopay === 'minimum' ? 'Pays only the minimum' : 'Off'],
     ['Late fee', money(t.lateFeeCents)], ['Interest-free if paid in full within', `${t.graceDays} days`],
     t.secured ? ['Deposit', `${money(t.depositCents)} (comes back when you close the card)`] : null]));

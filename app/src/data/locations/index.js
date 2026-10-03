@@ -17,4 +17,4 @@ export const REGION_LABELS = Object.freeze({
 });
 
 /** Bump whenever any location figure changes, so memoized grids (finance/grid.js) recompute. */
-export const DATA_VERSION = 1;
+export const DATA_VERSION = 2;

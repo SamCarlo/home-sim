@@ -112,7 +112,7 @@ seeds['portfolio-demo'] = {
     const mApp = addApplication(s, { kind: 'mortgage', target: 'hilo|house', feeCents: 50000, at: now - 9 * 864e5 });
     resolveApplication(s, mApp.id, { approved: true, reasons: ['Debt-to-income 31% is under the 43% limit.',
       'Credit score 675 meets the lender minimum.', 'Your cover letter helped (strong).'] });
-    const cApp = addApplication(s, { kind: 'credit-card', target: 'Kilauea Credit Union Visa', feeCents: 0, at: now - 8 * 864e5 });
+    const cApp = addApplication(s, { kind: 'credit-card', target: 'Kīlauea Credit Union Visa', feeCents: 0, at: now - 8 * 864e5 });
     resolveApplication(s, cApp.id, { approved: true, reasons: ['Score 675: regular card, $1,000 limit.'] });
     const rApp = addApplication(s, { kind: 'rental', target: 'pahoa|apartment', feeCents: 4500, at: now - 30 * 864e5 });
     resolveApplication(s, rApp.id, { approved: false, reasons: ["Your income is less than 2.5× the rent and you don't have a co-signer."] });
@@ -125,7 +125,7 @@ seeds['portfolio-demo'] = {
     post(s, { month: P, label: 'Move from savings', amountCents: 600000, account: 'checking', category: 'transfer' });
     // Scores are filled in on load by main.js rescoreLetters (task 28), like any save made before the real scorer.
     s.letters = {
-      L1: { id: 'L1', type: 'loan-purpose', to: 'Kilauea Credit Union, Mortgage Desk', sentAt: now - 9 * 864e5, attempt: 0,
+      L1: { id: 'L1', type: 'loan-purpose', to: 'Kīlauea Credit Union, Mortgage Desk', sentAt: now - 9 * 864e5, attempt: 0,
         text: 'Aloha,\n\nI am applying for a mortgage on the house at 214 Waiānuenue Avenue. I have worked as a nurse at '
           + 'Hilo Medical for three years and I have saved for this down payment every month.\n\nMahalo for your time,\nKai Mana',
         score: { likelihood: null, pending: true } },
@@ -134,11 +134,11 @@ seeds['portfolio-demo'] = {
         score: { likelihood: null, pending: true } },
     };
     addAgreement(s, { type: 'mortgage', title: '30-year fixed mortgage', status: 'active', signedAt: now - 7 * 864e5,
-      counterparty: 'Kilauea Credit Union', summary: 'You borrow $382,500 at 6.75% for 30 years to buy 214 Waiānuenue Avenue, Hilo.',
+      counterparty: 'Kīlauea Credit Union', summary: 'You borrow $382,500 at 6.75% for 30 years to buy 214 Waiānuenue Avenue, Hilo.',
       terms: { principalCents: 38250000, rate: 0.0675, termYears: 30, pmiCents: 15900 },
       docValues: { borrowerName: 'Kai Mana', propertyAddress: '214 Waiānuenue Ave, Hilo, HI 96720', signature: 'Kai Mana' } });
     addAgreement(s, { type: 'card', title: 'Credit card agreement', status: 'active', signedAt: now - 8 * 864e5,
-      counterparty: 'Kilauea Credit Union', summary: 'A $1,000 Visa card at 25.99% APR. Autopay pays the full balance.',
+      counterparty: 'Kīlauea Credit Union', summary: 'A $1,000 Visa card at 25.99% APR. Autopay pays the full balance.',
       terms: { limitCents: 100000, apr: 0.2599, autopay: 'full' } });
     addAgreement(s, { type: 'insurance', title: 'Homeowners insurance policy', status: 'active', signedAt: now - 7 * 864e5,
       counterparty: 'Mauna Shield Insurance', summary: 'Covers the house and your things. You pay the first $1,000 of a claim.',
@@ -149,7 +149,7 @@ seeds['portfolio-demo'] = {
     s.finances.creditCard = { limitCents: 100000, balanceCents: 38250, apr: 0.2599, minPaymentRule: 'standard',
       lateFeeCents: CREDIT.card.lateFeeCents, graceDays: CREDIT.card.graceDays, autopay: 'full', openedMonth: P,
       secured: false, depositCents: 0, carriedLastMonth: false };
-    const loan = openLoan(s, { kind: 'mortgage', label: '30-year mortgage', lender: 'Kilauea Credit Union',
+    const loan = openLoan(s, { kind: 'mortgage', label: '30-year mortgage', lender: 'Kīlauea Credit Union',
       principalCents: 38250000, rate: 0.0675, termMonths: 360, startMonth: 0, priceCents, pmiCents: 15900,
       escrow: { taxCents: 14200, insuranceCents: 14500 } });
     s.home = { kind: 'house', locationId: 'hilo', styleFamily: 'plantation', label: '214 Waiānuenue Avenue', purchasePriceCents: priceCents,

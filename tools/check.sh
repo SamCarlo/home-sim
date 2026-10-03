@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Full verification (01 §8): syntax → unit tests → data imports → contrast → smoke screenshots + lazy-load check (→ rules tests with
+# Full verification (01 §8): syntax → unit tests → data imports → contrast → copy → smoke screenshots + lazy-load check (→ rules tests with
 # HOMESIM_FIREBASE=1). Stops at the first failure.
 # Run from anywhere: bash tools/check.sh  (or npm run check). Steps whose inputs don't exist yet are skipped.
 set -euo pipefail
@@ -40,6 +40,10 @@ fi
 # 3b. Contrast: every text/background token pair in both themes meets WCAG AA (task 54).
 node tools/contrast.mjs --quiet || fail "contrast"
 done_steps+=("contrast")
+
+# 3c. Copy: Hawaiian spelling in UI strings + Flesch–Kincaid grade ≤ 7 (task 55).
+node tools/copy-audit.mjs --quiet || fail "copy audit"
+done_steps+=("copy")
 
 # 4. Smoke: one browser, fresh tab + storage per line of tools/smoke.txt.
 if [[ -f tools/smoke.txt ]]; then

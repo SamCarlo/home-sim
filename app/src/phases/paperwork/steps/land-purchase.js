@@ -53,7 +53,7 @@ export function landSchema(t) {
           text: 'A deposit that shows the seller you are serious. It is held by the escrow company and counts toward your '
             + 'down payment when the sale closes.' },
         { id: 'contingency', kind: 'checkbox', default: true,
-          label: 'Financing contingency: if the bank turns down my construction loan, I get my earnest money back (recommended)' },
+          label: 'Financing contingency: if the bank says no to my construction loan, I get my earnest money back (recommended)' },
         { kind: 'info', tone: 'warn', label: 'Without the contingency',
           text: `If your loan is denied, the seller keeps your ${formatMoney(t.earnestCents)}. Sellers sometimes like that, but it is a risk for you.`,
           when: (v) => v.contingency === false },

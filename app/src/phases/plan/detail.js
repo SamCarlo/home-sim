@@ -3,11 +3,17 @@
 // used inline (a full-width row at ≥ 900 px) and in a modal sheet (below 900 px); planScreen decides which.
 import { h } from '../../ui/dom.js';
 import { icon } from '../../ui/icons.js';
+import { term } from '../../ui/term.js';
 import { formatMoney } from '../../finance/money.js';
 import { renderPreviewSVG } from './preview2d/index.js';
 import { detailTitle, utilityNotes, hazardLabel, chooseCheck } from './detailModel.js';
 
 let uid = 0;
+
+/** Cost line key → glossary id (12 §5), so the money words in the cost tables explain themselves. */
+const LINE_TERMS = { deposit: 'security-deposit', 'renters-insurance': 'renters-insurance', 'principal-interest': 'principal',
+  pmi: 'pmi', 'property-tax': 'property-tax', hoa: 'hoa', insurance: 'homeowners-insurance', 'down-payment': 'down-payment',
+  closing: 'closing-costs', inspection: 'home-inspection', appraisal: 'appraisal' };
 
 function costTable(caption, lines, totalCents, totalLabel, idBase) {
   return h('table', { class: 'plan-dt-costs' },
@@ -17,7 +23,8 @@ function costTable(caption, lines, totalCents, totalLabel, idBase) {
       const noteId = `${idBase}-${i}`;
       return h('tr', null,
         h('th', { scope: 'row' },
-          h('span', { class: 'plan-dt-line', 'aria-describedby': noteId }, line.label),
+          h('span', { class: 'plan-dt-line', 'aria-describedby': noteId },
+            LINE_TERMS[line.key] ? term(LINE_TERMS[line.key], line.label) : line.label),
           h('span', { class: 'plan-dt-note', id: noteId }, line.note)),
         h('td', null, formatMoney(line.cents)));
     })),
