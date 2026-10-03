@@ -9,11 +9,13 @@
    --------------------------------------------------------------------------- */
 /* The ʻokina (U+02BB) isn't in the IBM Plex Sans / Fraunces web subsets, so the browser fell back to a CJK font and drew
    it with wide side gaps ("Hawai ʻ i"). These faces cover only that code point with a local Latin font (Noto ships on
-   ChromeOS; the rest are Windows/macOS/Linux fallbacks). Task 55, 12 §6. */
+   ChromeOS; the rest are Windows/macOS/Linux fallbacks). Task 55, 12 §6.
+   The serif face also takes the kahakō vowels (Āā Ēē Īī Ōō Ūū): Fraunces' latin-ext subset draws their macron one
+   letter to the right ("Pahoa" with a bar over the h). Task 57. */
 @font-face { font-family: "HS Okina"; unicode-range: U+02BB-02BC;
   src: local("Noto Sans"), local("NotoSans-Regular"), local("Roboto"), local("Segoe UI"), local("Arial"),
     local("Helvetica Neue"), local("Liberation Sans"), local("DejaVu Sans"); }
-@font-face { font-family: "HS Okina Serif"; unicode-range: U+02BB-02BC;
+@font-face { font-family: "HS Okina Serif"; unicode-range: U+02BB-02BC, U+0100-0101, U+0112-0113, U+012A-012B, U+014C-014D, U+016A-016B;
   src: local("Noto Serif"), local("NotoSerif-Regular"), local("Georgia"), local("Times New Roman"),
     local("Liberation Serif"), local("DejaVu Serif"); }
 

@@ -700,7 +700,9 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 - `node tools/copy-audit.mjs [--worst N]` (in check.sh): Hawaiian spelling in UI string literals (ids/CSS skipped) and the
   pooled Flesch–Kincaid grade of sentence-like strings (≤ 7; was 4.24 at task 55). dev/, admin/, three/ aren't scanned.
 - tokens.css `HS Okina` / `HS Okina Serif` faces map only U+02BB–02BC to local Noto/Roboto/Arial: the web subsets of Plex and
-  Fraunces lack the ʻokina and Chrome fell back to a CJK font with wide gaps.
+  Fraunces lack the ʻokina and Chrome fell back to a CJK font with wide gaps. `HS Okina Serif` also takes the kahakō vowels
+  (U+0100–0101, 0112–0113, 012A–012B, 014C–014D, 016A–016B): Fraunces' latin-ext subset puts their macron over the next
+  letter (task 57). Check display-font Hawaiian at a large size (`tools/shots/t57/kahako-*.png` shows how).
 
 ## Gotchas
 - `ui/screens.js` `renderPhase(container, ctx)` mounts `ctx.phase` if given (e.g. `'login'`), otherwise the store's phase.
@@ -721,4 +723,6 @@ shows "3 of 8 required done". `readOnly` renders values as text (the portfolio's
 - The OS on this machine prefers dark, so plain headless shots come out dark; pass `?theme=light` for light.
 
 ## Current status
-See `docs/PROGRESS.md`.
+All 57 build tasks are done (2026-10-03). Every requirement R1–R40 in `docs/spec/99-original-request.md` §3 is verified
+there with its evidence. What's left is in `docs/OPEN_ITEMS.md` (only the teacher's Firebase setup and an optional
+rename). History: `docs/PROGRESS.md`. Before shipping a change run `bash tools/check.sh` and `npm run test:e2e`.

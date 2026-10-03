@@ -2049,3 +2049,35 @@ life-month1-house · seed 7 · income $4,300/mo
   - Seen again in shot 4b: the Fraunces kahakō item in OPEN_ITEMS (the "ā" in "Mālama" in the design title looks off). Still open for task 57.
   - The header often says "Saving…" in mid-flow shots (checkpoints within 5 s are queued). Not wrong, but task 57 may want to look.
   - To add a path: add a PLAYS entry and, if needed, a recipe for a new step id in genPlaythroughs.mjs.
+
+## Task 57 — Final review against the teacher's request
+- attempt started 2026-10-03T05:29:48-10:00
+- done 2026-10-03T05:37:47-10:00
+- Files: docs/spec/99-original-request.md (Verified column filled for R1–R40), app/styles/tokens.css (kahakō fallback),
+  docs/OPEN_ITEMS.md (kahakō ✅, teacher Firebase steps in short), README.md (Status section, test:e2e line), CLAUDE.md
+  (kahakō gotcha, current status).
+- Requirement review: all 40 verified (evidence per row in 99 §3: e2e plays, unit tests, smoke and t57 shots). None open.
+- Gap fixed: **kahakō in Fraunces**. The Google Fonts latin-ext subset of Fraunces draws the macron of every kahakō vowel
+  one letter to the right ("Pahoa" with a bar over the h; seen at 120 px in tools/shots/t57/kahako-zoom.png, all ten
+  vowels in kahako-variants.png). The data was fine (precomposed U+0101). Fix: the `HS Okina Serif` unicode-range face now
+  also covers U+0100–0101, 0112–0113, 012A–012B, 014C–014D, 016A–016B with a local serif (kahako-fixed.png: Pāhoa, Mālama,
+  ō ē ū ī Ā all correct, bold and medium). Plex Sans was never affected.
+- Verified: `npm run test:e2e` 5/5; `mise exec java@temurin-21 -- npm run test:e2e:emulator` 1/1; `bash tools/check.sh` OK
+  (syntax 230 · tests · data 11 · contrast · copy · smoke 77/77 · lazy-plan), run after the last change. Shots (tools/shots/t57/):
+  - 1-plan: Hilo-income grid, $4,200/mo and $20,000; yellow Stretch apartments, green shared rooms, red buys, grey Pāhoa condo.
+  - 2-paperwork: Pāhoa loan options, "House in Pāhoa" title now with a correct kahakō, lava-zone rules box, 1 of 9 done.
+  - 3-design: Cozy template on the Pāhoa lot, 6 rooms with doors/windows, live 3D house with catchment tank, $368,695 of $412,500, Plan OK.
+  - 4-life: "Welcome to January, 2033.", wellbeing card (5 domains), 4-option questions, 112 waking hours bar, Balanced bracket, footnote.
+  - Also read: smoke plan-rich (cyan), plan-detail-open (2D preview, costs, metrics), results-approved-house, paperwork-card-offer,
+    design-apartment-hilo, life-invest-held.
+- Deviations: none.
+
+## Project close-out (task 57)
+- **What exists**: the full game in `app/` (login → intake → plan table of 20 places × 5 home types → paperwork with forms,
+  letters scored by an in-browser model, underwriting, credit card offer → design (apartment/condo/house/shared pickers,
+  blueprint editor with 3D) → month-by-month life in 3D with time budget, wellbeing, care minigame, summaries, year review,
+  investments), local and Firebase account/save modes, the admin console, and teacher docs (README, DEPLOY, TEACHER_GUIDE).
+- **How to run**: `python3 tools/serve.py` → http://127.0.0.1:1270, class code DEMO. Tests: `bash tools/check.sh`,
+  `npm run test:e2e`, emulator tests via `mise exec java@temurin-21 -- …` (see CLAUDE.md Commands).
+- **What's left**: only teacher actions in OPEN_ITEMS: the one-time Firebase setup (docs/DEPLOY.md) and an optional
+  GAME_TITLE rename. Not measured (from task 54): the 600 KB compressed JS+CSS budget for login → plan.

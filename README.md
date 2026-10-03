@@ -10,6 +10,13 @@ month by month from January 2033 while budgeting their time, money and wellbeing
 It's vanilla JavaScript modules with no build step. It runs completely in the browser (local mode) and can optionally be
 put online with Firebase so students have accounts and the teacher has an admin console.
 
+## Status
+
+Finished (October 2026). All four phases work for all five home types, and all 40 requirements from the teacher's
+request are checked off in [`docs/spec/99-original-request.md`](docs/spec/99-original-request.md) §3. It runs today in
+local mode. Putting it online for a class needs the teacher's one-time Firebase setup (about 15 minutes, see
+[`docs/DEPLOY.md`](docs/DEPLOY.md)); nothing else is waiting.
+
 ## Docs
 
 | For | Read |
@@ -47,6 +54,7 @@ Dev shortcuts (they work in local mode and on localhost only; the deployed site 
 npm install            # once: Firebase SDK + CLI for the emulator tests (nothing global)
 npm test               # unit tests (node --test)
 bash tools/check.sh    # the full check: syntax, unit tests, data imports, smoke screenshots of every screen
+npm run test:e2e       # five full playthroughs, one per home type (~80 s)
 ```
 
 `tools/check.sh` must end with `check: OK` before every commit. The smoke step drives headless Chromium through

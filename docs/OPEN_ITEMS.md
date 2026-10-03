@@ -9,13 +9,21 @@ mark it ✅ with the date and who resolved it.
   - **Follow `docs/DEPLOY.md`** (click by click, written for a first-time Firebase user; task 53). It covers creating the
     project, the configure command, `npx firebase-tools deploy --only hosting,firestore`, checking the deploy, and
     troubleshooting. Running the class afterward: `docs/TEACHER_GUIDE.md`.
+  - In short: (1) create a Firebase project on the Spark plan; (2) add a Web app and copy its config; (3) turn on
+    Authentication → Email/Password and Google; (4) create a Firestore database; (5) run
+    `node tools/configure.mjs --config <pasted config file> --admin <your Google email>`; (6) run
+    `npx firebase-tools login`, then `npx firebase-tools deploy --only hosting,firestore`; (7) open the site, sign in at
+    `/admin` with Google and create a class code. DEPLOY.md has every click.
+  - Until then the game works fully in **local mode** (`python3 tools/serve.py`, class code `DEMO`), saved in each
+    browser only.
 - [ ] *(Optional)* Rename the game with `GAME_TITLE` in `app/src/config.js`. The working title is "Home & Life Sim".
 
 ## For the build
 - [x] ✅ 2026-10-03, task 55: `HS Okina` unicode-range faces in tokens.css (local Noto Sans/Serif etc. for U+02BB). **ʻokina spacing (task 20)**: in the UI sans font the ʻokina renders with visible space around it ("Hawai ʻ i",
   "ʻ Āina") in computed fields and intros (see tools/shots/t20/*). Likely a font fallback for U+02BB. Fix by loading a
   font subset that includes U+02BB or adding a fallback family with the glyph in `tokens.css`; check 12 §6.
-- [ ] **Kahakō in the display font (task 21)**: the paperwork title "House in Pāhoa" (Fraunces, `.pw-title`) appears to
+- [x] ✅ 2026-10-03, task 57: the Fraunces latin-ext subset draws every kahakō vowel's macron over the next letter; tokens.css
+  `HS Okina Serif` now also covers Āā Ēē Īī Ōō Ūū with a local serif. **Kahakō in the display font (task 21)**: the paperwork title "House in Pāhoa" (Fraunces, `.pw-title`) appears to
   render without the macron in tools/shots/t21/4-pahoa-loan-options.png although the string is "Pāhoa". Probably the same
   font-subset problem as the ʻokina item above; check the Fraunces subset includes U+0100–U+017F.
 - [x] ✅ 2026-10-02, task 29: the floor now checks `options.pulledScore` (see DEVIATIONS). **Construction credit floor (task 23 → 29)**: 05 §7 hard-fails construction loans under 680, but `CREDIT.startingScore`
